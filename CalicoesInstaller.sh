@@ -216,7 +216,7 @@ sudo apt-get install build-essential python python-dev python-pip psmisc \
      libxt-dev curl libboost-dev libboost-system-dev \
      libboost-filesystem-dev libboost-thread-dev libjsoncpp-dev \
      libcurl4-gnutls-dev git scons libmongoclient-dev libboost-regex-dev
-pip install --upgrade pyserial notify2 argparse 
+pip install --upgrade pyserial notify2 argparse couchdb
 # If you want to generate the documentation, install also:
 pip install --upgrade docutils Pygments 
 
@@ -416,9 +416,6 @@ then
     sudo systemctl restart apache2
     sudo systemctl enable apache2
     
-    # auto start-up pyrame
-    sudo systemctl enable pyrame
-    
     # The following command is equivalent to
     # echo 1 > sudo tee /proc/sys/net/ipv4/tcp_tw_recycle
     # echo 1 > sudo tee /proc/sys/net/ipv4/tcp_fin_timeout
@@ -511,7 +508,20 @@ else
     exit 1
 fi
 
+
+echo "Post-configuration..."
+sed -i '/\[httpd\]/a socket_options = [{nodelay, true}]' /opt/couchdb/etc/local.ini
+wget -o default.ini https://www.dropbox.com/s/tpmb3cgoqf8w7zg/couchdb-default.ini
+sudo mv /opt/couchdb/etc/default.ini /opt/couchdb/etc/default.ini.backup
+sudo cp default.ini /opt/couchdb/etc/default.ini
+sudo chown couchdb:couchdb /opt/couchdb/etc/default.ini
+sudo chmod 640 /opt/couchdb/etc/default.ini
+
+sudo systemctl enable couchdb
+sudo systemctl restart couchdb
+sudo systemctl enable pyrame
 sudo systemctl restart pyrame
+
 sleep 2s
 sensible-browser http://localhost/phygui_rc &
 
