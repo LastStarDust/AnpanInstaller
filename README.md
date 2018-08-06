@@ -10,23 +10,24 @@ corrected version based on the original installation script for CentOS
 7. The original script can be found and downloaded
 [here](http://llr.in2p3.fr/sites/pyrame/calicoes/disclaimer.html).
 
+Calicoes is a software for control-command and data acquisition of the
+Silicium/Tungsten Electromagnetic Calorimeter (SIW-Ecal) for the
+future ILC Detector. It is based on the Pyrame framework.
 Credits for the calicoes software and the original version of this
 script go to Frédéric Magniette and Miguel Rubio-Roy.
 
 ## Details
 
-This script assumes a vanilla install of Ubuntu 18.04. It install
+This script assumes a vanilla install of Ubuntu 18.04. It installs
 Calicoes automatically and with almost no input from the user. Only
-some paths have to be specified.
+some paths can be specified (if the user doesn't want to use the
+default ones).
 
-Calicoes is a software for control-command and data acquisition of the
-Silicium/Tungsten Electromagnetic Calorimeter (SIW-Ecal) for the
-future ILC Detector. It is based on the Pyrame framework.
-
-Anyway, the present script was developed by a member of the WAGASCI
-collaboration (a subexperiment of the [T2K
+The present script was developed by a member of the WAGASCI
+collaboration. WAGASCI is a subexperiment of the [T2K
 experiment](http://t2k-experiment.org/). Some archives will be
-downloaded from the [WAGASCI website](https://www-he.scphys.kyoto-u.ac.jp/research/Neutrino/WAGASCI/wiki/dokuwiki/doku.php?id=components:firmware)
+downloaded by the script from the [WAGASCI
+website](https://www-he.scphys.kyoto-u.ac.jp/research/Neutrino/WAGASCI/wiki/dokuwiki/doku.php?id=components:firmware)
 for which is needed a username and a password. If you are a WAGASCI
 member there is no problem but if you are not, please contact me for
 assistance (my address is on the bottom).
@@ -42,14 +43,14 @@ have already installed them.
 # Installation
 
 Please don't run the script as super user. You will be requested the super
-user password AFTER the script has started.
-
-To run the script you can follow this procedure:
+user password AFTER the script has started. To run the script you can
+follow this procedure:
  - Open a shell
 ```
 sudo apt-get install git
 git clone https://github.com/LastStarDust/CalicoesInstaller.git
-cp CalicoesInstaller
+cd CalicoesInstaller
+chmod +x CalicoesInstaller.sh
 ./CalicoesInstaller.sh
 ```
 
