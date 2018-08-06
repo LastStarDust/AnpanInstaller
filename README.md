@@ -39,6 +39,20 @@ If the script encounters any error it immediately stops. When you
 resume it, you can skip the installation of some dependencies if you
 have already installed them.
 
+# Installation
+
+Please don't run the script as super user. You will be requested the super
+user password AFTER the script has started.
+
+To run the script you can follow this procedure:
+ - Open a shell
+```
+sudo apt-get install git
+git clone https://github.com/LastStarDust/CalicoesInstaller.git
+cp CalicoesInstaller
+./CalicoesInstaller.sh
+```
+
 ## TO-DO
 
  - [ ] Add support for other Ubuntu versions or Linux distributions
