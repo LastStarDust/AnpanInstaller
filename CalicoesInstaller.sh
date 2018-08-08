@@ -510,12 +510,14 @@ fi
 
 
 echo "Post-configuration..."
+cd
 sudo sed -i '/\[httpd\]/a socket_options = [{nodelay, true}]' /opt/couchdb/etc/local.ini
-wget -o default.ini https://www.dropbox.com/s/tpmb3cgoqf8w7zg/couchdb-default.ini
+wget https://www.dropbox.com/s/tpmb3cgoqf8w7zg/couchdb-default.ini
 sudo mv /opt/couchdb/etc/default.ini /opt/couchdb/etc/default.ini.backup
-sudo cp default.ini /opt/couchdb/etc/default.ini
+sudo cp couchdb-default.ini /opt/couchdb/etc/default.ini
 sudo chown couchdb:couchdb /opt/couchdb/etc/default.ini
 sudo chmod 640 /opt/couchdb/etc/default.ini
+rm couchdb-default.ini
 
 sudo systemctl enable couchdb
 sudo systemctl restart couchdb
