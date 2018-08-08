@@ -53,6 +53,15 @@ cd CalicoesInstaller
 chmod +x CalicoesInstaller.sh
 ./CalicoesInstaller.sh
 ```
+If for any reason the install script has failed and you need to run it again,
+it may be a good idea to clean your home directory before doing that.
+You can do that by running the CalicoesClean.sh script
+```
+chmod +x CalicoesClean.sh
+./CalicoesClean.sh
+```
+This script assumes that you downloaded and compiled calicoes and pyrame in the
+default folder ($HOME).
 
 ## TO-DO
 
