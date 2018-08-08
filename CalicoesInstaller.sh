@@ -258,7 +258,7 @@ then
     git checkout -b v6-14-02 v6-14-02
     cd ../6-14-02-build
     cmake -Dbuiltin_xrootd=ON -DCMAKE_INSTALL_PREFIX=$ROOTSYS/6-14-02 ../sources
-    cmake --build . --target install -- -j4
+    cmake --build . --target install -- -j8
     cd
     source $ROOTSYS/6-14-02/bin/thisroot.sh
 fi
@@ -288,16 +288,16 @@ then
     cd
     git clone http://github.com/mirabitl/levbdim.git levbdim
     cd /tmp
-    tar zxf ~/levbdim/web/mongoose.tgz
+    tar zxf ${HOME}/levbdim/web/mongoose.tgz
     cd mongoose-cpp/
     mkdir -p build/
     cd build/
     rm -rf *
-    cp ~/levbdim/web/CMakeLists.txt ../
+    cp ${HOME}/levbdim/web/CMakeLists.txt ../
     cmake -DEXAMPLES=ON -DWEBSOCKET=OFF -DHAS_JSONCPP=ON ..
     make -j4
     sudo make install
-    cd ~/levbdim
+    cd ${HOME}/levbdim
     export DIMDIR="/usr/local/lib/dim"
     sudo ln -s /usr/local/include/dim $DIMDIR/dim
     sudo ln -s $DIMDIR $DIMDIR/linux
@@ -341,7 +341,7 @@ echo "http://llr.in2p3.fr/sites/pyrame/documentation/howto_install.html"
 # download the sources archivefrom the WAGASCI website
 echo "Insert the directory where you would like the pyrame tgz archive"
 echo "to be downloaded."
-echo "Don't insert the trailing slash. For example \"~/Downloads\"."
+echo "Don't insert the trailing slash. For example \"${HOME}/Downloads\"."
 echo "Just press OK if you want to download the archive in the $HOME folder."
 read PYRAME_DOWNLOAD_DIR
 if [ -z "$PYRAME_DOWNLOAD_DIR" ]; then
@@ -359,7 +359,7 @@ cd
 
 echo "Insert the directory where you would like the pyrame tgz archive"
 echo "to be extracted and compiled."
-echo "Don't insert the trailing slash. For example \"~/Code\"."
+echo "Don't insert the trailing slash. For example \"${HOME}/Code\"."
 echo "Just press OK if you want to extract the archive in the ${HOME} folder."
 read PYRAME_DIR
 if [ -z "$PYRAME_DIR" ]; then
@@ -439,7 +439,7 @@ echo "http://llr.in2p3.fr/sites/pyrame/calicoes/documentation/install.html"
 # download the sources archivefrom the WAGASCI website
 echo "Insert the directory where you would like the calicoes tgz archive"
 echo "to be downloaded."
-echo "Don't insert the trailing slash. For example \"~/Downloads\"."
+echo "Don't insert the trailing slash. For example \"${HOME}/Downloads\"."
 echo "Just press OK if you want to download the archive in the $HOME folder."
 read CALICOES_DOWNLOAD_DIR
 if [ -z "$CALICOES_DOWNLOAD_DIR" ]; then
@@ -457,7 +457,7 @@ cd
 
 echo "Insert the directory where you would like the calicoes tgz archive"
 echo "to be extracted and compiled."
-echo "Don't insert the trailing slash. For example \"~/Code\"."
+echo "Don't insert the trailing slash. For example \"${HOME}/Code\"."
 echo "Just press OK if you want to extract the archive in the ${HOME} folder."
 read CALICOES_DIR
 if [ -z "$CALICOES_DIR" ]; then
@@ -510,7 +510,7 @@ fi
 
 
 echo "Post-configuration..."
-sed -i '/\[httpd\]/a socket_options = [{nodelay, true}]' /opt/couchdb/etc/local.ini
+sudo sed -i '/\[httpd\]/a socket_options = [{nodelay, true}]' /opt/couchdb/etc/local.ini
 wget -o default.ini https://www.dropbox.com/s/tpmb3cgoqf8w7zg/couchdb-default.ini
 sudo mv /opt/couchdb/etc/default.ini /opt/couchdb/etc/default.ini.backup
 sudo cp default.ini /opt/couchdb/etc/default.ini
