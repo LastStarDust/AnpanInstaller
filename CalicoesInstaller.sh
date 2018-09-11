@@ -492,6 +492,14 @@ then
     patch -p1 < jojo_calicoes_v1.patch
 
     # compile and install
+
+    # I noticed that sometimes not all the scripts are copied in the /usr/local/bin
+    # directory. This may be due to a misconfiguration of the Makefiles
+    # In case try to rerun the make, make install command or as a last resource
+    # to manually run the specific Makefile inside each subdirectory. 
+
+    # comment the first line of the Makefile (.SILENT) making it more talkative
+    sed -i '1s/^/# /' Makefile
     sudo ./install.sh
     make
     sudo make install
@@ -502,7 +510,8 @@ then
     sudo mkdir -p /opt/calicoes/doc
     sudo make install
     rm -rf /tmp/calicoes.tgz
-    cd
+    cd ../..
+
 else
     echo "No calicoes.tgz file referred to. ${CALICOES_TGZ}"
     exit 1
