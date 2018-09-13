@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# CalicoesInstaller.sh
+# AnpanInstaller.sh
 # Copyright (C) 2018 by Pintaudi Giorgio <giorgio-pintaudi-kx@ynu.jp>
 # Released under the GPLv3 license
 #
@@ -8,7 +8,7 @@
 #     Yokohama National University
 #     giorgio-pintaudi-kx@ynu.jp
 #
-# This is a bash script that installs the calicoes software
+# This is a bash script that installs the anpan software based on calicoes 3.0
 # http://llr.in2p3.fr/sites/pyrame/calicoes/index.html
 # along with all its dependencies for the Ubuntu OS. It is an updated
 # and corrected version based on the original installation script for CentOS 7.
@@ -16,13 +16,6 @@
 # http://llr.in2p3.fr/sites/pyrame/calicoes/disclaimer.html
 # Credits for the calicoes software and the original version of this script go to
 # Frédéric Magniette and Miguel Rubio-Roy.
-#
-# Anyway, the license of the original script is dubious, being it not
-# bundled with the software. Moreover, the license of the software itself is not
-# clearly specified anywhere. The README file only contains the line
-# "Copyright 2012-2017 Frédéric Magniette, Miguel Rubio-Roy" without
-# further specification. This is why I took the liberty to publish it
-# using my name.
 
 set -e
 
@@ -57,7 +50,7 @@ fi
 #
 #if [ "`grep -c "SELINUX=disabled" /etc/selinux/config`" != "1" ];
 #then
-#    echo "Selinux is active. This prevents Calicoes from working properly."
+#    echo "Selinux is active. This prevents Anpan from working properly."
 #    echo "This operation will need a reboot. Please relaunch the installer"
 #    echo "as soon as reboot is completed."
 #    echo -n "Do you want this installer to fix the problem? (y|n) : "
@@ -77,7 +70,7 @@ fi
 # Check for ROOT
 if [ "$ROOTSYS" == "" ];
 then
-    echo "Root6 is an optional dependency of calicoes."
+    echo "Root6 is an optional dependency of anpan."
     echo "It seems that it is not installed (looking for a non null ROOTSYS variable)"
     echo "Maybe you have just forgot to set the root enviroment"
     echo "with the script thisroot.sh. In that case please run that script"
@@ -111,7 +104,7 @@ if [ ! -d "/usr/local/lib/dim" ];
 then
     echo ""
     echo ""
-    echo "Dim is an optional dependency of calicoes (only for SDHcal compat)."
+    echo "Dim is an optional dependency of anpan (only for SDHcal compat)."
     echo "It seems that it is not installed (looking for /usr/local/lib/dim)"
     echo "The total compilation of the sources should take very little time"
     echo -n "Do you want this installer to install it? (y|n) : "
@@ -140,7 +133,7 @@ if [ ! -f "/usr/local/lib/dim/liblevbdim.so" ];
 then
     echo ""
     echo ""
-    echo "Levbdim is an optional dependency of calicoes (only for SDHcal compat)."
+    echo "Levbdim is an optional dependency of anpan (only for SDHcal compat)."
     echo "It seems that it is not installed (looking for /usr/local/lib/dim/liblevbdim.so)"
     echo "Be aware that dim is a dependency for levbdim."
     echo "The total compilation of the sources should take very little time"
@@ -170,7 +163,7 @@ if [ ! -d "/opt/lcio" ];
 then
     echo ""
     echo ""
-    echo "LCIO is an optional dependency of calicoes."
+    echo "LCIO is an optional dependency of anpan."
     echo "It seems that it is not installed (looking for /opt/lcio)"
     echo "The total compilation of the sources should some minutes"
     echo -n "Do you want this installer to install it? (y|n) : "
@@ -198,7 +191,7 @@ echo ""
 echo "Moving to the HOME directory."
 cd
 
-#install mandatory dependencies for pyrame and calicoes
+#install mandatory dependencies for pyrame and anpan
 if [ ! -f /etc/apt/sources.list.d/apache_couchdb_bionic.list ];
 then
     sudo apt-get install curl
@@ -216,7 +209,7 @@ sudo apt-get install build-essential python python-dev python-pip psmisc \
      libxt-dev curl libboost-dev libboost-system-dev \
      libboost-filesystem-dev libboost-thread-dev libjsoncpp-dev \
      libcurl4-gnutls-dev git scons libmongoclient-dev libboost-regex-dev
-pip install --upgrade pyserial notify2 argparse couchdb
+pip install --upgrade pyserial notify2 argparse
 # If you want to generate the documentation, install also:
 pip install --upgrade docutils Pygments 
 
@@ -337,201 +330,119 @@ echo "PYRAME INSTALLATION"
 echo "-------------------"
 echo "More info on the pyrame installation can be found on this webpage:"
 echo "http://llr.in2p3.fr/sites/pyrame/documentation/howto_install.html"
+echo "This is a modified version of Pyrame tailored to the WAGASCI Experiment"
 
-# download the sources archivefrom the WAGASCI website
-echo "Insert the directory where you would like the pyrame tgz archive"
-echo "to be downloaded."
-echo "Don't insert the trailing slash. For example \"${HOME}/Downloads\"."
-echo "Just press OK if you want to download the archive in the $HOME folder."
-read PYRAME_DOWNLOAD_DIR
-if [ -z "$PYRAME_DOWNLOAD_DIR" ]; then
-    PYRAME_DOWNLOAD_DIR=${HOME}
-fi
-
-cd "$PYRAME_DOWNLOAD_DIR"
-rm -f pyrame*.tgz
-curl -o pyrame_1.tgz -k -u b2water:MPPC https://www-he.scphys.kyoto-u.ac.jp/research/Neutrino/WAGASCI/wiki/dokuwiki/lib/exe/fetch.php?media=chikuma:pyrame_1.tgz
-curl -o pyrame_2.tgz -k -u b2water:MPPC https://www-he.scphys.kyoto-u.ac.jp/research/Neutrino/WAGASCI/wiki/dokuwiki/lib/exe/fetch.php?media=chikuma:pyrame_2.tgz
-curl -o pyrame_3.tgz -k -u b2water:MPPC https://www-he.scphys.kyoto-u.ac.jp/research/Neutrino/WAGASCI/wiki/dokuwiki/lib/exe/fetch.php?media=chikuma:pyrame_3.tgz
-cat pyrame_*.tgz > pyrame.tgz
-rm -f pyrame_*.tgz
-cd
-
-echo "Insert the directory where you would like the pyrame tgz archive"
-echo "to be extracted and compiled."
-echo "Don't insert the trailing slash. For example \"${HOME}/Code\"."
-echo "Just press OK if you want to extract the archive in the ${HOME} folder."
+# Download the sources from GitHub
+echo "Insert the directory where you would like to clone the pyrame repository"
+echo "Don't insert the trailing slash. The default one is \"${HOME}\"."
+echo "Just press OK if you want to clone it in the $HOME folder."
 read PYRAME_DIR
 if [ -z "$PYRAME_DIR" ]; then
     PYRAME_DIR=${HOME}
 fi
-PYRAME_TGZ=$PYRAME_DOWNLOAD_DIR/pyrame.tgz
+
+# In Debian systems you might need to create links for lua.h and liblua.so
+sudo ln -sf /usr/lib/x86_64-linux-gnu/liblua5.2.so /usr/lib/liblua.so
+sudo ln -sf /usr/include/lua5.2/lua.h /usr/include/lua.h
+sudo ln -sf /usr/include/lua5.2/luaconf.h /usr/include/luaconf.h
+sudo ln -sf /usr/include/lua5.2/lualib.h /usr/include/lualib.h
+sudo ln -sf /usr/include/lua5.2/lauxlib.h /usr/include/lauxlib.h
 
 # check for previous installs
-if [ -f "${PYRAME_TGZ}" ];
+if [ -d "${PYRAME_DIR}/pyrame" ];
 then
-    if [ -d "$PYRAME_DIR/pyrame" ];
-    then
-	cd "$PYRAME_DIR/pyrame"
-	sudo -E make uninstall
-	cd ..
-	sudo rm -rf pyrame
-    fi
-
-    # In Debian systems you might need to create links for lua.h and liblua.so
-    sudo ln -sf /usr/lib/x86_64-linux-gnu/liblua5.2.so /usr/lib/liblua.so
-    sudo ln -sf /usr/include/lua5.2/lua.h /usr/include/lua.h
-    sudo ln -sf /usr/include/lua5.2/luaconf.h /usr/include/luaconf.h
-    sudo ln -sf /usr/include/lua5.2/lualib.h /usr/include/lualib.h
-    sudo ln -sf /usr/include/lua5.2/lauxlib.h /usr/include/lauxlib.h
-    
-    # estract the pyrame archive in the pyrame compiling folder
-    cd "$PYRAME_DIR"
-    tar xfz $PYRAME_TGZ
-    sudo chown -R $USER:$USER pyrame
-    cd pyrame
-    
-    # we need to fix the permissions of all the pyrame folder
-    find ./ -type d -exec chmod 755 "{}" \;
-    find ./ -type f -exec chmod 644 "{}" \;
-    find ./ -name "*.sh" -exec chmod 755 "{}" \;
-    find ./ -name "*.py" -exec chmod 755 "{}" \;
-
-    # download Jojo's patch
-    wget https://www.dropbox.com/s/zqnvea0y7q2xfjk/jojo_pyrame_v1.patch
-    patch -p1 < jojo_pyrame_v1.patch
-    
-    # configure and install
-    chmod +x ./configure
-    ./configure
-    make
-    sudo -E make install
-    
-    # make documentation
-    cd docs
-    sudo -E make install
-    
-    # install and enable apache2 
-    sudo ${PYRAME_DIR}/pyrame/xhr/install_xhr_debian8_apache2.sh
-    sudo systemctl restart apache2
-    sudo systemctl enable apache2
-    
-    # The following command is equivalent to
-    # echo 1 > sudo tee /proc/sys/net/ipv4/tcp_tw_recycle
-    # echo 1 > sudo tee /proc/sys/net/ipv4/tcp_fin_timeout
-    sudo cp -f ${PYRAME_DIR}/pyrame/launcher/99-pyrame.conf /etc/sysctl.d/
-else
-    echo "pyrame.tgz not found (PYRAME_TGZ=${PYRAME_TGZ})"
-    exit 1
+    cd "${PYRAME_DIR}/pyrame"
+    sudo make uninstall
+    cd ..
+    sudo rm -rf pyrame
 fi
 
-# --------------------- CALICOES ---------------------
+cd "${PYRAME_DIR}"
+git clone https://github.com/LastStarDust/pyrame.git pyrame
+cd pyrame
 
-# More info on the calicoes installation can be found on this webpage:
-# http://llr.in2p3.fr/sites/pyrame/calicoes/documentation/install.html
+# configure and install
+chmod +x ./configure
+./configure
+make
+sudo -E make install
+
+# make documentation
+cd docs
+sudo -E make install
+cd ..
+
+# install and enable apache2 
+sudo "${PYRAME_DIR}/pyrame/xhr/install_xhr_debian8_apache2.sh"
+sudo systemctl restart apache2
+sudo systemctl enable apache2
+
+# The following command is equivalent to
+# echo 1 > sudo tee /proc/sys/net/ipv4/tcp_tw_recycle
+# echo 1 > sudo tee /proc/sys/net/ipv4/tcp_fin_timeout
+sudo cp -f "${PYRAME_DIR}/pyrame/launcher/99-pyrame.conf" /etc/sysctl.d/
+
+# --------------------- ANPAN ---------------------
+
+# More info on the anpan installation can be found on this webpage:
+# http://llr.in2p3.fr/sites/pyrame/anpan/documentation/install.html
 
 echo "-------------------"
-echo "CALICOES INSTALLATION"
+echo "ANPAN INSTALLATION"
 echo "-------------------"
+echo "The anpan software based on calicoes 3.0"
 echo "More info on the calicoes installation can be found on this webpage:"
 echo "http://llr.in2p3.fr/sites/pyrame/calicoes/documentation/install.html"
 
-# download the sources archivefrom the WAGASCI website
-echo "Insert the directory where you would like the calicoes tgz archive"
-echo "to be downloaded."
-echo "Don't insert the trailing slash. For example \"${HOME}/Downloads\"."
-echo "Just press OK if you want to download the archive in the $HOME folder."
-read CALICOES_DOWNLOAD_DIR
-if [ -z "$CALICOES_DOWNLOAD_DIR" ]; then
-    CALICOES_DOWNLOAD_DIR=${HOME}
+# Download the sources from GitHub
+echo "Insert the directory where you would like to clone the anpan repository"
+echo "Don't insert the trailing slash. The default one is \"${HOME}\"."
+echo "Just press OK if you want to clone it in the $HOME folder."
+read ANPAN_DIR
+if [ -z "$ANPAN_DIR" ]; then
+    ANPAN_DIR=${HOME}
 fi
-
-cd "$CALICOES_DOWNLOAD_DIR"
-rm -f calicoes*.tgz
-curl -o calicoes_1.tgz -k -u b2water:MPPC https://www-he.scphys.kyoto-u.ac.jp/research/Neutrino/WAGASCI/wiki/dokuwiki/lib/exe/fetch.php?media=chikuma:calicoes_1.tgz
-curl -o calicoes_2.tgz -k -u b2water:MPPC https://www-he.scphys.kyoto-u.ac.jp/research/Neutrino/WAGASCI/wiki/dokuwiki/lib/exe/fetch.php?media=chikuma:calicoes_2.tgz
-curl -o wagasci_config.tgz -k -u b2water:MPPC https://www-he.scphys.kyoto-u.ac.jp/research/Neutrino/WAGASCI/wiki/dokuwiki/lib/exe/fetch.php?media=chikuma:wagasci_config.tgz
-cat calicoes_*.tgz > calicoes.tgz
-rm -f calicoes_*.tgz
-cd
-
-echo "Insert the directory where you would like the calicoes tgz archive"
-echo "to be extracted and compiled."
-echo "Don't insert the trailing slash. For example \"${HOME}/Code\"."
-echo "Just press OK if you want to extract the archive in the ${HOME} folder."
-read CALICOES_DIR
-if [ -z "$CALICOES_DIR" ]; then
-    CALICOES_DIR=${HOME}
-fi
-CALICOES_TGZ=${CALICOES_DOWNLOAD_DIR}/calicoes.tgz
 
 # check for previous installs
-if [ -f "${CALICOES_TGZ}" ];
+if [ -d "${ANPAN_DIR}/anpan" ];
 then
-    if [ -d "${CALICOES_DIR}/calicoes" ];
-    then
-	cd "${CALICOES_DIR}/calicoes"
-	sudo make uninstall
-	cd ..
-	sudo rm -rf calicoes
-    fi
-    
-    # extract the archive
-    cd "${CALICOES_DIR}"
-    tar xfz "${CALICOES_TGZ}"
-    sudo chown -R $USER:$USER calicoes
-    cd calicoes
-    
-    # we need to fix the permissions of all the calicoes folder
-    find ./ -type d -exec chmod 755 "{}" \;
-    find ./ -type f -exec chmod 644 "{}" \;
-    find ./ -name "*.sh" -exec chmod 755 "{}" \;
-    
-    # patch calicoes
-    wget https://www.dropbox.com/s/wht71ataou7jdey/jojo_calicoes_v1.patch
-    patch -p1 < jojo_calicoes_v1.patch
-
-    # compile and install
-
-    # I noticed that sometimes not all the scripts are copied in the /usr/local/bin
-    # directory. This may be due to a misconfiguration of the Makefiles
-    # In case try to rerun the make, make install command or as a last resource
-    # to manually run the specific Makefile inside each subdirectory. 
-
-    # comment the first line of the Makefile (.SILENT) making it more talkative
-    sed -i '1s/^/# /' Makefile
-    sudo ./install.sh
-    make
-    sudo make install
-    
-    # install documentation   
-    cd docs/documentation
-    make
-    sudo mkdir -p /opt/calicoes/doc
-    sudo make install
-    rm -rf /tmp/calicoes.tgz
-    cd ../..
-
-else
-    echo "No calicoes.tgz file referred to. ${CALICOES_TGZ}"
-    exit 1
+    cd "${ANPAN_DIR}/anpan"
+    sudo make uninstall
+    cd ..
+    sudo rm -rf anpan
 fi
 
+cd "$ANPAN_DIR"
+git clone https://github.com/LastStarDust/anpan.git anpan
+cd anpan
+
+# compile and install
+
+# I noticed that sometimes not all the scripts are copied in the /usr/local/bin
+# directory. This may be due to a misconfiguration of the Makefiles
+# In case try to manually run the specific Makefile inside each subdirectory. 
+
+sudo ./install.sh
+make
+sudo make install
+
+# install documentation   
+cd docs/documentation
+make
+sudo mkdir -p /opt/anpan/doc
+sudo make install
+rm -rf /tmp/anpan.tgz
+cd ../..
 
 echo "Post-configuration..."
 cd
 sudo cp /opt/couchdb/etc/local.ini /opt/couchdb/etc/local.ini.backup
 sudo chown couchdb:couchdb /opt/couchdb/etc/local.ini.backup
 sudo sed -i '/\[httpd\]/a socket_options = [{nodelay, true}]' /opt/couchdb/etc/local.ini
-# wget https://www.dropbox.com/s/tpmb3cgoqf8w7zg/couchdb-default.ini
-# sudo mv /opt/couchdb/etc/default.ini /opt/couchdb/etc/default.ini.backup
-# sudo cp couchdb-default.ini /opt/couchdb/etc/default.ini
-# sudo chown couchdb:couchdb /opt/couchdb/etc/default.ini
-# sudo chmod 640 /opt/couchdb/etc/default.ini
-# rm couchdb-default.ini
+
 if [ ! -L "/var/www/html/phygui_rc" ];
 then
-    sudo ln -s /opt/calicoes/phygui_rc /var/www/html/phygui_rc
+    sudo ln -s /opt/anpan/phygui_rc /var/www/html/phygui_rc
 fi
 
 sudo systemctl enable couchdb
@@ -542,7 +453,7 @@ sudo systemctl restart pyrame
 sleep 2s
 sensible-browser http://localhost/phygui_rc &
 
-echo "Installation successfully completed! Thanks for using Calicoes"
+echo "Installation successfully completed! Thanks for using Anpan"
 echo "For any questions about this script please contact:"
 echo "Pintaudi Giorgio (PhD Student)"
 echo "Yokohama National University"
@@ -550,7 +461,7 @@ echo "giorgio-pintaudi-kx@ynu.jp"
 
 exit 0
 
-# CalicoesInstaller.sh
+# AnpanInstaller.sh
 #
 # Copyright (C) 2018 by Pintaudi Giorgio <giorgio-pintaudi-kx@ynu.jp>
 # Released under the GPLv3 license

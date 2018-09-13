@@ -1,25 +1,26 @@
 Last Updated on 2018-08-06
 Copyright (C) 2018  Pintaudi Giorgio
 
-# CalicoesInstaller.sh
+# AnpanInstaller.sh
 
-This is a bash script that installs the [calicoes
-software](http://llr.in2p3.fr/sites/pyrame/calicoes/index.html) along
+This is a bash script that installs the anpan software based on [calicoes
+3.0](http://llr.in2p3.fr/sites/pyrame/calicoes/index.html) along
 with all its dependencies for the Ubuntu OS. It is an updated and
 corrected version based on the original installation script for CentOS
 7. The original script can be found and downloaded
 [here](http://llr.in2p3.fr/sites/pyrame/calicoes/disclaimer.html).
 
+Anpan is a software for control-command and data acquisition of the WAGASCI
+detector (one of the T2K near detectors).
+
 Calicoes is a software for control-command and data acquisition of the
 Silicium/Tungsten Electromagnetic Calorimeter (SIW-Ecal) for the
 future ILC Detector. It is based on the Pyrame framework.
-Credits for the calicoes software and the original version of this
-script go to Frédéric Magniette and Miguel Rubio-Roy.
 
 ## Details
 
 This script assumes a vanilla install of Ubuntu 18.04. It installs
-Calicoes automatically and with almost no input from the user. Only
+Anpan automatically and with almost no input from the user. Only
 some paths can be specified (if the user doesn't want to use the
 default ones).
 
@@ -48,19 +49,19 @@ follow this procedure:
  - Open a shell
 ```
 sudo apt-get install git
-git clone https://github.com/LastStarDust/CalicoesInstaller.git
-cd CalicoesInstaller
-chmod +x CalicoesInstaller.sh
-./CalicoesInstaller.sh
+git clone https://github.com/LastStarDust/AnpanInstaller.git
+cd AnpanInstaller
+chmod +x AnpanInstaller.sh
+./AnpanInstaller.sh
 ```
 If for any reason the install script has failed and you need to run it again,
 it may be a good idea to clean your home directory before doing that.
-You can do that by running the CalicoesClean.sh script
+You can do that by running the AnpanClean.sh script
 ```
-chmod +x CalicoesClean.sh
-./CalicoesClean.sh
+chmod +x AnpanClean.sh
+./AnpanClean.sh
 ```
-This script assumes that you downloaded and compiled calicoes and pyrame in the
+This script assumes that you downloaded and compiled anpan and pyrame in the
 default folder ($HOME).
 
 ## TO-DO
@@ -71,15 +72,26 @@ default folder ($HOME).
 
 Copyright (C) 2018  Pintaudi Giorgio <giorgio-pintaudi-kx_AT_ynu_DOT_jp>
 
-CalicoesInstaller.sh is free software: you can redistribute it and/or modify
+AnpanInstaller.sh is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 any later version.
 
-CalicoesInstaller.sh is distributed in the hope that it will be useful,
+AnpanInstaller.sh is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with CalicoesInstaller.sh.  If not, see <https://www.gnu.org/licenses/>.
+along with AnpanInstaller.sh.  If not, see <https://www.gnu.org/licenses/>.
+
+Credits for the calicoes software and the original version of this script go to
+Frédéric Magniette and Miguel Rubio-Roy.
+
+Anyway, the license status of the original script is dubious, since it is not
+bundled with the calicoes software. Moreover, the license of the calicoes software
+itself is not specified anywhere as far as I could see.
+The calicoes README file only contains the line:
+"Copyright 2012-2017 Frédéric Magniette, Miguel Rubio-Roy" without
+further specification. This is why I took the liberty to publish this script under
+the GPLv3 license. 
