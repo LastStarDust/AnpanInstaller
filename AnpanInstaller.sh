@@ -318,9 +318,9 @@ EOF
 	boost-regex jsoncpp-devel scons libmongo-client couchdb
 
     # Install some python2 packages
-    pip install --upgrade pyserial notify2 argparse couchdb --user
+    sudo pip install --upgrade pyserial notify2 argparse couchdb
     # If you want to generate the documentation, install also:
-    pip install --upgrade sphinx Jinja2 MarkupSafe==0.23 docutils Pygments --user	 
+    sudo pip install --upgrade sphinx Jinja2 MarkupSafe==0.23 docutils Pygments 
 fi
 
 #install root if necessary
