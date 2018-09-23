@@ -106,7 +106,9 @@ then
 	    sudo cp /etc/selinux/config /etc/selinux/config.backup
 	    sudo sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
 	    sudo sed -i 's/SELINUX=permissive/SELINUX=disabled/g' /etc/selinux/config
-	    #reboot
+	    echo ""
+	    echo "Please reboot and restart the script."
+	    echo ""
 	    exit 1
 	else
 	    echo ""
@@ -307,12 +309,13 @@ EOF
     sudo yum -y update
     sudo yum install make automake gcc gcc-c++ kernel-devel python python-devel \
 	python-pip psmisc git SDL-devel SDL_ttf-devel elog python-sphinx \
-	libAfterImage flex flex-devel expat-devel lua-devel libcurl python-progressbar \
-	R httpd python-requests motif-devel tcsh libXt-devel curl \
-	curl-devel boost-devel boost-filesystem boost-system boost-thread \
+	libAfterImage flex flex-devel expat-devel lua-devel libcurl \
+	python-progressbar R httpd python-requests motif-devel tcsh libXt-devel \
+	curl curl-devel boost-devel boost-filesystem boost-system boost-thread \
 	boost-regex jsoncpp-devel scons libmongo-client couchdb
 
     # Install some python2 packages
+    pip install --upgrade pip --user
     pip install --upgrade pyserial notify2 argparse couchdb --user
     # If you want to generate the documentation, install also:
     pip install --upgrade sphinx Jinja2 MarkupSafe==0.23 docutils Pygments --user	 
@@ -325,31 +328,33 @@ then
     echo "-------------------"
     echo "ROOT INSTALLATION"
     echo "-------------------"
-    echo "Insert the directory where you want ROOT to be installed."
-    echo "Don't insert the trailing slash. For example \"$HOME/Code/ROOT\"."
-    echo "This script is not intended to be run as root."
-    echo "So please insert a directory that is writable by the current user."
-    echo "If you wish to install ROOT in a system directory, please do it manually"
-    echo "or just place \"sudo\" in front of every relevant line in this script"
-    echo "from line 362 to line 369 (more or less)."
-    read ROOTDIR
 
-    # If nothing is inserted assume the user home as installation directory
-    # Remove any previous installation
-    if [ -z "$ROOTSYS" ]; then
-	if [ -d "${HOME}/ROOT" ];
-	then rm -rf "${HOME}/ROOT"; fi
-        mkdir -p "${HOME}/ROOT"
-        ROOTSYS="${HOME}/ROOT"
-    else
-	if [ -d "${ROOTDIR}/ROOT" ];
-	then rm -rf "${ROOTDIR}/ROOT"; fi
-        mkdir -p "${ROOTDIR}/ROOT"
-        ROOTSYS="${ROOTDIR}/ROOT"
-    fi
-    
     if [ $UBUNTU == "y" ];
     then
+	echo ""
+	echo "Insert the directory where you want ROOT to be installed."
+	echo "Don't insert the trailing slash. For example \"$HOME/Code/ROOT\"."
+	echo "This script is not intended to be run as root, so please insert"
+	echo "a directory that is writable by the current user. If you wish to"
+	echo "install ROOT in a system directory, please do it manually or just"
+	echo "place \"sudo\" in front of every relevant line in this script"
+	echo "from line 370 to line 377 (more or less)."
+	read ROOTDIR
+
+	# If nothing is inserted assume the user home as installation directory
+	# Remove any previous installation
+	if [ -z "$ROOTDIR" ]; then
+	    if [ -d "${HOME}/ROOT" ];
+	    then rm -rf "${HOME}/ROOT"; fi
+            mkdir -p "${HOME}/ROOT"
+            ROOTSYS="${HOME}/ROOT"
+	else
+	    if [ -d "${ROOTDIR}/ROOT" ];
+	    then rm -rf "${ROOTDIR}/ROOT"; fi
+            mkdir -p "${ROOTDIR}/ROOT"
+            ROOTSYS="${ROOTDIR}/ROOT"
+	fi
+	
 	sudo apt-get install build-essential git dpkg-dev cmake xutils-dev \
 	    binutils libx11-dev libxpm-dev libxft-dev libxext-dev \
 	    libssl-dev libpcre3-dev libglu1-mesa-dev libglew-dev \
@@ -376,6 +381,7 @@ then
 
     elif [ $CENTOS == "y" ];
     then
+	echo ""
 	echo "In CentOS 7 ROOT can be either installed from repository or"
 	echo "compiled from sources. If you want the last version of ROOT"
 	echo "it is better to install from repositories but if, for whatever"
@@ -390,18 +396,44 @@ then
 	    source /opt/root/bin/thiroot.sh
 	elif [ "${REP}" == "n" ];
 	then
+	    echo ""
+	    echo "Insert the directory where you want ROOT to be installed."
+	    echo "Don't insert the trailing slash. For example \"$HOME/Code/ROOT\"."
+	    echo "This script is not intended to be run as root, so please insert"
+	    echo "a directory that is writable by the current user. If you wish to"
+	    echo "install ROOT in a system directory, please do it manually or just"
+	    echo "place \"sudo\" in front of every relevant line in this script"
+	    echo "from line 370 to line 377 (more or less)."
+	    read ROOTDIR
+
+	    # If nothing is inserted assume the user home as installation directory
+	    # Remove any previous installation
+	    if [ -z "$ROOTDIR" ]; then
+		if [ -d "${HOME}/ROOT" ];
+		then rm -rf "${HOME}/ROOT"; fi
+		mkdir -p "${HOME}/ROOT"
+		ROOTSYS="${HOME}/ROOT"
+	    else
+		if [ -d "${ROOTDIR}/ROOT" ];
+		then rm -rf "${ROOTDIR}/ROOT"; fi
+		mkdir -p "${ROOTDIR}/ROOT"
+		ROOTSYS="${ROOTDIR}/ROOT"
+	    fi
+	    
 	    sudo yum install make automake gcc gcc-c++ kernel-devel git cmake3 \
-		xorg-x11-util-macros binutils libX11-devel libXft-devel openssl-devel \
-		pcre2-devel mesa-libGLU-devel glew-devel avahi-compat-libdns_sd-devel \
-		mariadb-devel fftw-devel graphviz-devel openldap-devel python-devel \
-		libxml2-devel krb5-devel gsl-devel qt-devel motif-devel motif \
-		blas-devel lapack-devel xfsprogs cabextract xorg-x11-font-utils \
-		fontconfig xorg-x11-server-Xvfb xorg-x11-fonts-Type1 \
-		xorg-x11-fonts-75dpi xorg-x11-fonts-100dpi dejavu-sans-fonts urw-fonts \
-		giflib-devel libtiff-devel libjpeg-turbo-devel lz4-devel xz-devel \
-		gl2ps-devel postgresql-devel libsqlite3x-devel pythia8-devel \
-		davix-devel srm-ifce-devel tbb-devel python2-numpy libXpm-devel libXpm \
-		cfitsio cfitsio-devel gfal2-devel gfal2 ocaml xxhash xxhash-devel xxhash-libs
+		 xorg-x11-util-macros binutils libX11-devel libXft-devel \
+		 openssl-devel pcre2-devel mesa-libGLU-devel glew-devel \
+		 avahi-compat-libdns_sd-devel mariadb-devel fftw-devel \
+		 graphviz-devel openldap-devel python-devel \
+		 libxml2-devel krb5-devel gsl-devel qt-devel motif-devel motif \
+		 blas-devel lapack-devel xfsprogs cabextract xorg-x11-font-utils \
+		 fontconfig xorg-x11-server-Xvfb xorg-x11-fonts-Type1 \
+		 xorg-x11-fonts-75dpi xorg-x11-fonts-100dpi dejavu-sans-fonts \
+		 urw-fonts giflib-devel libtiff-devel libjpeg-turbo-devel lz4-devel \
+		 xz-devel gl2ps-devel postgresql-devel libsqlite3x-devel \
+		 pythia8-devel davix-devel srm-ifce-devel tbb-devel python2-numpy \
+		 libXpm-devel libXpm cfitsio cfitsio-devel gfal2-devel gfal2 ocaml \
+		 xxhash xxhash-devel xxhash-libs
 
 	    if isinstalled "msttcore-fonts-installer";
 	    then echo "msttcore-fonts-installer is already installed"; 
