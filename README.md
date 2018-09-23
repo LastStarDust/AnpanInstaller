@@ -5,7 +5,7 @@ Copyright (C) 2018  Pintaudi Giorgio
 
 This is a bash script that installs the anpan software based on [calicoes
 3.0](http://llr.in2p3.fr/sites/pyrame/calicoes/index.html) along
-with all its dependencies for the Ubuntu OS. It is an updated and
+with all its dependencies for the Ubuntu and CentOS OSes. It is an updated and
 corrected version based on the original installation script for CentOS
 7. The original script can be found and downloaded
 [here](http://llr.in2p3.fr/sites/pyrame/calicoes/disclaimer.html).
@@ -15,16 +15,16 @@ detector (one of the T2K near detectors).
 
 Calicoes is a software for control-command and data acquisition of the
 Silicium/Tungsten Electromagnetic Calorimeter (SIW-Ecal) for the
-future ILC Detector. It is based on the Pyrame framework.
+future ILC Detector. They are both based on the Pyrame framework.
 
 ## Details
 
-This script assumes a vanilla install of Ubuntu 18.04. It installs
+This script assumes a vanilla install of Ubuntu 18.04 or CentOS 7. It installs
 Anpan automatically and with almost no input from the user. Only
 some paths can be specified (if the user doesn't want to use the
 default ones).
 
-The present script was developed by a member of the WAGASCI
+The present script was developed by Pintaudi Giorgio, a member of the WAGASCI
 collaboration. WAGASCI is a subexperiment of the [T2K
 experiment](http://t2k-experiment.org/). Some archives will be
 downloaded by the script from the [WAGASCI
