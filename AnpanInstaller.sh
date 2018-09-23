@@ -315,7 +315,7 @@ EOF
 	boost-regex jsoncpp-devel scons libmongo-client couchdb
 
     # Install some python2 packages
-    pip install --upgrade pip --user
+    sudo pip install --upgrade pip
     pip install --upgrade pyserial notify2 argparse couchdb --user
     # If you want to generate the documentation, install also:
     pip install --upgrade sphinx Jinja2 MarkupSafe==0.23 docutils Pygments --user	 
@@ -383,17 +383,18 @@ then
     then
 	echo ""
 	echo "In CentOS 7 ROOT can be either installed from repository or"
-	echo "compiled from sources. If you want the last version of ROOT"
-	echo "it is better to install from repositories but if, for whatever"
+	echo "compiled from sources. If you want the latest version of ROOT"
+	echo "it is better to install it from repositories but if, for whatever"
 	echo "reason, you want to install an older version of ROOT, perhaps"
 	echo "it is better to compile from sources. If this is a DAQ PC it"
 	echo "is better to install from repository".
+	echo ""
 	echo -n "Do you want to install from repository? (y|n) : "
 	read REP
 	if [ "${REP}" == "y" ];
 	then
 	    sudo yum install root-*
-	    source /opt/root/bin/thiroot.sh
+	    ROOTSYS=/usr/bin
 	elif [ "${REP}" == "n" ];
 	then
 	    echo ""
