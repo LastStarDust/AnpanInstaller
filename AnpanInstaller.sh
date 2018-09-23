@@ -288,7 +288,6 @@ then
     fi
 
     # Install some python2 packages
-    sudo pip install --upgrade pip setuptools
     pip install --upgrade pyserial notify2 argparse couchdb
     # If you want to generate the documentation, install also:
     pip install --upgrade docutils Pygments
@@ -319,7 +318,6 @@ EOF
 	boost-regex jsoncpp-devel scons libmongo-client couchdb
 
     # Install some python2 packages
-    sudo pip install --upgrade pip setuptools
     pip install --upgrade pyserial notify2 argparse couchdb --user
     # If you want to generate the documentation, install also:
     pip install --upgrade sphinx Jinja2 MarkupSafe==0.23 docutils Pygments --user	 
@@ -572,6 +570,7 @@ then
     sudo rm -rf pyrame
 fi
 
+mkdir -p "${PYRAME_DIR}"
 cd "${PYRAME_DIR}"
 git clone https://github.com/LastStarDust/pyrame.git pyrame
 cd pyrame
