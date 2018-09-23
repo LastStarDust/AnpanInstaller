@@ -1,5 +1,6 @@
-Last Updated on 2018-08-06
-Copyright (C) 2018  Pintaudi Giorgio
+Last Updated on 2018-09-23
+
+Copyright (C) 2018  Pintaudi Giorgio, YNU
 
 # AnpanInstaller.sh v2.0
 
