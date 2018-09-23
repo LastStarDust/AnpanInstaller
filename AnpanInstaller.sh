@@ -387,6 +387,7 @@ then
 	if [ "${REP}" == "y" ];
 	then
 	    sudo yum install root-*
+	    source /opt/root/bin/thiroot.sh
 	elif [ "${REP}" == "n" ];
 	then
 	    sudo yum install make automake gcc gcc-c++ kernel-devel git cmake3 \
