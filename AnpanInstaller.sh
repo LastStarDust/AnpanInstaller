@@ -287,6 +287,7 @@ then
     fi
 
     # Install some python2 packages
+    sudo pip install --upgrade pip setuptools
     pip install --upgrade pyserial notify2 argparse couchdb
     # If you want to generate the documentation, install also:
     pip install --upgrade docutils Pygments
@@ -315,7 +316,7 @@ EOF
 	boost-regex jsoncpp-devel scons libmongo-client couchdb
 
     # Install some python2 packages
-    sudo pip install --upgrade pip
+    sudo pip install --upgrade pip setuptools
     pip install --upgrade pyserial notify2 argparse couchdb --user
     # If you want to generate the documentation, install also:
     pip install --upgrade sphinx Jinja2 MarkupSafe==0.23 docutils Pygments --user	 
@@ -404,7 +405,7 @@ then
 	    echo "a directory that is writable by the current user. If you wish to"
 	    echo "install ROOT in a system directory, please do it manually or just"
 	    echo "place \"sudo\" in front of every relevant line in this script"
-	    echo "from line 370 to line 377 (more or less)."
+	    echo "from line 449 to line 456 (more or less)."
 	    read ROOTDIR
 
 	    # If nothing is inserted assume the user home as installation directory
