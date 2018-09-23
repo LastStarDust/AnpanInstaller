@@ -1,7 +1,7 @@
 Last Updated on 2018-08-06
 Copyright (C) 2018  Pintaudi Giorgio
 
-# AnpanInstaller.sh
+# AnpanInstaller.sh v2.0
 
 This is a bash script that installs the anpan software based on [calicoes
 3.0](http://llr.in2p3.fr/sites/pyrame/calicoes/index.html) along
@@ -80,9 +80,15 @@ chmod +x AnpanClean.sh
 This script assumes that you downloaded and compiled anpan and pyrame in the
 default folder ($HOME).
 
+## Changelog
+ 
+ - v2.0 Added support for CentOS 7
+ - v1.0 First version
+
 ## TO-DO
 
- - [ ] Add support for other Ubuntu versions or Linux distributions
+ - [x] Add support for CentOS 7
+ - [ ] Add support for other Ubuntu version
 
 ## License
 

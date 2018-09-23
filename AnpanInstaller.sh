@@ -27,27 +27,54 @@ CONTINUE="n"
 UBUNTU="n"
 CENTOS="n"
 
+# Define a function that checks if a package is installed
+
+function isinstalled {
+    if [ $CENTOS == "y" ];
+    then
+	if yum list installed "$@" >/dev/null 2>&1; then
+	    true
+	else
+	    false
+	fi
+    elif [ $UBUNTU == "y" ];
+    then
+	dpkg -s $1 &> /dev/null
+	if [ $? -eq 0 ]; then
+	    true
+	else
+	    false
+	fi
+    fi
+}
+
 # Check the Ubuntu release
 
-if [ "`lsb_release -rs`" != "18.04" ] && [ ! -f "/etc/redhat-release"];
+if [ "`lsb_release -rs`" != "18.04" ] && [ ! -f "/etc/redhat-release" ];
 then
+    echo ""
     echo "This installer is for Ubuntu 18.04 and CentOS 7 only!"
     echo "You can get this script to run also on other versions of Ubuntu"
     echo "by simply replacing the 18.04 string on line 32 with your Ubuntu"
     echo "version but be warned that other modifications may be needed."
+    echo ""
     exit 1
 fi
 
 if [ "`lsb_release -rs`" == "18.04" ];
 then
     UBUNTU="y"
-elif [ -f "/etc/redhat-release"];
+    CMAKE=cmake
+elif [ -f "/etc/redhat-release" ];
 then
     CENTOS="y"
+    CMAKE=cmake3
+    CENTOS_ROOT_FLAGS="-DENVOY_IGNORE_GLIBCXX_USE_CXX11_ABI_ERROR=1 -Wno-dev"
 else
     echo "There is something wrong about OS detection."
     echo "UBUNTU = $UBUNTU"
     echo "CENTOS = $CENTOS"
+    echo ""
     exit 1
 fi
 
@@ -55,8 +82,10 @@ fi
 
 if [ "`whoami`" == "root" ];
 then
+    echo ""
     echo "This installer is not intended be run as root or with sudo"
     echo "You will need to insert the user password AFTER the script has started."
+    echo ""
     exit 1
 fi
 
@@ -66,6 +95,7 @@ then
 
     if [ "`grep -c "SELINUX=disabled" /etc/selinux/config`" != "1" ];
     then
+	echo ""
 	echo "SElinux is active. This prevents Anpan from working properly."
 	echo "This operation will need a reboot. Please relaunch the installer"
 	echo "as soon as reboot is completed."
@@ -73,12 +103,13 @@ then
 	read REP
 	if [ "${REP}" == "y" ];
 	then
-	    echo "SELINUX=disabled" > /etc/selinux/config
-	    echo "SELINUXTYPE=targeted" >> /etc/selinux/config
-	    echo "Please reboot your machine and restart this installer."
+	    sudo mv /etc/selinux/config /etc/selinux/config.backup
+	    sudo sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
+	    sudo sed -i 's/SELINUX=permissive/SELINUX=disabled/g' /etc/selinux/config
 	    #reboot
 	    exit 1
 	else
+	    echo ""
 	    echo "Please deactivate Selinux and try this installer again"
 	    exit 1
 	fi
@@ -88,15 +119,18 @@ fi
 # Check for ROOT
 if [ "$ROOTSYS" == "" ];
 then
-    echo "Root6 is an optional dependency of anpan."
-    echo "It seems that it is not installed (looking for a non null ROOTSYS variable)"
-    echo "Maybe you have just forgot to set the root enviroment"
-    echo "with the script thisroot.sh. In that case please run that script"
-    echo "and then restart this installation process."
-    echo "Or maybe ROOT is not installed in your system. In that case this script can"
-    echo "take care of the ROOT compiling and installation."
-    echo "The total compilation of the sources could take up to an hour."
-    echo -n "Do you want this installer to install it? (y|n) : "
+    echo ""
+    echo "ROOT is a dependency of Anpan but tt seems that it is not installed"
+    echo "(looking for a non null ROOTSYS variable). Maybe you have just"
+    echo "forgotten to set up the root enviroment with the script thisroot.sh."
+    echo "In that case please run that script and then restart the installation."
+    echo ""
+    echo "If ROOT is not installed in your system, this script can take care of"
+    echo "the ROOT installation. In CentOS ROOT can be either installed from"
+    echo "repositories or compiled from source. Compiling it could take up to"
+    echo "an hour. You will be asked which way you prefer to install ROOT later."
+    echo ""
+    echo -n "Do you want this installer to install ROOT? (y|n) : "
     read ROOTREP
     if [ "${ROOTREP}" == "n" ];
     then
@@ -213,6 +247,8 @@ LCIOREP="n"
 
 echo ""
 echo "Moving to the HOME directory."
+echo "Installing some preliminary packages to meet dependences."
+echo ""
 cd
 
 #install mandatory dependencies for pyrame and anpan
@@ -227,16 +263,35 @@ then
             | sudo apt-key add -
     fi
     sudo apt update
-    sudo apt-get install build-essential python python-devel python-pip psmisc \
-	 git libsdl1.2-dev libsdl-ttf2.0-dev elog python-sphinx \
-	 libafterimage-dev flex libexpat1-dev liblua5.2-dev \
-	 libcurl4 python-progressbar apache2 r-base \
-	 couch-libmozjs185-1.0 python-requests libmotif-dev tcsh \
-	 libxt-dev curl libboost-dev libboost-system-dev \
-	 libboost-filesystem-dev libboost-thread-dev libjsoncpp-dev \
-	 libcurl4-gnutls-dev scons libmongoclient-dev libboost-regex-dev
+    sudo apt-get install build-essential python python-dev python-pip psmisc \
+	git libsdl1.2-dev libsdl-ttf2.0-dev elog python-sphinx \
+	libafterimage-dev flex libexpat1-dev liblua5.2-dev \
+	libcurl4 python-progressbar apache2 r-base \
+	couch-libmozjs185-1.0 python-requests libmotif-dev tcsh \
+	libxt-dev curl libboost-dev libboost-system-dev \
+	libboost-filesystem-dev libboost-thread-dev libjsoncpp-dev \
+	libcurl4-gnutls-dev scons libmongoclient-dev libboost-regex-dev
+
+    # The CouchDB installation in Ubuntu is a bit more delicate.
+    if isinstalled "couchdb";
+    then echo "couchdb is already installed"; 
+    else 
+	echo ""
+	echo "Be sure NOT to create a administrator user for couchdb!"
+	echo "You avoid creating an administrator user by just inserting" 
+	echo "an EMPTY password."
+	read -n1 -r -p "Press any key to continue..." key
+	sudo apt-get install couchdb
+    fi
+
+    # Install some python2 packages
+    pip install --upgrade pyserial notify2 argparse couchdb
+    # If you want to generate the documentation, install also:
+    pip install --upgrade docutils Pygments
+
 elif [ $CENTOS == "y" ];
 then
+    # Install CouchDB repository if it is not present
     if [ ! -f /etc/yum.repos.d/couchdb.repo ];
     then
 	sudo tee /etc/yum.repos.d/couchdb.repo << 'EOF'
@@ -250,31 +305,18 @@ EOF
     fi
     sudo yum -y install epel-release
     sudo yum -y update
-    sudo yum install make automake gcc gcc-c++ kernel-devel python python-dev \
-	 python-pip psmisc git SDL-devel SDL_ttf-devel elog python-sphinx \
-	 libAfterImage flex expat-devel lua-devel libcurl python-progressbar \
-	 R httpd python-requests motif-devel tcsh libXt-devel curl \
-	 curl-devel boost-devel boost-filesystem boost-system boost-thread \
-	 boost-regex jsoncpp-devel scons libmongo-client	 
+    sudo yum install make automake gcc gcc-c++ kernel-devel python python-devel \
+	python-pip psmisc git SDL-devel SDL_ttf-devel elog python-sphinx \
+	libAfterImage flex flex-devel expat-devel lua-devel libcurl python-progressbar \
+	R httpd python-requests motif-devel tcsh libXt-devel curl \
+	curl-devel boost-devel boost-filesystem boost-system boost-thread \
+	boost-regex jsoncpp-devel scons libmongo-client couchdb
+
+    # Install some python2 packages
+    pip install --upgrade pyserial notify2 argparse couchdb --user
+    # If you want to generate the documentation, install also:
+    pip install --upgrade sphinx Jinja2 MarkupSafe==0.23 docutils Pygments --user	 
 fi
-
-echo ""
-echo "Be sure NOT to create a administrator user for couchdb!"
-echo "You avoid creating an administrator user by just inserting" 
-echo "an EMPTY password."
-read -n1 -r -p "Press any key to continue..." key
-
-if [ $UBUNTU == "y" ];
-then
-    sudo apt-get install couchdb
-elif [ $CENTOS == "y" ];
-then
-    sudo yum install couchdb
-fi
-
-pip install --upgrade pyserial notify2 argparse couchdb
-# If you want to generate the documentation, install also:
-pip install --upgrade docutils Pygments
 
 #install root if necessary
 if [ "${ROOTREP}" == "y" ];
@@ -289,55 +331,101 @@ then
     echo "So please insert a directory that is writable by the current user."
     echo "If you wish to install ROOT in a system directory, please do it manually"
     echo "or just place \"sudo\" in front of every relevant line in this script"
-    echo "from line 263 to line 270 (more or less)."
-    read ROOTSYS
+    echo "from line 362 to line 369 (more or less)."
+    read ROOTDIR
+
+    # If nothing is inserted assume the user home as installation directory
+    # Remove any previous installation
     if [ -z "$ROOTSYS" ]; then
-        mkdir -p ${HOME}/ROOT
-        ROOTSYS=${HOME}/ROOT
+	if [ -d "${HOME}/ROOT" ];
+	then rm -rf "${HOME}/ROOT"; fi
+        mkdir -p "${HOME}/ROOT"
+        ROOTSYS="${HOME}/ROOT"
+    else
+	if [ -d "${ROOTDIR}/ROOT" ];
+	then rm -rf "${ROOTDIR}/ROOT"; fi
+        mkdir -p "${ROOTDIR}/ROOT"
+        ROOTSYS="${ROOTDIR}/ROOT"
     fi
     
     if [ $UBUNTU == "y" ];
     then
 	sudo apt-get install build-essential git dpkg-dev cmake xutils-dev \
-	     binutils libx11-dev libxpm-dev libxft-dev libxext-dev \
-	     libssl-dev libpcre3-dev libglu1-mesa-dev libglew-dev \
-	     libmysqlclient-dev libfftw3-dev libcfitsio-dev libgraphviz-dev \
-	     libavahi-compat-libdnssd-dev libldap2-dev python-dev libxml2-dev \
-	     libkrb5-dev libgsl-dev libqt4-dev libmotif-dev libmotif-common \
-	     libblas-dev liblapack-dev xfstt xfsprogs t1-xfree86-nonfree \
-	     ttf-xfree86-nonfree ttf-xfree86-nonfree-syriac xfonts-75dpi \
-	     xfonts-100dpi libgif-dev libtiff-dev libjpeg-dev liblz4-dev \
-	     liblzma-dev libgl2ps-dev libpostgresql-ocaml-dev libsqlite3-dev \
-	     libpythia8-dev davix-dev srm-ifce-dev libtbb-dev python-numpy
+	    binutils libx11-dev libxpm-dev libxft-dev libxext-dev \
+	    libssl-dev libpcre3-dev libglu1-mesa-dev libglew-dev \
+	    libmysqlclient-dev libfftw3-dev libcfitsio-dev libgraphviz-dev \
+	    libavahi-compat-libdnssd-dev libldap2-dev python-dev libxml2-dev \
+	    libkrb5-dev libgsl-dev libqt4-dev libmotif-dev libmotif-common \
+	    libblas-dev liblapack-dev xfstt xfsprogs t1-xfree86-nonfree \
+	    ttf-xfree86-nonfree ttf-xfree86-nonfree-syriac xfonts-75dpi \
+	    xfonts-100dpi libgif-dev libtiff-dev libjpeg-dev liblz4-dev \
+	    liblzma-dev libgl2ps-dev libpostgresql-ocaml-dev libsqlite3-dev \
+	    libpythia8-dev davix-dev srm-ifce-dev libtbb-dev python-numpy
 	cd
+	# Download and install ROOT
+	mkdir -p $ROOTSYS/{sources,6-14-04,6-14-04-build}
+	cd $ROOTSYS
+	git clone http://github.com/root-project/root.git sources
+	cd sources
+	git checkout -b v6-14-04 v6-14-04
+	cd ../6-14-04-build
+	cmake -Dbuiltin_xrootd=ON -DCMAKE_INSTALL_PREFIX=$ROOTSYS/6-14-04 ../sources
+	cmake --build . --target install -- -j8
+	cd
+	source $ROOTSYS/6-14-04/bin/thisroot.sh
+
     elif [ $CENTOS == "y" ];
     then
-	sudo yum install make automake gcc gcc-c++ kernel-devel git cmake \
-	     xorg-x11-util-macros binutils libX11-devel libXft-devel openssl-devel \
-	     pcre2-devel mesa-libGLU-devel glew-devel avahi-compat-libdns_sd-devel \
-	     mariadb-devel fftw-devel graphviz-devel openldap-dvel python-devel \
-	     libxml2-devel krb5-devel gsl-devel qt-devel motif-devel motif \
-	     blas-devel lapack-devel xfsprogs cabextract xorg-x11-font-utils \
-	     fontconfig xorg-x11-server-Xvfb xorg-x11-fonts-Type1 \
-	     xorg-x11-fonts-75dpi xorg-x11-fonts-100dpi dejavu-sans-fonts urw-fonts \
-	     giflib-devel libtiff-devel libjpeg-turbo-devel lz4-devel xz-devel \
-	     gl2ps-devel postgresql-devel libsqlite3x-devel pythia8-devel \
-	     davix-devel srm-ifce-devel tbb-devel python2-numpy
-	
-	wget https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm
-	sudo yum install msttcore-fonts-installer-2.6-1.noarch.rpm
-	rm -f msttcore-fonts-installer-2.6-1.noarch.rpm
+	echo "In CentOS 7 ROOT can be either installed from repository or"
+	echo "compiled from sources. If you want the last version of ROOT"
+	echo "it is better to install from repositories but if, for whatever"
+	echo "reason, you want to install an older version of ROOT, perhaps"
+	echo "it is better to compile from sources. If this is a DAQ PC it"
+	echo "is better to install from repository".
+	echo -n "Do you want to install from repository? (y|n) : "
+	read REP
+	if [ "${REP}" == "y" ];
+	then
+	    sudo yum install root-*
+	elif [ "${REP}" == "n" ];
+	then
+	    sudo yum install make automake gcc gcc-c++ kernel-devel git cmake3 \
+		xorg-x11-util-macros binutils libX11-devel libXft-devel openssl-devel \
+		pcre2-devel mesa-libGLU-devel glew-devel avahi-compat-libdns_sd-devel \
+		mariadb-devel fftw-devel graphviz-devel openldap-devel python-devel \
+		libxml2-devel krb5-devel gsl-devel qt-devel motif-devel motif \
+		blas-devel lapack-devel xfsprogs cabextract xorg-x11-font-utils \
+		fontconfig xorg-x11-server-Xvfb xorg-x11-fonts-Type1 \
+		xorg-x11-fonts-75dpi xorg-x11-fonts-100dpi dejavu-sans-fonts urw-fonts \
+		giflib-devel libtiff-devel libjpeg-turbo-devel lz4-devel xz-devel \
+		gl2ps-devel postgresql-devel libsqlite3x-devel pythia8-devel \
+		davix-devel srm-ifce-devel tbb-devel python2-numpy libXpm-devel libXpm \
+		cfitsio cfitsio-devel gfal2-devel gfal2 ocaml xxhash xxhash-devel xxhash-libs
+
+	    if isinstalled "msttcore-fonts-installer";
+	    then echo "msttcore-fonts-installer is already installed"; 
+	    else 
+		echo "msttcore-fonts-installer is not installed"
+		wget https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm
+		sudo yum install msttcore-fonts-installer-2.6-1.noarch.rpm
+		rm -f msttcore-fonts-installer-2.6-1.noarch.rpm
+	    fi
+	    # Download and install ROOT
+	    mkdir -p $ROOTSYS/{sources,6-14-04,6-14-04-build}
+	    cd $ROOTSYS
+	    git clone http://github.com/root-project/root.git sources
+	    cd sources
+	    git checkout -b v6-14-04 v6-14-04
+	    cd ../6-14-04-build
+	    cmake3 -Dbuiltin_xrootd=ON -DCMAKE_INSTALL_PREFIX=$ROOTSYS/6-14-04 $CENTOS_ROOT_FLAGS ../sources
+	    cmake3 --build . --target install -- -j8
+	    cd
+	    source $ROOTSYS/6-14-04/bin/thisroot.sh
+	else
+	    echo "I didn't understand your answer. Sorry, try again."
+	    exit 1
+	fi
     fi
-    mkdir -p $ROOTSYS/{sources,6-14-02,6-14-02-build}
-    cd $ROOTSYS
-    git clone http://github.com/root-project/root.git sources
-    cd sources
-    git checkout -b v6-14-02 v6-14-02
-    cd ../6-14-02-build
-    cmake -Dbuiltin_xrootd=ON -DCMAKE_INSTALL_PREFIX=$ROOTSYS/6-14-02 ../sources
-    cmake --build . --target install -- -j8
-    cd
-    source $ROOTSYS/6-14-02/bin/thisroot.sh
 fi
 
 #install dim if necessary
@@ -372,7 +460,7 @@ then
     cd build/
     rm -rf *
     cp ${HOME}/levbdim/web/CMakeLists.txt ../
-    cmake -DEXAMPLES=ON -DWEBSOCKET=OFF -DHAS_JSONCPP=ON ..
+    $CMAKE -DEXAMPLES=ON -DWEBSOCKET=OFF -DHAS_JSONCPP=ON ..
     make -j4
     sudo make install
     cd ${HOME}/levbdim
@@ -398,10 +486,10 @@ then
     git checkout v02-12-01
     mkdir -p build
     cd build
-    cmake -DCMAKE_INSTALL_PREFIX=/opt/lcio ..
+    $CMAKE -DCMAKE_INSTALL_PREFIX=/opt/lcio ..
     # to speed up the building process you can do
     # "cmake --build . -- -jN" where N is the number of available cores
-    cmake --build .
+    $CMAKE --build .
     sudo make install
     cd ../..
     rm -rf lcio
@@ -419,6 +507,7 @@ echo "http://llr.in2p3.fr/sites/pyrame/documentation/howto_install.html"
 echo "This is a modified version of Pyrame tailored to the WAGASCI Experiment"
 
 # Download the sources from GitHub
+echo ""
 echo "Insert the directory where you would like to clone the pyrame repository"
 echo "Don't insert the trailing slash. The default one is \"${HOME}\"."
 echo "Just press OK if you want to clone it in the $HOME folder."
@@ -455,10 +544,16 @@ chmod +x ./configure
 make
 sudo -E make install
 
-# make documentation
-cd docs
-sudo -E make install
-cd ..
+# Documentation compilation is currently broken in CentOS due to sphinx
+# version being too old
+if [ $UBUNTU == "y" ];
+then
+    # make documentation
+    cd docs
+    make
+    sudo -E make install
+    cd ..
+fi
 
 # install and enable apache2
 if [ $UBUNTU == "y" ];
@@ -503,6 +598,7 @@ echo "More info on the calicoes installation can be found on this webpage:"
 echo "http://llr.in2p3.fr/sites/pyrame/calicoes/documentation/install.html"
 
 # Download the sources from GitHub
+echo ""
 echo "Insert the directory where you would like to clone the anpan repository"
 echo "Don't insert the trailing slash. The default one is \"${HOME}\"."
 echo "Just press OK if you want to clone it in the $HOME folder."
@@ -532,16 +628,23 @@ cd anpan
 
 sudo ./install.sh
 make
-sudo make install
+sudo -E make install
 
-# install documentation   
-cd docs/documentation
-make
-sudo mkdir -p /opt/anpan/doc
-sudo make install
-cd ../..
+# Documentation compilation is currently broken in CentOS due to sphinx
+# version being too old
+if [ $UBUNTU == "y" ];
+then
+    # install documentation   
+    cd docs/documentation
+    make
+    sudo mkdir -p /opt/anpan/doc
+    sudo make install
+    cd ../..
+fi
 
+echo ""
 echo "Post-configuration..."
+echo ""
 cd
 sudo cp /opt/couchdb/etc/local.ini /opt/couchdb/etc/local.ini.backup
 sudo chown couchdb:couchdb /opt/couchdb/etc/local.ini.backup
@@ -567,12 +670,13 @@ then
     firefox http://localhost/phygui_rc &
 fi
 
-
+echo ""
 echo "Installation successfully completed! Thanks for using Anpan"
 echo "For any questions about this script please contact:"
 echo "Pintaudi Giorgio (PhD Student)"
 echo "Yokohama National University"
 echo "giorgio-pintaudi-kx@ynu.jp"
+echo ""
 
 exit 0
 
