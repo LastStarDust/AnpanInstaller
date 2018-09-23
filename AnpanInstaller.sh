@@ -119,7 +119,7 @@ then
 fi
 
 # Check for ROOT
-if [ "$ROOTSYS" == "" ];
+if [ "$ROOTSYS" == "" ] && [ ! -f "/usr/bin/root" ];
 then
     echo ""
     echo "ROOT is a dependency of Anpan but tt seems that it is not installed"
@@ -396,7 +396,7 @@ then
 	if [ "${REP}" == "y" ];
 	then
 	    sudo yum install root-*
-	    ROOTSYS=/usr/bin
+	    ROOTSYS=/usr
 	elif [ "${REP}" == "n" ];
 	then
 	    echo ""
