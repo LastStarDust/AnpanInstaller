@@ -103,7 +103,7 @@ then
 	read REP
 	if [ "${REP}" == "y" ];
 	then
-	    sudo mv /etc/selinux/config /etc/selinux/config.backup
+	    sudo cp /etc/selinux/config /etc/selinux/config.backup
 	    sudo sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
 	    sudo sed -i 's/SELINUX=permissive/SELINUX=disabled/g' /etc/selinux/config
 	    #reboot
