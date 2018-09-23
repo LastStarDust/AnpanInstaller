@@ -46,7 +46,23 @@ have already installed them.
 Please don't run the script as super user. You will be requested the super
 user password AFTER the script has started. To run the script you can
 follow this procedure:
- - Open a shell
+
+ - CentOS 7:
+ 
+   Open a shell and issue
+   
+```
+sudo yum install git
+git clone https://github.com/LastStarDust/AnpanInstaller.git
+cd AnpanInstaller
+chmod +x AnpanInstaller.sh
+./AnpanInstaller.sh
+```
+
+ - Ubuntu 18.04:
+ 
+   Open a shell and issue
+   
 ```
 sudo apt-get install git
 git clone https://github.com/LastStarDust/AnpanInstaller.git
