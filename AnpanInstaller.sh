@@ -264,7 +264,8 @@ then
 	curl -L https://couchdb.apache.org/repo/bintray-pubkey.asc \
             | sudo apt-key add -
     fi
-    sudo apt update
+    sudo apt-get update
+    sudo apt-get upgrade
     sudo apt-get install build-essential python python-dev python-pip psmisc \
 	git libsdl1.2-dev libsdl-ttf2.0-dev elog python-sphinx \
 	libafterimage-dev flex libexpat1-dev liblua5.2-dev \
@@ -306,6 +307,8 @@ repo_gpgcheck=0
 enabled=1
 EOF
     fi
+    sudo yum update
+    sudo yum upgrade
     sudo yum -y install epel-release
     sudo yum -y update
     sudo yum install make automake gcc gcc-c++ kernel-devel python python-devel \
