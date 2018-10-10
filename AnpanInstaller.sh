@@ -26,6 +26,7 @@ LCIOREP="n"
 CONTINUE="n"
 UBUNTU="n"
 CENTOS="n"
+ROOTVERS="6-14-04"
 
 # Define a function that checks if a package is installed
 
@@ -372,16 +373,16 @@ then
 	    libpythia8-dev davix-dev srm-ifce-dev libtbb-dev python-numpy
 	cd
 	# Download and install ROOT
-	mkdir -p $ROOTSYS/{sources,6-14-04,6-14-04-build}
+	mkdir -p $ROOTSYS/{sources,${ROOTVERS},${ROOTVERS}-build}
 	cd $ROOTSYS
 	git clone http://github.com/root-project/root.git sources
 	cd sources
-	git checkout -b v6-14-04 v6-14-04
-	cd ../6-14-04-build
-	cmake -Dbuiltin_xrootd=ON -DCMAKE_INSTALL_PREFIX=$ROOTSYS/6-14-04 ../sources
+	git checkout -b v${ROOTVERS} v${ROOTVERS}
+	cd ../${ROOTVERS}-build
+	cmake -Dbuiltin_xrootd=ON -DCMAKE_INSTALL_PREFIX=$ROOTSYS/${ROOTVERS} ../sources
 	cmake --build . --target install -- -j8
 	cd
-	source $ROOTSYS/6-14-04/bin/thisroot.sh
+	source $ROOTSYS/${ROOTVERS}/bin/thisroot.sh
 
     elif [ $CENTOS == "y" ];
     then
@@ -391,7 +392,7 @@ then
 	echo "it is better to install it from repositories but if, for whatever"
 	echo "reason, you want to install an older version of ROOT, perhaps"
 	echo "it is better to compile from sources. If this is a DAQ PC it"
-	echo "is better to install from repository".
+	echo "is better to install from repository."
 	echo ""
 	echo -n "Do you want to install from repository? (y|n) : "
 	read REP
@@ -408,9 +409,13 @@ then
 	    echo "a directory that is writable by the current user. If you wish to"
 	    echo "install ROOT in a system directory, please do it manually or just"
 	    echo "place \"sudo\" in front of every relevant line in this script"
-	    echo "from line 449 to line 456 (more or less)."
+	    echo "from line 453 to line 460 (more or less). You can change the version"
+	    echo "of ROOT to be installed tweaking the ROOTVERS (${ROOTVERS}) variable."
+	    echo ""
 	    read ROOTDIR
-
+	    echo ""
+	    echo "ROOT ${ROOTVERS} will be compiled from sources."
+	    echo ""
 	    # If nothing is inserted assume the user home as installation directory
 	    # Remove any previous installation
 	    if [ -z "$ROOTDIR" ]; then
@@ -449,16 +454,16 @@ then
 		rm -f msttcore-fonts-installer-2.6-1.noarch.rpm
 	    fi
 	    # Download and install ROOT
-	    mkdir -p $ROOTSYS/{sources,6-14-04,6-14-04-build}
+	    mkdir -p $ROOTSYS/{sources,${ROOTVERS},${ROOTVERS}-build}
 	    cd $ROOTSYS
 	    git clone http://github.com/root-project/root.git sources
 	    cd sources
-	    git checkout -b v6-14-04 v6-14-04
-	    cd ../6-14-04-build
-	    cmake3 -Dbuiltin_xrootd=ON -DCMAKE_INSTALL_PREFIX=$ROOTSYS/6-14-04 $CENTOS_ROOT_FLAGS ../sources
+	    git checkout -b v${ROOTVERS} v${ROOTVERS}
+	    cd ../${ROOTVERS}-build
+	    cmake3 -Dbuiltin_xrootd=ON -DCMAKE_INSTALL_PREFIX=$ROOTSYS/${ROOTVERS} $CENTOS_ROOT_FLAGS ../sources
 	    cmake3 --build . --target install -- -j8
 	    cd
-	    source $ROOTSYS/6-14-04/bin/thisroot.sh
+	    source $ROOTSYS/${ROOTVERS}/bin/thisroot.sh
 	else
 	    echo "I didn't understand your answer. Sorry, try again."
 	    exit 1
