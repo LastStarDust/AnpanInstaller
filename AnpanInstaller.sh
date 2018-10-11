@@ -289,7 +289,7 @@ then
     fi
 
     # Install some python2 packages
-    pip install --upgrade pyserial notify2 argparse couchdb
+    pip install --upgrade pyserial notify2 argparse couchdb pyvisa pyvisa-py
     # If you want to generate the documentation, install also:
     pip install --upgrade docutils Pygments
 
@@ -319,7 +319,7 @@ EOF
 	boost-regex jsoncpp-devel scons libmongo-client couchdb
 
     # Install some python2 packages
-    sudo pip install --upgrade pyserial notify2 argparse couchdb
+    sudo pip install --upgrade pyserial notify2 argparse couchdb pyvisa pyvisa-py
     # Documentation compiling is currently broken on CentOS
     # Please use online documentation instead!
     # If you want to generate the documentation, install also:
