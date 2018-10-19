@@ -274,7 +274,8 @@ then
 	couch-libmozjs185-1.0 python-requests libmotif-dev tcsh \
 	libxt-dev curl libboost-dev libboost-system-dev \
 	libboost-filesystem-dev libboost-thread-dev libjsoncpp-dev \
-	libcurl4-gnutls-dev scons libmongoclient-dev libboost-regex-dev
+	libcurl4-gnutls-dev scons libmongoclient-dev libboost-regex-dev xorg-dev \
+	libboost-program-options-dev
 
     # The CouchDB installation in Ubuntu is a bit more delicate.
     if isinstalled "couchdb";
@@ -316,7 +317,8 @@ EOF
 	libAfterImage flex flex-devel expat-devel lua-devel libcurl \
 	python-progressbar R httpd python-requests motif-devel tcsh libXt-devel \
 	curl curl-devel boost-devel boost-filesystem boost-system boost-thread \
-	boost-regex jsoncpp-devel scons libmongo-client couchdb
+	boost-regex jsoncpp-devel scons libmongo-client couchdb libX11-devel \
+        boost-program-options
 
     # Install some python2 packages
     sudo pip install --upgrade pyserial notify2 argparse couchdb pyvisa pyvisa-py
