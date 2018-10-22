@@ -268,19 +268,49 @@ then
     sudo apt-get update
     sudo apt-get upgrade
     sudo apt-get install build-essential python python-dev python-pip psmisc \
-	git libsdl1.2-dev libsdl-ttf2.0-dev elog python-sphinx \
-	libafterimage-dev flex libexpat1-dev liblua5.2-dev \
-	libcurl4 python-progressbar apache2 r-base \
-	couch-libmozjs185-1.0 python-requests libmotif-dev tcsh \
-	libxt-dev curl libboost-dev libboost-system-dev \
-	libboost-filesystem-dev libboost-thread-dev libjsoncpp-dev \
-	libcurl4-gnutls-dev scons libmongoclient-dev libboost-regex-dev xorg-dev \
-	libboost-program-options-dev
+	 git libsdl1.2-dev libsdl-ttf2.0-dev elog python-sphinx libafterimage-dev \
+	 flex libexpat1-dev liblua5.2-dev libcurl4 python-progressbar apache2 r-base \
+	 python-requests libmotif-dev tcsh libxt-dev curl libboost-dev \
+	 libboost-system-dev libboost-filesystem-dev libboost-thread-dev \
+	 libjsoncpp-dev libcurl4-gnutls-dev scons libmongoclient-dev \
+	 libboost-regex-dev xorg-dev libboost-program-options-dev
 
     # The CouchDB installation in Ubuntu is a bit more delicate.
     if isinstalled "couchdb";
-    then echo "couchdb is already installed"; 
-    else 
+    then
+	echo ""
+	echo "couchdb is already installed";
+    elif [ $(apt-cache policy couchdb | grep Candidate | awk '{print $2}') == "2.2.0~bionic" ];
+    then
+	echo ""
+	echo "The couchdb version in the repositories is still 2.2.0~bionic"
+	echo "There is a bug in this version that prevents the creation and deletion"
+	echo "of RUNDB runs. We therefore need to downgrade to the 1.7.2 version that"
+	echo "it is known to work."
+
+	cd
+	sudo apt-get install build-essential erlang libicu-dev libmozjs-52-dev libcurl4-openssl-dev couch-libmozjs185-1.0
+	wget http://ftp.jaist.ac.jp/pub/apache/couchdb/source/1.7.2/apache-couchdb-1.7.2.tar.gz
+	tar zxf apache-couchdb-1.7.2.tar.gz
+	cd apache-couchdb-1.7.2
+	./configure
+	make
+	sudo make install
+	sudo adduser --system --home /usr/local/var/lib/couchdb --no-create-home --shell /bin/bash --group --gecos "CouchDB" couchdb
+	sudo chown -R couchdb:couchdb /usr/local/etc/couchdb
+	sudo chown -R couchdb:couchdb /usr/local/var/lib/couchdb
+	sudo chown -R couchdb:couchdb /usr/local/var/log/couchdb
+	sudo chown -R couchdb:couchdb /usr/local/var/run/couchdb
+	sudo chmod -R 0770 /usr/local/etc/couchdb
+	sudo chmod -R 0770 /usr/local/var/lib/couchdb
+	sudo chmod -R 0770 /usr/local/var/log/couchdb
+	sudo chmod -R 0770 /usr/local/var/run/couchdb
+	sudo adduser ${USER} couchdb
+	sudo adduser root couchdb
+	sudo /usr/local/etc/init.d/couchdb start
+	sudo sed -i -e '$i \/usr/local/etc/init.d/couchdb start\n' /etc/rc.local
+	cd
+    else
 	echo ""
 	echo "Be sure NOT to create a administrator user for couchdb!"
 	echo "You avoid creating an administrator user by just inserting" 
