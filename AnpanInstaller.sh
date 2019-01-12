@@ -120,7 +120,7 @@ then
 fi
 
 # Check for ROOT
-if [ "$ROOTSYS" == "" ] && [ ! -f "/usr/bin/root" ];
+if [ "${ROOTSYS}" == "" ] && [ ! -f "/usr/bin/root" ];
 then
     echo ""
     echo "ROOT is a dependency of Anpan but it seems that it is not installed"
@@ -383,16 +383,16 @@ then
 			 libpythia8-dev davix-dev srm-ifce-dev libtbb-dev python-numpy
 		cd
 		# Download and install ROOT
-		mkdir -p $ROOTSYS/{sources,${ROOTVERS},${ROOTVERS}-build}
-		cd $ROOTSYS
+		mkdir -p ${ROOTSYS}/{sources,${ROOTVERS},${ROOTVERS}-build}
+		cd ${ROOTSYS}
 		git clone http://github.com/root-project/root.git sources
 		cd sources
 		git checkout -b v${ROOTVERS} v${ROOTVERS}
 		cd ../${ROOTVERS}-build
-		cmake -Dbuiltin_xrootd=ON -DCMAKE_INSTALL_PREFIX=$ROOTSYS/${ROOTVERS} ../sources
+		cmake -Dbuiltin_xrootd=ON -DCMAKE_INSTALL_PREFIX=${ROOTSYS}/${ROOTVERS} ../sources
 		cmake --build . --target install -- -j8
 		cd
-		source $ROOTSYS/${ROOTVERS}/bin/thisroot.sh
+		source ${ROOTSYS}/${ROOTVERS}/bin/thisroot.sh
 
     elif [ $CENTOS == "y" ];
     then
@@ -409,7 +409,6 @@ then
 		if [ "${REP}" == "y" ];
 		then
 			sudo yum install root-*
-			ROOTSYS=/usr
 		elif [ "${REP}" == "n" ];
 		then
 			echo ""
@@ -464,21 +463,37 @@ then
 				rm -f msttcore-fonts-installer-2.6-1.noarch.rpm
 			fi
 			# Download and install ROOT
-			mkdir -p $ROOTSYS/{sources,${ROOTVERS},${ROOTVERS}-build}
-			cd $ROOTSYS
+			mkdir -p ${ROOTSYS}/{sources,${ROOTVERS},${ROOTVERS}-build}
+			cd ${ROOTSYS}
 			git clone http://github.com/root-project/root.git sources
 			cd sources
 			git checkout -b v${ROOTVERS} v${ROOTVERS}
 			cd ../${ROOTVERS}-build
-			cmake3 -Dbuiltin_xrootd=ON -DCMAKE_INSTALL_PREFIX=$ROOTSYS/${ROOTVERS} $CENTOS_ROOT_FLAGS ../sources
+			cmake3 -Dbuiltin_xrootd=ON -DCMAKE_INSTALL_PREFIX=${ROOTSYS}/${ROOTVERS} $CENTOS_ROOT_FLAGS ../sources
 			cmake3 --build . --target install -- -j8
 			cd
-			source $ROOTSYS/${ROOTVERS}/bin/thisroot.sh
+			source ${ROOTSYS}/${ROOTVERS}/bin/thisroot.sh
 		else
 			echo "I didn't understand your answer. Sorry, try again."
 			exit 1
 		fi
     fi
+fi
+
+# ROOT detection
+if [ ${ROOTSYS} == "" ];
+then
+	if [ -f "/usr/bin/root" ];
+	then
+		ROOTSYS=/usr
+		sudo ln -s /usr /opt/root
+	elif [ -d "/opt/root" ];
+	then
+		ROOTSYS=/opt/root
+	else
+		echo "Couldn't detect ROOT installation."
+		echo "Perhaps you forgot to run the thisroot.sh script."
+	fi
 fi
 
 #install dim if necessary
@@ -553,7 +568,7 @@ fi
 # More info on the pyrame installation can be found on this webpage:
 # http://llr.in2p3.fr/sites/pyrame/documentation/howto_install.html
 echo "--------------------------------"
-echo "PYRAME and CALICOES INSTALLATION"
+echo "PYRAME INSTALLATION"
 echo "--------------------------------"
 echo "More info on the pyrame installation can be found on this webpage:"
 echo "http://llr.in2p3.fr/sites/pyrame/documentation/howto_install.html"
