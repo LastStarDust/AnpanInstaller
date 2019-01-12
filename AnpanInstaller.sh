@@ -26,26 +26,26 @@ LCIOREP="n"
 CONTINUE="n"
 UBUNTU="n"
 CENTOS="n"
-ROOTVERS="6-14-04"
+ROOTVERS="6-14-06"
 
 # Define a function that checks if a package is installed
 
 function isinstalled {
     if [ $CENTOS == "y" ];
     then
-	if yum list installed "$@" >/dev/null 2>&1; then
-	    true
-	else
-	    false
-	fi
+		if yum list installed "$@" >/dev/null 2>&1; then
+			true
+		else
+			false
+		fi
     elif [ $UBUNTU == "y" ];
     then
-	dpkg -s $1 &> /dev/null
-	if [ $? -eq 0 ]; then
-	    true
-	else
-	    false
-	fi
+		dpkg -s $1 &> /dev/null
+		if [ $? -eq 0 ]; then
+			true
+		else
+			false
+		fi
     fi
 }
 
@@ -96,26 +96,26 @@ then
 
     if [ "`grep -c "SELINUX=disabled" /etc/selinux/config`" != "1" ];
     then
-	echo ""
-	echo "SElinux is active. This prevents Anpan from working properly."
-	echo "This operation will need a reboot. Please relaunch the installer"
-	echo "as soon as reboot is completed."
-	echo -n "Do you want this installer to fix the problem? (y|n) : "
-	read REP
-	if [ "${REP}" == "y" ];
-	then
-	    sudo cp /etc/selinux/config /etc/selinux/config.backup
-	    sudo sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
-	    sudo sed -i 's/SELINUX=permissive/SELINUX=disabled/g' /etc/selinux/config
-	    echo ""
-	    echo "Please reboot and restart the script."
-	    echo ""
-	    exit 1
-	else
-	    echo ""
-	    echo "Please deactivate Selinux and try this installer again"
-	    exit 1
-	fi
+		echo ""
+		echo "SElinux is active. This prevents Anpan from working properly."
+		echo "This operation will need a reboot. Please relaunch the installer"
+		echo "as soon as reboot is completed."
+		echo -n "Do you want this installer to fix the problem? (y|n) : "
+		read REP
+		if [ "${REP}" == "y" ];
+		then
+			sudo cp /etc/selinux/config /etc/selinux/config.backup
+			sudo sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
+			sudo sed -i 's/SELINUX=permissive/SELINUX=disabled/g' /etc/selinux/config
+			echo ""
+			echo "Please reboot and restart the script."
+			echo ""
+			exit 1
+		else
+			echo ""
+			echo "Please deactivate Selinux and try this installer again"
+			exit 1
+		fi
     fi
 fi
 
@@ -123,9 +123,10 @@ fi
 if [ "$ROOTSYS" == "" ] && [ ! -f "/usr/bin/root" ];
 then
     echo ""
-    echo "ROOT is a dependency of Anpan but tt seems that it is not installed"
-    echo "(looking for a non null ROOTSYS variable). Maybe you have just"
-    echo "forgotten to set up the root enviroment with the script thisroot.sh."
+    echo "ROOT is a dependency of Anpan but it seems that it is not installed"
+    echo "(looking for a non null ROOTSYS variable or the /usr/bin/root file)."
+	echo "Maybe you have just forgotten to set up the root enviroment with the"
+	echo "script thisroot.sh."
     echo "In that case please run that script and then restart the installation."
     echo ""
     echo "If ROOT is not installed in your system, this script can take care of"
@@ -137,116 +138,122 @@ then
     read ROOTREP
     if [ "${ROOTREP}" == "n" ];
     then
-	echo -n "Do you want this installer to continue anyway? (y|n) : "
-	read CONTINUE
-	if [ "${CONTINUE}" == "n" ];
-	then
-	    exit 1
-	else
-	    CONTINUE = "" 
-	fi
+		echo -n "Do you want this installer to continue anyway? (y|n) : "
+		read CONTINUE
+		if [ "${CONTINUE}" == "n" ];
+		then
+			exit 1
+		else
+			CONTINUE = "" 
+		fi
     elif [ "${ROOTREP}" == "y" ];
     then
-	echo -n "Set to install it (ROOTREP=\"y\")"
+		echo -n "Set to install it (ROOTREP=\"y\")"
     else
-	echo "I didn't understand your answer. Sorry, try again."
-	exit 1
+		echo "I didn't understand your answer. Sorry, try again."
+		exit 1
     fi
 fi
 
 # Check for DIM
 # For the time being it is not used by Anpan
-DIMREP="n"
-# if [ ! -d "/usr/local/lib/dim" ];
-# then
-#     echo ""
-#     echo ""
-#     echo "Dim is an optional dependency of anpan (only for SDHcal compat)."
-#     echo "It seems that it is not installed (looking for /usr/local/lib/dim)"
-#     echo "The total compilation of the sources should take very little time"
-#     echo -n "Do you want this installer to install it? (y|n) : "
-#     read DIMREP
-#     if [ "${DIMREP}" == "n" ];
-#     then
-# 	echo -n "Do you want this installer to continue anyway? (y|n) : "
-# 	read CONTINUE
-# 	if [ "${CONTINUE}" == "n" ];
-# 	then
-# 	    exit 1
-# 	else
-# 	    CONTINUE = "" 
-# 	fi
-#     elif [ "${DIMREP}" == "y" ];
-#     then
-# 	echo -n "Set to install it (DIMREP=\"y\")"
-#     else
-# 	echo "I didn't understand your answer. Sorry, try again."
-# 	exit 1
-#     fi
-# fi
+if [ ${DIMREP} == "" ];
+then
+	if [ ! -d "/usr/local/lib/dim" ];
+	then
+		echo ""
+		echo ""
+		echo "Dim is an optional dependency of anpan (only for SDHcal compat)."
+		echo "It seems that it is not installed (looking for /usr/local/lib/dim)"
+		echo "The total compilation of the sources should take very little time"
+		echo -n "Do you want this installer to install it? (y|n) : "
+		read DIMREP
+		if [ "${DIMREP}" == "n" ];
+		then
+			echo -n "Do you want this installer to continue anyway? (y|n) : "
+			read CONTINUE
+			if [ "${CONTINUE}" == "n" ];
+			then
+				exit 1
+			else
+				CONTINUE = "" 
+			fi
+		elif [ "${DIMREP}" == "y" ];
+		then
+			echo -n "Set to install it (DIMREP=\"y\")"
+		else
+			echo "I didn't understand your answer. Sorry, try again."
+			exit 1
+		fi
+	fi
+fi
 
 # Check for Liblevbdim
 # For the time being it is not used by Anpan
-LEVBDIMREP="n"
-# if [ ! -f "/usr/local/lib/dim/liblevbdim.so" ];
-# then
-#     echo ""
-#     echo ""
-#     echo "Levbdim is an optional dependency of anpan (only for SDHcal compat)."
-#     echo "It seems that it is not installed (looking for /usr/local/lib/dim/liblevbdim.so)"
-#     echo "Be aware that dim is a dependency for levbdim."
-#     echo "The total compilation of the sources should take very little time"
-#     echo -n "Do you want this installer to install it? (y|n) : "
-#     read LEVBDIMREP
-#     if [ "${LEVBDIMREP}" == "n" ];
-#     then
-# 	echo -n "Do you want this installer to continue anyway? (y|n) : "
-# 	read CONTINUE
-# 	if [ "${CONTINUE}" == "n" ];
-# 	then
-# 	    exit 1
-# 	else
-# 	    CONTINUE = "" 
-# 	fi
-#     elif [ "${LEVBDIMREP}" == "y" ];
-#     then
-# 	echo -n "Set to install it (DIMREP=\"y\")"
-#     else
-# 	echo "I didn't understand your answer. Sorry, try again."
-# 	exit 1
-#     fi
-# fi
 
+if [ ${LEVBDIMREP} == "" ];
+then
+	if [ ! -f "/usr/local/lib/dim/liblevbdim.so" ];
+	then
+		echo ""
+		echo ""
+		echo "Levbdim is an optional dependency of anpan (only for SDHcal compat)."
+		echo "It seems that it is not installed (looking for /usr/local/lib/dim/liblevbdim.so)"
+		echo "Be aware that dim is a dependency for levbdim."
+		echo "The total compilation of the sources should take very little time"
+		echo -n "Do you want this installer to install it? (y|n) : "
+		read LEVBDIMREP
+		if [ "${LEVBDIMREP}" == "n" ];
+		then
+			echo -n "Do you want this installer to continue anyway? (y|n) : "
+			read CONTINUE
+			if [ "${CONTINUE}" == "n" ];
+			then
+				exit 1
+			else
+				CONTINUE = "" 
+			fi
+		elif [ "${LEVBDIMREP}" == "y" ];
+		then
+			echo -n "Set to install it (DIMREP=\"y\")"
+		else
+			echo "I didn't understand your answer. Sorry, try again."
+			exit 1
+		fi
+	fi
+fi
 # Check for LCIO
 # For the time being it is not used by Anpan
-LCIOREP="n"
-# if [ ! -d "/opt/lcio" ];
-# then
-#     echo ""
-#     echo ""
-#     echo "LCIO is an optional dependency of anpan."
-#     echo "It seems that it is not installed (looking for /opt/lcio)"
-#     echo "The total compilation of the sources should some minutes"
-#     echo -n "Do you want this installer to install it? (y|n) : "
-#     read LCIOREP
-#     if [ "${LCIOREP}" == "n" ];
-#     then
-# 	echo -n "Do you want this installer to continue anyway? (y|n) : "
-# 	read CONTINUE
-# 	if [ "${CONTINUE}" == "n" ];
-# 	then
-# 	    exit 1
-# 	else
-# 	    CONTINUE = "" 
-# 	fi
-#     elif [ "${LCIOREP}" == "y" ];
-#     then
-# 	echo -n "Set to install it (DIMREP=\"y\")"
-#     else
-# 	echo "I didn't understand your answer. Sorry, try again."
-# 	exit 1
-#     fi
-# fi
+if [ ${LCIOREP} == "" ];
+then
+	if [ ! -d "/opt/lcio" ];
+	then
+		echo ""
+		echo ""
+		echo "LCIO is an optional dependency of anpan."
+		echo "It seems that it is not installed (looking for /opt/lcio)"
+		echo "The total compilation of the sources should some minutes"
+		echo -n "Do you want this installer to install it? (y|n) : "
+		read LCIOREP
+		if [ "${LCIOREP}" == "n" ];
+		then
+			echo -n "Do you want this installer to continue anyway? (y|n) : "
+			read CONTINUE
+			if [ "${CONTINUE}" == "n" ];
+			then
+				exit 1
+			else
+				CONTINUE = "" 
+			fi
+		elif [ "${LCIOREP}" == "y" ];
+		then
+			echo -n "Set to install it (DIMREP=\"y\")"
+		else
+			echo "I didn't understand your answer. Sorry, try again."
+			exit 1
+		fi
+	fi
+fi
 
 echo ""
 echo "Moving to the HOME directory."
@@ -259,68 +266,38 @@ if [ $UBUNTU == "y" ];
 then
     if [ ! -f /etc/apt/sources.list.d/apache_couchdb_bionic.list ];
     then
-	sudo apt-get install curl
-	echo "deb https://apache.bintray.com/couchdb-deb bionic main" \
+		sudo apt-get install curl
+		echo "deb https://apache.bintray.com/couchdb-deb bionic main" \
             | sudo tee -a /etc/apt/sources.list.d/apache_couchdb_bionic.list
-	curl -L https://couchdb.apache.org/repo/bintray-pubkey.asc \
+		curl -L https://couchdb.apache.org/repo/bintray-pubkey.asc \
             | sudo apt-key add -
     fi
     sudo apt-get update
     sudo apt-get upgrade
     sudo apt-get install build-essential python python-dev python-pip psmisc \
-	 git libsdl1.2-dev libsdl-ttf2.0-dev elog python-sphinx libafterimage-dev \
-	 flex libexpat1-dev liblua5.2-dev libcurl4 python-progressbar apache2 r-base \
-	 python-requests libmotif-dev tcsh libxt-dev curl libboost-dev \
-	 libboost-system-dev libboost-filesystem-dev libboost-thread-dev \
-	 libjsoncpp-dev libcurl4-gnutls-dev scons libmongoclient-dev \
-	 libboost-regex-dev xorg-dev libboost-program-options-dev
+		 git libsdl1.2-dev libsdl-ttf2.0-dev elog python-sphinx libafterimage-dev \
+		 flex libexpat1-dev liblua5.2-dev libcurl4 python-progressbar apache2 r-base \
+		 python-requests libmotif-dev tcsh libxt-dev curl libboost-dev \
+		 libboost-system-dev libboost-filesystem-dev libboost-thread-dev \
+		 libjsoncpp-dev libcurl4-gnutls-dev scons libmongoclient-dev \
+		 libboost-regex-dev xorg-dev libboost-program-options-dev unzip
 
     # The CouchDB installation in Ubuntu is a bit more delicate.
     if isinstalled "couchdb";
     then
-	echo ""
-	echo "couchdb is already installed";
-    elif [ $(apt-cache policy couchdb | grep Candidate | awk '{print $2}') == "2.2.0~bionic" ];
-    then
-	echo ""
-	echo "The couchdb version in the repositories is still 2.2.0~bionic"
-	echo "There is a bug in this version that prevents the creation and deletion"
-	echo "of RUNDB runs. We therefore need to downgrade to the 1.7.2 version that"
-	echo "it is known to work."
-
-	cd
-	sudo apt-get install build-essential erlang libicu-dev libmozjs-52-dev libcurl4-openssl-dev couch-libmozjs185-1.0
-	wget http://ftp.jaist.ac.jp/pub/apache/couchdb/source/1.7.2/apache-couchdb-1.7.2.tar.gz
-	tar zxf apache-couchdb-1.7.2.tar.gz
-	cd apache-couchdb-1.7.2
-	./configure
-	make
-	sudo make install
-	sudo adduser --system --home /usr/local/var/lib/couchdb --no-create-home --shell /bin/bash --group --gecos "CouchDB" couchdb
-	sudo chown -R couchdb:couchdb /usr/local/etc/couchdb
-	sudo chown -R couchdb:couchdb /usr/local/var/lib/couchdb
-	sudo chown -R couchdb:couchdb /usr/local/var/log/couchdb
-	sudo chown -R couchdb:couchdb /usr/local/var/run/couchdb
-	sudo chmod -R 0770 /usr/local/etc/couchdb
-	sudo chmod -R 0770 /usr/local/var/lib/couchdb
-	sudo chmod -R 0770 /usr/local/var/log/couchdb
-	sudo chmod -R 0770 /usr/local/var/run/couchdb
-	sudo adduser ${USER} couchdb
-	sudo adduser root couchdb
-	sudo /usr/local/etc/init.d/couchdb start
-	sudo sed -i -e '$i \/usr/local/etc/init.d/couchdb start\n' /etc/rc.local
-	cd
+		echo ""
+		echo "couchdb is already installed";
     else
-	echo ""
-	echo "Be sure NOT to create a administrator user for couchdb!"
-	echo "You avoid creating an administrator user by just inserting" 
-	echo "an EMPTY password."
-	read -n1 -r -p "Press any key to continue..." key
-	sudo apt-get install couchdb
+		echo ""
+		echo "Be sure NOT to create a administrator user for couchdb!"
+		echo "You avoid creating an administrator user by just inserting" 
+		echo "an EMPTY password."
+		read -n1 -r -p "Press any key to continue..." key
+		sudo apt-get install couchdb
     fi
 
     # Install some python2 packages
-    pip install --upgrade pyserial notify2 argparse couchdb pyvisa pyvisa-py
+    pip install --upgrade pyserial notify2 argparse couchdb pyvisa pyvisa-py distro
     # If you want to generate the documentation, install also:
     pip install --upgrade docutils Pygments
 
@@ -329,7 +306,7 @@ then
     # Install CouchDB repository if it is not present
     if [ ! -f /etc/yum.repos.d/couchdb.repo ];
     then
-	sudo tee /etc/yum.repos.d/couchdb.repo << 'EOF'
+		sudo tee /etc/yum.repos.d/couchdb.repo << 'EOF'
 [bintray--apache-couchdb-rpm]
 name=bintray--apache-couchdb-rpm
 baseurl=http://apache.bintray.com/couchdb-rpm/el$releasever/$basearch/
@@ -343,15 +320,16 @@ EOF
     sudo yum -y install epel-release
     sudo yum -y update
     sudo yum install make automake gcc gcc-c++ kernel-devel python python-devel \
-	python-pip psmisc git SDL-devel SDL_ttf-devel elog python-sphinx \
-	libAfterImage flex flex-devel expat-devel lua-devel libcurl \
-	python-progressbar R httpd python-requests motif-devel tcsh libXt-devel \
-	curl curl-devel boost-devel boost-filesystem boost-system boost-thread \
-	boost-regex jsoncpp-devel scons libmongo-client couchdb libX11-devel \
-        boost-program-options
+		 python-pip psmisc git SDL-devel SDL_ttf-devel elog python-sphinx \
+		 libAfterImage flex flex-devel expat-devel lua-devel libcurl \
+		 python-progressbar R httpd python-requests motif-devel tcsh libXt-devel \
+		 curl curl-devel boost-devel boost-filesystem boost-system boost-thread \
+		 boost-regex jsoncpp-devel scons libmongo-client couchdb libX11-devel \
+		 boost-program-options unzip
 
     # Install some python2 packages
-    sudo pip install --upgrade pyserial notify2 argparse couchdb pyvisa pyvisa-py
+    sudo pip install --upgrade pyserial notify2 argparse couchdb pyvisa pyvisa-py \
+		 distro
     # Documentation compiling is currently broken on CentOS
     # Please use online documentation instead!
     # If you want to generate the documentation, install also:
@@ -368,138 +346,138 @@ then
 
     if [ $UBUNTU == "y" ];
     then
-	echo ""
-	echo "Insert the directory where you want ROOT to be installed."
-	echo "Don't insert the trailing slash. For example \"$HOME/Code/ROOT\"."
-	echo "This script is not intended to be run as root, so please insert"
-	echo "a directory that is writable by the current user. If you wish to"
-	echo "install ROOT in a system directory, please do it manually or just"
-	echo "place \"sudo\" in front of every relevant line in this script"
-	echo "from line 370 to line 377 (more or less)."
-	read ROOTDIR
+		echo ""
+		echo "Insert the directory where you want ROOT to be installed."
+		echo "Don't insert the trailing slash. For example \"$HOME/Code/ROOT\"."
+		echo "This script is not intended to be run as root, so please insert"
+		echo "a directory that is writable by the current user. If you wish to"
+		echo "install ROOT in a system directory, please do it manually or just"
+		echo "place \"sudo\" in front of every relevant line in this script"
+		echo "from line 370 to line 377 (more or less)."
+		read ROOTDIR
 
-	# If nothing is inserted assume the user home as installation directory
-	# Remove any previous installation
-	if [ -z "$ROOTDIR" ]; then
-	    if [ -d "${HOME}/ROOT" ];
-	    then rm -rf "${HOME}/ROOT"; fi
+		# If nothing is inserted assume the user home as installation directory
+		# Remove any previous installation
+		if [ -z "$ROOTDIR" ]; then
+			if [ -d "${HOME}/ROOT" ];
+			then rm -rf "${HOME}/ROOT"; fi
             mkdir -p "${HOME}/ROOT"
             ROOTSYS="${HOME}/ROOT"
-	else
-	    if [ -d "${ROOTDIR}/ROOT" ];
-	    then rm -rf "${ROOTDIR}/ROOT"; fi
+		else
+			if [ -d "${ROOTDIR}/ROOT" ];
+			then rm -rf "${ROOTDIR}/ROOT"; fi
             mkdir -p "${ROOTDIR}/ROOT"
             ROOTSYS="${ROOTDIR}/ROOT"
-	fi
-	
-	sudo apt-get install build-essential git dpkg-dev cmake xutils-dev \
-	    binutils libx11-dev libxpm-dev libxft-dev libxext-dev \
-	    libssl-dev libpcre3-dev libglu1-mesa-dev libglew-dev \
-	    libmysqlclient-dev libfftw3-dev libcfitsio-dev libgraphviz-dev \
-	    libavahi-compat-libdnssd-dev libldap2-dev python-dev libxml2-dev \
-	    libkrb5-dev libgsl-dev libqt4-dev libmotif-dev libmotif-common \
-	    libblas-dev liblapack-dev xfstt xfsprogs t1-xfree86-nonfree \
-	    ttf-xfree86-nonfree ttf-xfree86-nonfree-syriac xfonts-75dpi \
-	    xfonts-100dpi libgif-dev libtiff-dev libjpeg-dev liblz4-dev \
-	    liblzma-dev libgl2ps-dev libpostgresql-ocaml-dev libsqlite3-dev \
-	    libpythia8-dev davix-dev srm-ifce-dev libtbb-dev python-numpy
-	cd
-	# Download and install ROOT
-	mkdir -p $ROOTSYS/{sources,${ROOTVERS},${ROOTVERS}-build}
-	cd $ROOTSYS
-	git clone http://github.com/root-project/root.git sources
-	cd sources
-	git checkout -b v${ROOTVERS} v${ROOTVERS}
-	cd ../${ROOTVERS}-build
-	cmake -Dbuiltin_xrootd=ON -DCMAKE_INSTALL_PREFIX=$ROOTSYS/${ROOTVERS} ../sources
-	cmake --build . --target install -- -j8
-	cd
-	source $ROOTSYS/${ROOTVERS}/bin/thisroot.sh
+		fi
+		
+		sudo apt-get install build-essential git dpkg-dev cmake xutils-dev \
+			 binutils libx11-dev libxpm-dev libxft-dev libxext-dev \
+			 libssl-dev libpcre3-dev libglu1-mesa-dev libglew-dev \
+			 libmysqlclient-dev libfftw3-dev libcfitsio-dev libgraphviz-dev \
+			 libavahi-compat-libdnssd-dev libldap2-dev python-dev libxml2-dev \
+			 libkrb5-dev libgsl-dev libqt4-dev libmotif-dev libmotif-common \
+			 libblas-dev liblapack-dev xfstt xfsprogs t1-xfree86-nonfree \
+			 ttf-xfree86-nonfree ttf-xfree86-nonfree-syriac xfonts-75dpi \
+			 xfonts-100dpi libgif-dev libtiff-dev libjpeg-dev liblz4-dev \
+			 liblzma-dev libgl2ps-dev libpostgresql-ocaml-dev libsqlite3-dev \
+			 libpythia8-dev davix-dev srm-ifce-dev libtbb-dev python-numpy
+		cd
+		# Download and install ROOT
+		mkdir -p $ROOTSYS/{sources,${ROOTVERS},${ROOTVERS}-build}
+		cd $ROOTSYS
+		git clone http://github.com/root-project/root.git sources
+		cd sources
+		git checkout -b v${ROOTVERS} v${ROOTVERS}
+		cd ../${ROOTVERS}-build
+		cmake -Dbuiltin_xrootd=ON -DCMAKE_INSTALL_PREFIX=$ROOTSYS/${ROOTVERS} ../sources
+		cmake --build . --target install -- -j8
+		cd
+		source $ROOTSYS/${ROOTVERS}/bin/thisroot.sh
 
     elif [ $CENTOS == "y" ];
     then
-	echo ""
-	echo "In CentOS 7 ROOT can be either installed from repository or"
-	echo "compiled from sources. If you want the latest version of ROOT"
-	echo "it is better to install it from repositories but if, for whatever"
-	echo "reason, you want to install an older version of ROOT, perhaps"
-	echo "it is better to compile from sources. If this is a DAQ PC it"
-	echo "is better to install from repository."
-	echo ""
-	echo -n "Do you want to install from repository? (y|n) : "
-	read REP
-	if [ "${REP}" == "y" ];
-	then
-	    sudo yum install root-*
-	    ROOTSYS=/usr
-	elif [ "${REP}" == "n" ];
-	then
-	    echo ""
-	    echo "Insert the directory where you want ROOT to be installed."
-	    echo "Don't insert the trailing slash. For example \"$HOME/Code/ROOT\"."
-	    echo "This script is not intended to be run as root, so please insert"
-	    echo "a directory that is writable by the current user. If you wish to"
-	    echo "install ROOT in a system directory, please do it manually or just"
-	    echo "place \"sudo\" in front of every relevant line in this script"
-	    echo "from line 453 to line 460 (more or less). You can change the version"
-	    echo "of ROOT to be installed tweaking the ROOTVERS (${ROOTVERS}) variable."
-	    echo ""
-	    read ROOTDIR
-	    echo ""
-	    echo "ROOT ${ROOTVERS} will be compiled from sources."
-	    echo ""
-	    # If nothing is inserted assume the user home as installation directory
-	    # Remove any previous installation
-	    if [ -z "$ROOTDIR" ]; then
-		if [ -d "${HOME}/ROOT" ];
-		then rm -rf "${HOME}/ROOT"; fi
-		mkdir -p "${HOME}/ROOT"
-		ROOTSYS="${HOME}/ROOT"
-	    else
-		if [ -d "${ROOTDIR}/ROOT" ];
-		then rm -rf "${ROOTDIR}/ROOT"; fi
-		mkdir -p "${ROOTDIR}/ROOT"
-		ROOTSYS="${ROOTDIR}/ROOT"
-	    fi
-	    
-	    sudo yum install make automake gcc gcc-c++ kernel-devel git cmake3 \
-		 xorg-x11-util-macros binutils libX11-devel libXft-devel \
-		 openssl-devel pcre2-devel mesa-libGLU-devel glew-devel \
-		 avahi-compat-libdns_sd-devel mariadb-devel fftw-devel \
-		 graphviz-devel openldap-devel python-devel \
-		 libxml2-devel krb5-devel gsl-devel qt-devel motif-devel motif \
-		 blas-devel lapack-devel xfsprogs cabextract xorg-x11-font-utils \
-		 fontconfig xorg-x11-server-Xvfb xorg-x11-fonts-Type1 \
-		 xorg-x11-fonts-75dpi xorg-x11-fonts-100dpi dejavu-sans-fonts \
-		 urw-fonts giflib-devel libtiff-devel libjpeg-turbo-devel lz4-devel \
-		 xz-devel gl2ps-devel postgresql-devel libsqlite3x-devel \
-		 pythia8-devel davix-devel srm-ifce-devel tbb-devel python2-numpy \
-		 libXpm-devel libXpm cfitsio cfitsio-devel gfal2-devel gfal2 ocaml \
-		 xxhash xxhash-devel xxhash-libs
+		echo ""
+		echo "In CentOS 7 ROOT can be either installed from repository or"
+		echo "compiled from sources. If you want the latest version of ROOT"
+		echo "it is better to install it from repositories but if, for whatever"
+		echo "reason, you want to install an older version of ROOT, perhaps"
+		echo "it is better to compile from sources. If this is a DAQ PC it"
+		echo "is better to install from repository."
+		echo ""
+		echo -n "Do you want to install from repository? (y|n) : "
+		read REP
+		if [ "${REP}" == "y" ];
+		then
+			sudo yum install root-*
+			ROOTSYS=/usr
+		elif [ "${REP}" == "n" ];
+		then
+			echo ""
+			echo "Insert the directory where you want ROOT to be installed."
+			echo "Don't insert the trailing slash. For example \"$HOME/Code/ROOT\"."
+			echo "This script is not intended to be run as root, so please insert"
+			echo "a directory that is writable by the current user. If you wish to"
+			echo "install ROOT in a system directory, please do it manually or just"
+			echo "place \"sudo\" in front of every relevant line in this script"
+			echo "from line 453 to line 460 (more or less). You can change the version"
+			echo "of ROOT to be installed tweaking the ROOTVERS (${ROOTVERS}) variable."
+			echo ""
+			read ROOTDIR
+			echo ""
+			echo "ROOT ${ROOTVERS} will be compiled from sources."
+			echo ""
+			# If nothing is inserted assume the user home as installation directory
+			# Remove any previous installation
+			if [ -z "$ROOTDIR" ]; then
+				if [ -d "${HOME}/ROOT" ];
+				then rm -rf "${HOME}/ROOT"; fi
+				mkdir -p "${HOME}/ROOT"
+				ROOTSYS="${HOME}/ROOT"
+			else
+				if [ -d "${ROOTDIR}/ROOT" ];
+				then rm -rf "${ROOTDIR}/ROOT"; fi
+				mkdir -p "${ROOTDIR}/ROOT"
+				ROOTSYS="${ROOTDIR}/ROOT"
+			fi
+			
+			sudo yum install make automake gcc gcc-c++ kernel-devel git cmake3 \
+				 xorg-x11-util-macros binutils libX11-devel libXft-devel \
+				 openssl-devel pcre2-devel mesa-libGLU-devel glew-devel \
+				 avahi-compat-libdns_sd-devel mariadb-devel fftw-devel \
+				 graphviz-devel openldap-devel python-devel \
+				 libxml2-devel krb5-devel gsl-devel qt-devel motif-devel motif \
+				 blas-devel lapack-devel xfsprogs cabextract xorg-x11-font-utils \
+				 fontconfig xorg-x11-server-Xvfb xorg-x11-fonts-Type1 \
+				 xorg-x11-fonts-75dpi xorg-x11-fonts-100dpi dejavu-sans-fonts \
+				 urw-fonts giflib-devel libtiff-devel libjpeg-turbo-devel lz4-devel \
+				 xz-devel gl2ps-devel postgresql-devel libsqlite3x-devel \
+				 pythia8-devel davix-devel srm-ifce-devel tbb-devel python2-numpy \
+				 libXpm-devel libXpm cfitsio cfitsio-devel gfal2-devel gfal2 ocaml \
+				 xxhash xxhash-devel xxhash-libs
 
-	    if isinstalled "msttcore-fonts-installer";
-	    then echo "msttcore-fonts-installer is already installed"; 
-	    else 
-		echo "msttcore-fonts-installer is not installed"
-		wget https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm
-		sudo yum install msttcore-fonts-installer-2.6-1.noarch.rpm
-		rm -f msttcore-fonts-installer-2.6-1.noarch.rpm
-	    fi
-	    # Download and install ROOT
-	    mkdir -p $ROOTSYS/{sources,${ROOTVERS},${ROOTVERS}-build}
-	    cd $ROOTSYS
-	    git clone http://github.com/root-project/root.git sources
-	    cd sources
-	    git checkout -b v${ROOTVERS} v${ROOTVERS}
-	    cd ../${ROOTVERS}-build
-	    cmake3 -Dbuiltin_xrootd=ON -DCMAKE_INSTALL_PREFIX=$ROOTSYS/${ROOTVERS} $CENTOS_ROOT_FLAGS ../sources
-	    cmake3 --build . --target install -- -j8
-	    cd
-	    source $ROOTSYS/${ROOTVERS}/bin/thisroot.sh
-	else
-	    echo "I didn't understand your answer. Sorry, try again."
-	    exit 1
-	fi
+			if isinstalled "msttcore-fonts-installer";
+			then echo "msttcore-fonts-installer is already installed"; 
+			else 
+				echo "msttcore-fonts-installer is not installed"
+				wget https://downloads.sourceforge.net/project/mscorefonts2/rpms/msttcore-fonts-installer-2.6-1.noarch.rpm
+				sudo yum install msttcore-fonts-installer-2.6-1.noarch.rpm
+				rm -f msttcore-fonts-installer-2.6-1.noarch.rpm
+			fi
+			# Download and install ROOT
+			mkdir -p $ROOTSYS/{sources,${ROOTVERS},${ROOTVERS}-build}
+			cd $ROOTSYS
+			git clone http://github.com/root-project/root.git sources
+			cd sources
+			git checkout -b v${ROOTVERS} v${ROOTVERS}
+			cd ../${ROOTVERS}-build
+			cmake3 -Dbuiltin_xrootd=ON -DCMAKE_INSTALL_PREFIX=$ROOTSYS/${ROOTVERS} $CENTOS_ROOT_FLAGS ../sources
+			cmake3 --build . --target install -- -j8
+			cd
+			source $ROOTSYS/${ROOTVERS}/bin/thisroot.sh
+		else
+			echo "I didn't understand your answer. Sorry, try again."
+			exit 1
+		fi
     fi
 fi
 
@@ -570,20 +548,19 @@ then
     rm -rf lcio
 fi
 
-# ------------------------ PYRAME --------------------------
+# ------------------------ PYRAME and CALICOES --------------------------
 
 # More info on the pyrame installation can be found on this webpage:
 # http://llr.in2p3.fr/sites/pyrame/documentation/howto_install.html
-echo "-------------------"
-echo "PYRAME INSTALLATION"
-echo "-------------------"
+echo "--------------------------------"
+echo "PYRAME and CALICOES INSTALLATION"
+echo "--------------------------------"
 echo "More info on the pyrame installation can be found on this webpage:"
 echo "http://llr.in2p3.fr/sites/pyrame/documentation/howto_install.html"
 echo "This is a modified version of Pyrame tailored to the WAGASCI Experiment"
 
-# Download the sources from GitHub
 echo ""
-echo "Insert the directory where you would like to clone the pyrame repository"
+echo "Insert the directory where you would like to install Pyrame and Calicoes"
 echo "Don't insert the trailing slash. The default one is \"${HOME}\"."
 echo "Just press OK if you want to clone it in the $HOME folder."
 read PYRAME_DIR
@@ -600,23 +577,36 @@ then
     sudo ln -sf /usr/include/lua5.2/lualib.h /usr/include/lualib.h
     sudo ln -sf /usr/include/lua5.2/lauxlib.h /usr/include/lauxlib.h
 fi
-# check for previous installs
+# check for previous Pyrame installs
 if [ -d "${PYRAME_DIR}/pyrame" ];
 then
     cd "${PYRAME_DIR}/pyrame"
     sudo make uninstall
+	sudo rm -rf /opt/pyrame
     cd ..
     sudo rm -rf pyrame
 fi
 
+# check for previous Calicoes installs
+if [ -d "${PYRAME_DIR}/calicoes" ];
+then
+    cd "${PYRAME_DIR}/calicoes"
+    sudo make uninstall
+	sudo rm -rf /opt/calicoes
+    cd ..
+    sudo rm -rf calicoes
+fi
+
 mkdir -p "${PYRAME_DIR}"
 cd "${PYRAME_DIR}"
-git clone https://github.com/LastStarDust/pyrame.git pyrame
+# curl -o pyrame.zip -k -u b2water:MPPC LINK_HERE pyrame
+curl -L -o ANPAN.zip https://www.dropbox.com/s/91ag6nwovjrg9ha/ANPAN%200.1.zip?dl=1
+unzip -qn ANPAN.zip -d ./
 cd pyrame
 
 # configure and install
 chmod +x ./configure
-./configure
+bash ./configure
 make
 sudo -E make install
 
@@ -631,7 +621,7 @@ then
     cd ..
 fi
 
-# install and enable apache2
+# enable apache2
 if [ $UBUNTU == "y" ];
 then
     sudo "${PYRAME_DIR}/pyrame/xhr/install_xhr_debian8_apache2.sh"
@@ -648,7 +638,7 @@ fi
 # echo 1 > sudo tee /proc/sys/net/ipv4/tcp_tw_recycle
 # echo 1 > sudo tee /proc/sys/net/ipv4/tcp_fin_timeout
 # tcp_tw_recycle is not available in ubuntu since kernel 4.11,
-# moreover this is  strictly  a  violation  of the TCP specification.
+# moreover this is strictly a violation of the TCP specification.
 # In Linux 2.2, the default value for tcp_fin_timeout was 180 seconds.
 # I assumed that if the OS is CentOS that machine will only be used
 # as a DAQ machine with limited internet capabilities and so I allow
@@ -661,42 +651,21 @@ then
     sudo cp -f "${PYRAME_DIR}/pyrame/launcher/99-pyrame.conf" /etc/sysctl.d/
 fi  
 
-# --------------------- ANPAN ---------------------
+# --------------------- CALICOES ---------------------
 
-# More info on the anpan installation can be found on this webpage:
-# http://llr.in2p3.fr/sites/pyrame/anpan/documentation/install.html
+# More info on the calicoes installation can be found on this webpage:
+# http://llr.in2p3.fr/sites/pyrame/calicoes/documentation/install.html
 
 echo "-------------------"
-echo "ANPAN INSTALLATION"
+echo "CALICOES INSTALLATION"
 echo "-------------------"
-echo "The anpan software based on calicoes 3.0"
+echo "ANPAN is based on calicoes 3.0"
 echo "More info on the calicoes installation can be found on this webpage:"
 echo "http://llr.in2p3.fr/sites/pyrame/calicoes/documentation/install.html"
 
-# Download the sources from GitHub
-echo ""
-echo "Insert the directory where you would like to clone the anpan repository"
-echo "Don't insert the trailing slash. The default one is \"${HOME}\"."
-echo "Just press OK if you want to clone it in the $HOME folder."
-read ANPAN_DIR
-if [ -z "$ANPAN_DIR" ]; then
-    ANPAN_DIR=${HOME}
-fi
+cd "$PYRAME_DIR/calicoes"
 
-# check for previous installs
-if [ -d "${ANPAN_DIR}/anpan" ];
-then
-    cd "${ANPAN_DIR}/anpan"
-    sudo make uninstall
-    cd ..
-    sudo rm -rf anpan
-fi
-
-cd "$ANPAN_DIR"
-git clone https://github.com/LastStarDust/anpan.git anpan
-cd anpan
-
-# compile and install
+# compile and install Calicoes
 
 # I noticed that sometimes not all the scripts are copied in the /usr/local/bin
 # directory. This may be due to a misconfiguration of the Makefiles
@@ -713,7 +682,7 @@ then
     # install documentation   
     cd docs/documentation
     make
-    sudo mkdir -p /opt/anpan/doc
+    sudo mkdir -p /opt/calicoes/doc
     sudo make install
     cd ../..
 fi
@@ -721,14 +690,12 @@ fi
 echo ""
 echo "Post-configuration..."
 echo ""
+
 cd
-sudo cp /opt/couchdb/etc/local.ini /opt/couchdb/etc/local.ini.backup
-sudo chown couchdb:couchdb /opt/couchdb/etc/local.ini.backup
-sudo sed -i '/\[httpd\]/a socket_options = [{nodelay, true}]' /opt/couchdb/etc/local.ini
 
 if [ ! -L "/var/www/html/phygui_rc" ];
 then
-    sudo ln -s /opt/anpan/phygui_rc /var/www/html/phygui_rc
+    sudo ln -s /opt/calicoes/phygui_rc /var/www/html/phygui_rc
 fi
 
 sudo systemctl enable couchdb
