@@ -14,19 +14,19 @@
 # It cleans all the previous installations and ensures a clean environment.
 
 cd ${HOME}
-sudo rm -rf compileDIM.csh* dim_v20* levbdim tmp couch*
-sudo rm -fr /tmp/mongoose-cpp
+rm -rf compileDIM.csh* dim_v20* levbdim tmp couch* lcio
+sudo rm -rf /tmp/mongoose-cpp
 if [ -d ${HOME}/pyrame ]; then
 	cd ${HOME}/pyrame
 	sudo make uninstall
 	cd ..
-	sudo rm -rf pyrame*
+	rm -rf pyrame*
 fi
-if [ -d ${HOME}/anpan ]; then
-	cd ${HOME}/anpan
+if [ -d ${HOME}/calicoes ]; then
+	cd ${HOME}/calicoes
 	sudo make uninstall
 	cd ..
-	sudo rm -rf anpan*
+	rm -rf calicoes*
 fi
 
 # AnpanInstaller.sh

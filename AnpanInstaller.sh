@@ -22,7 +22,7 @@ set -e
 ROOTREP="n"
 DIMREP="n"
 LEVBDIMREP="n"
-LCIOREP="n"
+LCIOREP=""
 CONTINUE="n"
 UBUNTU="n"
 CENTOS="n"
@@ -157,7 +157,7 @@ fi
 
 # Check for DIM
 # For the time being it is not used by Anpan
-if [ ${DIMREP} == "" ];
+if [ "${DIMREP}" == "" ];
 then
 	if [ ! -d "/usr/local/lib/dim" ];
 	then
@@ -191,7 +191,7 @@ fi
 # Check for Liblevbdim
 # For the time being it is not used by Anpan
 
-if [ ${LEVBDIMREP} == "" ];
+if [ "${LEVBDIMREP}" == "" ];
 then
 	if [ ! -f "/usr/local/lib/dim/liblevbdim.so" ];
 	then
@@ -224,7 +224,7 @@ then
 fi
 # Check for LCIO
 # For the time being it is not used by Anpan
-if [ ${LCIOREP} == "" ];
+if [ "${LCIOREP}" == "" ];
 then
 	if [ ! -d "/opt/lcio" ];
 	then
@@ -297,9 +297,10 @@ then
     fi
 
     # Install some python2 packages
-    pip install --upgrade pyserial notify2 argparse couchdb pyvisa pyvisa-py distro
+    sudo pip install --upgrade pip
+    sudo pip install --upgrade pyserial notify2 argparse couchdb pyvisa pyvisa-py distro
     # If you want to generate the documentation, install also:
-    pip install --upgrade docutils Pygments
+    sudo pip install --upgrade docutils Pygments
 
 elif [ $CENTOS == "y" ];
 then
@@ -325,9 +326,10 @@ EOF
 		 python-progressbar R httpd python-requests motif-devel tcsh libXt-devel \
 		 curl curl-devel boost-devel boost-filesystem boost-system boost-thread \
 		 boost-regex jsoncpp-devel scons libmongo-client couchdb libX11-devel \
-		 boost-program-options unzip
+		 boost-program-options unzip cmake3
 
     # Install some python2 packages
+    sudo pip install --upgrade pip
     sudo pip install --upgrade pyserial notify2 argparse couchdb pyvisa pyvisa-py \
 		 distro
     # Documentation compiling is currently broken on CentOS
@@ -495,6 +497,7 @@ then
 		echo "Perhaps you forgot to run the thisroot.sh script."
 	fi
 fi
+export ROOTSYS=${ROOTSYS}
 
 #install dim if necessary
 
