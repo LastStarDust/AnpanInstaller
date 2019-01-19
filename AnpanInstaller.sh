@@ -23,6 +23,7 @@ ROOTREP="n"
 DIMREP="n"
 LEVBDIMREP="n"
 LCIOREP=""
+USBRHREP=""
 CONTINUE="n"
 UBUNTU="n"
 CENTOS="n"
@@ -223,7 +224,7 @@ then
 	fi
 fi
 # Check for LCIO
-# For the time being it is not used by Anpan
+# for the time being it is not used by Anpan
 if [ -z "${LCIOREP}" ];
 then
 	if [ ! -d "/opt/lcio" ];
@@ -232,7 +233,7 @@ then
 		echo ""
 		echo "LCIO is an optional dependency of anpan."
 		echo "It seems that it is not installed (looking for /opt/lcio)"
-		echo "The total compilation of the sources should some minutes"
+		echo "The total compilation of the sources could take some minutes"
 		echo -n "Do you want this installer to install it? (y|n) : "
 		read LCIOREP
 		if [ "${LCIOREP}" == "n" ];
@@ -248,6 +249,45 @@ then
 		elif [ "${LCIOREP}" == "y" ];
 		then
 			echo -n "Set to install it (LCIOREP=\"y\")"
+		else
+			echo "I didn't understand your answer. Sorry, try again."
+			exit 1
+		fi
+	fi
+fi
+# Check for USBRHREP
+if [ -z "${USBRHREP}" ];
+then
+	if [ $CENTOS == "y" ];
+	then
+		USBRH_MODULE= "/usr/lib/modules/`uname -r`/extra/usbrh.ko"
+	elif [ $UBUNTU == "y" ];
+	then
+		USBRH_MODULE= "/lib/modules/`uname -r`/extra/usbrh.ko"
+	fi
+	if [ ! -f "${USBRH_MODULE}" ];
+	then
+		echo ""
+		echo ""
+		echo "USBRH is a dependency of anpan. It is the low level driver"
+		echo "for the USBRH temperature and humidity sensor."
+		echo "It seems that it is not installed (looking for usbrh.ko)."
+		echo "The total compilation of the sources should take very little time."
+		echo -n "Do you want this installer to install it? (y|n) : "
+		read USBRHREP
+		if [ "${USBRHREP}" == "n" ];
+		then
+			echo -n "Do you want this installer to continue anyway? (y|n) : "
+			read CONTINUE
+			if [ "${CONTINUE}" == "n" ];
+			then
+				exit 1
+			else
+				CONTINUE = ""
+			fi
+		elif [ "${USBRHREP}" == "y" ];
+		then
+			echo -n "Set to install it (USBRHREP=\"y\")"
 		else
 			echo "I didn't understand your answer. Sorry, try again."
 			exit 1
@@ -575,6 +615,27 @@ then
     sudo make install
     cd ../..
     rm -rf lcio
+fi
+
+# install usbrh if necessary
+if [ "${USBRHREP}" == "y" ];
+then
+    echo ""
+    echo "-------------------"
+    echo "USBRH INSTALLATION"
+    echo "-------------------"
+    cd
+	git clone https://github.com/kimata/usbrh.git usbrh
+	cd usbrh
+	if  [ $CENTOS == "y" ];
+	then
+		# After this commit the compatibility with CentOS 7 is broken
+		git checkout 5fa42ff07fc3c30bac3c0751813e4497e7bcb686
+	fi
+	make
+	sudo make install
+	cd ..
+	rm -rf usbrh
 fi
 
 # ------------------------ PYRAME and CALICOES --------------------------
