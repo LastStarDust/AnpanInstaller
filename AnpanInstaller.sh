@@ -23,7 +23,6 @@ ROOTREP="n"
 DIMREP="n"
 LEVBDIMREP="n"
 LCIOREP=""
-PL1000REP=""
 CONTINUE="n"
 UBUNTU="n"
 CENTOS="n"
@@ -256,39 +255,6 @@ then
 	fi
 fi
 
-# Check for pl1000
-if [ "${PL1000REP}" == "" ];
-then
-	if [ ! -d "/opt/picoscope" ];
-	then
-		echo ""
-		echo ""
-		echo "libpl1000 is a dependency of anpan. It is the low level driver for"
-		echo "the PicoLog 1000 Series data loggers, used to read the WAGASCI"
-		echo "water level sensors."
-		echo "It seems that it is not installed (looking for /opt/picoscope)"
-		echo -n "Do you want this installer to install it? (y|n) : "
-		read PL1000REP
-		if [ "${PL1000REP}" == "n" ];
-		then
-			echo -n "Do you want this installer to continue anyway? (y|n) : "
-			read CONTINUE
-			if [ "${CONTINUE}" == "n" ];
-			then
-				exit 1
-			else
-				CONTINUE = ""
-			fi
-		elif [ "${PL1000REP}" == "y" ];
-		then
-			echo -n "Set to install it (PL1000REP=\"y\")"
-		else
-			echo "I didn't understand your answer. Sorry, try again."
-			exit 1
-		fi
-	fi
-fi
-
 echo ""
 echo "Moving to the HOME directory."
 echo "Installing some preliminary packages to meet dependences."
@@ -306,15 +272,21 @@ then
 		curl -L https://couchdb.apache.org/repo/bintray-pubkey.asc \
             | sudo apt-key add -
     fi
+	if [ ! -f /etc/apt/sources.list.d/picoscope.list ];
+	then
+		sudo bash -c 'echo "deb https://labs.picotech.com/debian/ picoscope main" >/etc/apt/sources.list.d/picoscope.list'
+		wget -O - https://labs.picotech.com/debian/dists/picoscope/Release.gpg.key | sudo apt-key add -
+	fi
+
     sudo apt-get update
     sudo apt-get upgrade
     sudo apt-get install build-essential python python-dev python-pip psmisc \
 		 git libsdl1.2-dev libsdl-ttf2.0-dev elog python-sphinx libafterimage-dev \
-		 flex libexpat1-dev liblua5.2-dev libcurl4 python-progressbar apache2 r-base \
-		 python-requests libmotif-dev tcsh libxt-dev curl libboost-dev \
+		 flex libexpat1-dev liblua5.2-dev libcurl4 python-progressbar apache2 \
+		 r-base python-requests libmotif-dev tcsh libxt-dev curl libboost-dev \
 		 libboost-system-dev libboost-filesystem-dev libboost-thread-dev \
 		 libjsoncpp-dev libcurl4-gnutls-dev scons libmongoclient-dev \
-		 libboost-regex-dev xorg-dev libboost-program-options-dev unzip
+		 libboost-regex-dev xorg-dev libboost-program-options-dev unzip libpl1000
 
     # The CouchDB installation in Ubuntu is a bit more delicate.
     if isinstalled "couchdb";
@@ -350,6 +322,12 @@ repo_gpgcheck=0
 enabled=1
 EOF
     fi
+	if [ ! -f  /etc/yum.repos.d/picoscope.repo ];
+    then
+		sudo curl -o /etc/yum.repos.d/picoscope.repo https://labs.picotech.com/rpm/picoscope.repo
+		sudo rpmkeys --import https://labs.picotech.com/rpm/repodata/repomd.xml.key
+	fi
+
     sudo yum update
     sudo yum upgrade
     sudo yum -y install epel-release
@@ -360,7 +338,7 @@ EOF
 		 python-progressbar R httpd python-requests motif-devel tcsh libXt-devel \
 		 curl curl-devel boost-devel boost-filesystem boost-system boost-thread \
 		 boost-regex jsoncpp-devel scons libmongo-client couchdb libX11-devel \
-		 boost-program-options unzip cmake3
+		 boost-program-options unzip cmake3 perl-XML-LibXML libpl1000
 
     # Install some python2 packages
     sudo pip install --upgrade pip
@@ -598,29 +576,6 @@ then
     sudo make install
     cd ../..
     rm -rf lcio
-fi
-
-# install pl1000 if necessary
-if [ "${PL1000REP}" == "y" ];
-then
-    echo ""
-    echo "-------------------"
-    echo "LIBPL1000 INSTALLATION"
-    echo "-------------------"
-    cd
-	if [ $UBUNTU == "y" ];
-	then
-		sudo bash -c 'echo "deb https://labs.picotech.com/debian/ picoscope main" >/etc/apt/sources.list.d/picoscope.list'
-		wget -O - https://labs.picotech.com/debian/dists/picoscope/Release.gpg.key | sudo apt-key add -
-		sudo apt-get update
-		sudo apt-get install libpl1000
-	elif [ $CENTOS == "y" ];
-	then
-		sudo curl -o /etc/yum.repos.d/picoscope.repo https://labs.picotech.com/rpm/picoscope.repo
-		sudo rpmkeys --import https://labs.picotech.com/rpm/repodata/repomd.xml.key
-		sudo yum check-update
-		sudo yum install perl-XML-LibXML libpl1000
-	fi
 fi
 
 # ------------------------ PYRAME and CALICOES --------------------------
