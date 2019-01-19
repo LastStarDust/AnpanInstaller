@@ -519,13 +519,13 @@ fi
 # ROOT detection
 if [ ${ROOTSYS} == "" ];
 then
-	if [ -f "/usr/bin/root" ];
+	if [ -d "/opt/root" ];
+	then
+		ROOTSYS=/opt/root
+	elif [ -f "/usr/bin/root" ];
 	then
 		ROOTSYS=/usr
 		sudo ln -s /usr /opt/root
-	elif [ -d "/opt/root" ];
-	then
-		ROOTSYS=/opt/root
 	else
 		echo "Couldn't detect ROOT installation."
 		echo "Perhaps you forgot to run the thisroot.sh script."
