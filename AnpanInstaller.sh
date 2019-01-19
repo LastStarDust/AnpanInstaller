@@ -376,12 +376,12 @@ then
 			if [ -d "${HOME}/ROOT" ];
 			then rm -rf "${HOME}/ROOT"; fi
             mkdir -p "${HOME}/ROOT"
-            ROOTSYS="${HOME}/ROOT"
+            export ROOTSYS="${HOME}/ROOT"
 		else
 			if [ -d "${ROOTDIR}/ROOT" ];
 			then rm -rf "${ROOTDIR}/ROOT"; fi
             mkdir -p "${ROOTDIR}/ROOT"
-            ROOTSYS="${ROOTDIR}/ROOT"
+            export ROOTSYS="${ROOTDIR}/ROOT"
 		fi
 		
 		sudo apt-get install build-essential git dpkg-dev cmake xutils-dev \
@@ -445,12 +445,12 @@ then
 				if [ -d "${HOME}/ROOT" ];
 				then rm -rf "${HOME}/ROOT"; fi
 				mkdir -p "${HOME}/ROOT"
-				ROOTSYS="${HOME}/ROOT"
+				export ROOTSYS="${HOME}/ROOT"
 			else
 				if [ -d "${ROOTDIR}/ROOT" ];
 				then rm -rf "${ROOTDIR}/ROOT"; fi
 				mkdir -p "${ROOTDIR}/ROOT"
-				ROOTSYS="${ROOTDIR}/ROOT"
+				export ROOTSYS="${ROOTDIR}/ROOT"
 			fi
 			
 			sudo yum install make automake gcc gcc-c++ kernel-devel git cmake3 \
@@ -499,17 +499,16 @@ if [ ${ROOTSYS} == "" ];
 then
 	if [ -d "/opt/root" ];
 	then
-		ROOTSYS=/opt/root
+		export ROOTSYS=/opt/root
 	elif [ -f "/usr/bin/root" ];
 	then
-		ROOTSYS=/usr
+		export ROOTSYS=/usr
 		sudo ln -s /usr /opt/root
 	else
 		echo "Couldn't detect ROOT installation."
 		echo "Perhaps you forgot to run the thisroot.sh script."
 	fi
 fi
-export ROOTSYS=${ROOTSYS}
 
 #install dim if necessary
 
