@@ -120,7 +120,7 @@ then
 fi
 
 # Check for ROOT
-if [ "${ROOTSYS}" == "" ] && [ ! -f "/usr/bin/root" ];
+if [ -z "${ROOTSYS}" ] && [ ! -f "/usr/bin/root" ];
 then
     echo ""
     echo "ROOT is a dependency of Anpan but it seems that it is not installed"
@@ -157,7 +157,7 @@ fi
 
 # Check for DIM
 # For the time being it is not used by Anpan
-if [ "${DIMREP}" == "" ];
+if [ -z "${DIMREP}" ];
 then
 	if [ ! -d "/usr/local/lib/dim" ];
 	then
@@ -191,7 +191,7 @@ fi
 # Check for Liblevbdim
 # For the time being it is not used by Anpan
 
-if [ "${LEVBDIMREP}" == "" ];
+if [ -z "${LEVBDIMREP}" ];
 then
 	if [ ! -f "/usr/local/lib/dim/liblevbdim.so" ];
 	then
@@ -224,7 +224,7 @@ then
 fi
 # Check for LCIO
 # For the time being it is not used by Anpan
-if [ "${LCIOREP}" == "" ];
+if [ -z "${LCIOREP}" ];
 then
 	if [ ! -d "/opt/lcio" ];
 	then
@@ -376,12 +376,12 @@ then
 			if [ -d "${HOME}/ROOT" ];
 			then rm -rf "${HOME}/ROOT"; fi
             mkdir -p "${HOME}/ROOT"
-            export ROOTSYS="${HOME}/ROOT"
+            ROOTSYS="${HOME}/ROOT"
 		else
 			if [ -d "${ROOTDIR}/ROOT" ];
 			then rm -rf "${ROOTDIR}/ROOT"; fi
             mkdir -p "${ROOTDIR}/ROOT"
-            export ROOTSYS="${ROOTDIR}/ROOT"
+            ROOTSYS="${ROOTDIR}/ROOT"
 		fi
 		
 		sudo apt-get install build-essential git dpkg-dev cmake xutils-dev \
@@ -445,12 +445,12 @@ then
 				if [ -d "${HOME}/ROOT" ];
 				then rm -rf "${HOME}/ROOT"; fi
 				mkdir -p "${HOME}/ROOT"
-				export ROOTSYS="${HOME}/ROOT"
+				ROOTSYS="${HOME}/ROOT"
 			else
 				if [ -d "${ROOTDIR}/ROOT" ];
 				then rm -rf "${ROOTDIR}/ROOT"; fi
 				mkdir -p "${ROOTDIR}/ROOT"
-				export ROOTSYS="${ROOTDIR}/ROOT"
+				ROOTSYS="${ROOTDIR}/ROOT"
 			fi
 			
 			sudo yum install make automake gcc gcc-c++ kernel-devel git cmake3 \
@@ -495,14 +495,14 @@ then
 fi
 
 # ROOT detection
-if [ ${ROOTSYS} == "" ];
+if [ -z ${ROOTSYS} ];
 then
 	if [ -d "/opt/root" ];
 	then
-		export ROOTSYS=/opt/root
+		ROOTSYS=/opt/root
 	elif [ -f "/usr/bin/root" ];
 	then
-		export ROOTSYS=/usr
+		ROOTSYS=/usr
 		sudo ln -s /usr /opt/root
 	else
 		echo "Couldn't detect ROOT installation."
@@ -546,7 +546,7 @@ then
     make -j4
     sudo make install
     cd ${HOME}/levbdim
-    export DIMDIR="/usr/local/lib/dim"
+    DIMDIR="/usr/local/lib/dim"
     sudo ln -s /usr/local/include/dim $DIMDIR/dim
     sudo ln -s $DIMDIR $DIMDIR/linux
     scons
@@ -701,8 +701,8 @@ cd "$PYRAME_DIR/calicoes"
 # In case try to manually run the specific Makefile inside each subdirectory. 
 
 sudo ./install.sh
-make
-sudo -E make install
+ROOTSYS=${ROOTSYS} make
+ROOTSYS=${ROOTSYS} sudo -E make install
 
 # Documentation compilation is currently broken in CentOS due to sphinx
 # version being too old
@@ -710,9 +710,9 @@ if [ $UBUNTU == "y" ];
 then
     # install documentation   
     cd docs/documentation
-    make
+    ROOTSYS=${ROOTSYS} make
     sudo mkdir -p /opt/calicoes/doc
-    sudo make install
+    ROOTSYS=${ROOTSYS} sudo make install
     cd ../..
 fi
 
