@@ -689,8 +689,9 @@ fi
 
 mkdir -p "${PYRAME_DIR}"
 cd "${PYRAME_DIR}"
+# ANPAN 0.2
 # curl -o pyrame.zip -k -u b2water:MPPC LINK_HERE pyrame
-curl -L -o ANPAN.zip https://www.dropbox.com/s/91ag6nwovjrg9ha/ANPAN%200.1.zip?dl=1
+curl -L -o ANPAN.zip https://www.dropbox.com/s/bxnojap8qwzujdr/ANPAN%200.2.zip?dl=1
 unzip -qn ANPAN.zip -d ./
 cd pyrame
 
