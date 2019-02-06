@@ -24,6 +24,7 @@ DIMREP="n"
 LEVBDIMREP="n"
 LCIOREP=""
 USBRHREP=""
+MIDASREP=""
 CONTINUE="n"
 UBUNTU="n"
 CENTOS="n"
@@ -288,6 +289,38 @@ then
 		elif [ "${USBRHREP}" == "y" ];
 		then
 			echo -n "Set to install it (USBRHREP=\"y\")"
+		else
+			echo "I didn't understand your answer. Sorry, try again."
+			exit 1
+		fi
+	fi
+fi
+
+# Check for MIDASREP
+if [ -z "${MIDASREP}" ];
+then
+	if [ ! -d "/opt/midas" ];
+	then
+		echo ""
+		echo ""
+		echo "MIDAS is a dependency of anpan. It seems that it is not installed"
+		echo "in the default location (looking for the folder /opt/midas)."
+		echo "But perhaps it is installed somewhere else."
+		echo -n "Do you want this installer to install it? (y|n) : "
+		read MIDASREP
+		if [ "${MIDASREP}" == "n" ];
+		then
+			echo -n "Do you want this installer to continue anyway? (y|n) : "
+			read CONTINUE
+			if [ "${CONTINUE}" == "n" ];
+			then
+				exit 1
+			else
+				CONTINUE = ""
+			fi
+		elif [ "${MIDASREP}" == "y" ];
+		then
+			echo -n "Set to install it (MIDASREP=\"y\")"
 		else
 			echo "I didn't understand your answer. Sorry, try again."
 			exit 1
@@ -636,7 +669,63 @@ then
 	sudo make install
 	cd ..
 	rm -rf usbrh
+	# install also the usbrh program (optional)
+	git clone TO-DO
+	cd usbrh-linux
+	make
+	sudo make install
+	cd ..
+	rm -rf usbrh-linux
 fi
+
+# ------------------------ MIDAS --------------------------
+
+# More info on the pyrame installation can be found on this webpage:
+# TO-DO
+echo "--------------------------------"
+echo "MIDAS INSTALLATION"
+echo "--------------------------------"
+echo "More info on the pyrame installation can be found on this webpage:"
+echo "TO-DO"
+
+echo ""
+echo "Insert the directory where you would like to download MIDAS"
+echo "Don't insert the trailing slash. The default one is \"${HOME}/MIDAS\"."
+echo "Just press OK if you want to download it in the $HOME folder."
+read MIDAS_DIR
+if [ -z "$MIDAS_DIR" ]; then
+    MIDAS_DIR="${HOME}/MIDAS"
+fi
+# check for previous Midas installs
+if [ -d "${MIDAS_DIR}/midas" ];
+then
+    cd "${MIDAS_DIR}/midas"
+    sudo make uninstall
+	sudo rm -rf /opt/midas
+    cd
+    rm -rf "${MIDAS_DIR}/midas"
+fi
+mkdir -p "${MIDAS_DIR}/midas"
+git clone https://bitbucket.org/tmidas/midas midas
+git clone https://bitbucket.org/tmidas/mxml mxml
+cd midas
+make
+sudo -E make install
+sudo chmod ug-s /opt/midas/bin/mhttpd
+sudo chmod ug-s /opt/midas/bin/dio
+openssl req -new -nodes -newkey rsa:2048 -sha256 -out ssl_cert.csr \
+		-keyout ssl_cert.key -subj "/C=/ST=/L=/O=midas/OU=mhttpd/CN=localhost"
+openssl x509 -req -days 365 -sha256 -in ssl_cert.csr -signkey ssl_cert.key -out ssl_cert.pem
+cat ssl_cert.key >> ssl_cert.pem
+sudo mv ssl_cert.* /opt/midas/
+make clean
+cd ..
+mkdir -p ./online
+cd online
+tee exptab << 'EOF'
+WAGASCI ${MIDAS_DIR}/online ${USER}
+EOF
+cd
 
 # ------------------------ PYRAME and CALICOES --------------------------
 
@@ -647,12 +736,11 @@ echo "PYRAME INSTALLATION"
 echo "--------------------------------"
 echo "More info on the pyrame installation can be found on this webpage:"
 echo "http://llr.in2p3.fr/sites/pyrame/documentation/howto_install.html"
-echo "This is a modified version of Pyrame tailored to the WAGASCI Experiment"
 
 echo ""
-echo "Insert the directory where you would like to install Pyrame and Calicoes"
+echo "Insert the directory where you would like to download Pyrame and Calicoes"
 echo "Don't insert the trailing slash. The default one is \"${HOME}\"."
-echo "Just press OK if you want to clone it in the $HOME folder."
+echo "Just press OK if you want to download it in the $HOME folder."
 read PYRAME_DIR
 if [ -z "$PYRAME_DIR" ]; then
     PYRAME_DIR=${HOME}
