@@ -395,6 +395,7 @@ then
 fi
 
 echo ""
+echo ""
 echo "Moving to the HOME directory."
 echo "Installing some preliminary packages to meet dependences."
 echo ""
@@ -425,7 +426,8 @@ then
 		 r-base python-requests libmotif-dev tcsh libxt-dev curl libboost-dev \
 		 libboost-system-dev libboost-filesystem-dev libboost-thread-dev \
 		 libjsoncpp-dev libcurl4-gnutls-dev scons libmongoclient-dev \
-		 libboost-regex-dev xorg-dev libboost-program-options-dev unzip libpl1000
+		 libboost-regex-dev xorg-dev libboost-program-options-dev unzip libpl1000 \
+		 libssl-dev
 
     # The CouchDB installation in Ubuntu is a bit more delicate.
     if isinstalled "couchdb";
@@ -477,7 +479,7 @@ EOF
 		 python-progressbar R httpd python-requests motif-devel tcsh libXt-devel \
 		 curl curl-devel boost-devel boost-filesystem boost-system boost-thread \
 		 boost-regex jsoncpp-devel scons libmongo-client couchdb libX11-devel \
-		 boost-program-options unzip cmake3 perl-XML-LibXML libpl1000
+		 boost-program-options unzip cmake3 perl-XML-LibXML libpl1000 openssl-devel
 
     # Install some python2 packages
     sudo pip install --upgrade pip
@@ -762,7 +764,7 @@ then
 
 	# ANPAN 0.2
 # curl -o pyrame.zip -k -u b2water:MPPC LINK_HERE pyrame
-	if [ -z "$SOURCE_DIR/ANPAN.zip" ];
+	if [ ! -f "$SOURCE_DIR/ANPAN.zip" ];
 	then
 		curl -L -o ANPAN.zip https://www.dropbox.com/s/bxnojap8qwzujdr/ANPAN%200.2.zip?dl=1
 	fi
@@ -965,7 +967,6 @@ then
 	tee exptab << 'EOF'
 WAGASCI ${SOURCE_DIR}/online ${USER}
 EOF
-	odbedit -c clean
 
 	# -------------- MIDAS service ---------------
 
@@ -1008,6 +1009,15 @@ PassEnvironment=MIDASSYS MIDAS_EXPTAB MIDAS_EXPT_NAME SVN_EDITOR GIT_EDITOR
 WantedBy=multi-user.target
 EOF
 	sudo mv midas.service /etc/systemd/system/midas.service
+
+	echo ""
+	echo "Don't forget to restart the PC and then initialize the"
+	echo "ODB database with the command"
+	echo "  odbedit"
+	echo "Then start and enable the MIDAS service with the commands:"
+	echo "  sudo systemctl enable midas"
+	echo "  sudo systemctl start midas"
+	echo ""
 fi
 
 # ------------------------ Start everything --------------------------
@@ -1016,8 +1026,6 @@ sudo systemctl enable couchdb
 sudo systemctl restart couchdb
 sudo systemctl enable pyrame
 sudo systemctl restart pyrame
-sudo systemctl enable midas
-sudo systemctl restart midas
 
 sleep 2s
 
