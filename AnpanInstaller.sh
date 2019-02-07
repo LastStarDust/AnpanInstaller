@@ -670,7 +670,7 @@ then
 	cd ..
 	rm -rf usbrh
 	# install also the usbrh program (optional)
-	git clone TO-DO
+	git clone https://github.com/YNUneutrino/usbrh-linux.git
 	cd usbrh-linux
 	make
 	sudo make install
@@ -681,12 +681,12 @@ fi
 # ------------------------ MIDAS --------------------------
 
 # More info on the pyrame installation can be found on this webpage:
-# TO-DO
+# https://midas.triumf.ca/MidasWiki/index.php/Main_Page
 echo "--------------------------------"
 echo "MIDAS INSTALLATION"
 echo "--------------------------------"
 echo "More info on the pyrame installation can be found on this webpage:"
-echo "TO-DO"
+echo "https://midas.triumf.ca/MidasWiki/index.php/Main_Page"
 
 echo ""
 echo "Insert the directory where you would like to download MIDAS"
@@ -696,36 +696,89 @@ read MIDAS_DIR
 if [ -z "$MIDAS_DIR" ]; then
     MIDAS_DIR="${HOME}/MIDAS"
 fi
+MIDAS_PREFIX="/opt/midas"
+
 # check for previous Midas installs
 if [ -d "${MIDAS_DIR}/midas" ];
 then
     cd "${MIDAS_DIR}/midas"
-    sudo make uninstall
+    PREFIX=${MIDAS_PREFIX} sudo -E make uninstall
+	cd
 	sudo rm -rf /opt/midas
-    cd
     rm -rf "${MIDAS_DIR}/midas"
 fi
+
+# install MIDAS
 mkdir -p "${MIDAS_DIR}/midas"
 git clone https://bitbucket.org/tmidas/midas midas
 git clone https://bitbucket.org/tmidas/mxml mxml
 cd midas
 make
-sudo -E make install
-sudo chmod ug-s /opt/midas/bin/mhttpd
-sudo chmod ug-s /opt/midas/bin/dio
+PREFIX=${MIDAS_PREFIX} sudo -E make install
+sudo chmod ug-s "${MIDAS_PREFIX}/bin/mhttpd"
+sudo chmod ug-s "${MIDAS_PREFIX}/bin/dio"
+sudo cp -r resources "${MIDAS_PREFIX}/resources"
+
+# create fake SSL certificate for localhost
 openssl req -new -nodes -newkey rsa:2048 -sha256 -out ssl_cert.csr \
 		-keyout ssl_cert.key -subj "/C=/ST=/L=/O=midas/OU=mhttpd/CN=localhost"
 openssl x509 -req -days 365 -sha256 -in ssl_cert.csr -signkey ssl_cert.key -out ssl_cert.pem
 cat ssl_cert.key >> ssl_cert.pem
-sudo mv ssl_cert.* /opt/midas/
+sudo mv ssl_cert.* "${MIDAS_PREFIX}"
 make clean
 cd ..
+
+# initialized odb
 mkdir -p ./online
 cd online
 tee exptab << 'EOF'
 WAGASCI ${MIDAS_DIR}/online ${USER}
 EOF
+odbedit -c clean
 cd
+
+# -------------- MIDAS service ---------------
+
+cat >> ${HOME}/.profile <<EOF
+# set PATH so it includes MIDAS bin if they exists
+if [ -d "${MIDAS_PREFIX}/bin" ] ; then
+	export MIDASSYS="${MIDAS_PREFIX}/bin"
+    export PATH="\$PATH:\$MIDASSYS/bin"
+fi
+
+# set MIDAS environment
+if [ -f ${MIDAS_DIR}/online/exptab ] ; then
+	export MIDAS_EXPTAB=${MIDAS_DIR}/online/exptab
+	export MIDAS_EXPT_NAME=WAGASCI
+	export VN_EDITOR="emacs -nw"
+	export GIT_EDITOR="emacs -nw"
+fi
+EOF
+
+if [ -f /etc/systemd/system/midas.service ];
+then
+sudo rm -f /etc/systemd/system/midas.service
+fi
+cat > midas.service <<EOF
+[Unit]
+Description=MIDAS data acquisition system
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=3
+User=neo
+ExecStart=/opt/midas/bin/mhttpd -e WAGASCI --http 8081 --https 8444
+Environment="MIDASSYS=/opt/midas" "MIDAS_EXPTAB=${MIDAS_DIR}/online/exptab" "MIDAS_EXPT_NAME=WAGASCI" "SVN_EDITOR=emacs -nw" "GIT_EDITOR=emacs -nw"
+PassEnvironment=MIDASSYS MIDAS_EXPTAB MIDAS_EXPT_NAME SVN_EDITOR GIT_EDITOR
+
+[Install]
+WantedBy=multi-user.target
+EOF
+sudo mv midas.service /etc/systemd/system/midas.service
+
 
 # ------------------------ PYRAME and CALICOES --------------------------
 
@@ -881,6 +934,8 @@ sudo systemctl enable couchdb
 sudo systemctl restart couchdb
 sudo systemctl enable pyrame
 sudo systemctl restart pyrame
+sudo systemctl enable midas
+sudo systemctl restart midas
 
 sleep 2s
 
