@@ -369,7 +369,7 @@ then
 	then
 		echo ""
 		echo ""
-		echo "MIDAS is a dependency of anpan. It seems that it is not installed"
+		echo "Calicoes is a dependency of anpan. It seems that it is not installed"
 		echo "in the default location (looking for the folder /opt/calicoes)."
 		echo "But perhaps it is installed somewhere else."
 		echo -n "Do you want this installer to install it? (y|n) : "
@@ -961,19 +961,24 @@ then
 	sudo mv ssl_cert.* "${MIDAS_PREFIX}"
 	make clean
 
+	# create password
+	cat > "${SOURCE_DIR}/online/htpasswd.txt" <<EOF
+${USER}:WAGASCI:123b668e9eb270b579a48097850c7f2e
+EOF
+
 	# initialized odb
 	mkdir -p "${SOURCE_DIR}/online"
 	cd "${SOURCE_DIR}/online"
-	tee exptab << 'EOF'
+	cat > "${SOURCE_DIR}/online/exptab" <<EOF
 WAGASCI ${SOURCE_DIR}/online ${USER}
 EOF
 
 	# -------------- MIDAS service ---------------
 
-	cat >> ${HOME}/.profile <<EOF
+	cat >> "${HOME}/.profile" <<EOF
 # set PATH so it includes MIDAS bin if they exists
 if [ -d "${MIDAS_PREFIX}/bin" ] ; then
-	export MIDASSYS="${MIDAS_PREFIX}/bin"
+	export MIDASSYS="${MIDAS_PREFIX}"
     export PATH="\$PATH:\$MIDASSYS/bin"
 fi
 
