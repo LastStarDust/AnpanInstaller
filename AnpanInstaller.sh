@@ -746,7 +746,70 @@ then
 	rm -rf usbrh-ynu
 fi
 
-# ------------------------ PYRAME and CALICOES --------------------------
+# ------------------------ Download --------------------------
+
+if [ "${PYRAMEREP}" == "y" ] || [ "${CALICOESREP}" == "y" ] || [ "${MIDASREP}" == "y" ];
+then
+	echo ""
+	echo "Insert the directory where you would like to download and"
+	echo "compile Pyrame, Calicoes and MIDAS."
+	echo "Don't insert the trailing slash. The default one is \"${HOME}\"."
+	echo "Just press OK if you want to download it in the $HOME folder."
+	read SOURCE_DIR
+	if [ -z "$SOURCE_DIR" ]; then
+		SOURCE_DIR=${HOME}
+	fi
+
+	# ANPAN 0.2
+# curl -o pyrame.zip -k -u b2water:MPPC LINK_HERE pyrame
+	if [ -z "$SOURCE_DIR/ANPAN.zip" ];
+	then
+		curl -L -o ANPAN.zip https://www.dropbox.com/s/bxnojap8qwzujdr/ANPAN%200.2.zip?dl=1
+	fi
+	if [ "${PYRAMEREP}" == "y" ];
+	then
+		# check for previous Pyrame installs
+		if [ -d "${SOURCE_DIR}/pyrame" ];
+		then
+			cd "${SOURCE_DIR}/pyrame"
+			sudo make uninstall
+			sudo rm -rf /opt/pyrame
+			cd ..
+			sudo rm -rf pyrame
+		fi
+		unzip -qn ANPAN.zip 'pyrame/*' -d ./
+	fi
+	if [ "${CALICOESREP}" == "y" ];
+	then
+		# check for previous Calicoes installs
+		if [ -d "${SOURCE_DIR}/calicoes" ];
+		then
+			cd "${SOURCE_DIR}/calicoes"
+			sudo make uninstall
+			sudo rm -rf /opt/calicoes
+			cd ..
+			rm -rf calicoes
+		fi
+		unzip -qn ANPAN.zip 'calicoes/*' -d ./
+	fi
+	if [ "${MIDASREP}" == "y" ];
+	then
+		MIDAS_PREFIX="/opt/midas"
+		# check for previous Midas installs
+		if [ -d "${SOURCE_DIR}/midas" ];
+		then
+			cd "${SOURCE_DIR}/midas"
+			PREFIX=${MIDAS_PREFIX} sudo -E make uninstall
+			cd
+			sudo rm -rf /opt/midas
+			rm -rf "${SOURCE_DIR}/midas"
+		fi
+		unzip -qn ANPAN.zip 'midas/*' -d ./
+		unzip -qn ANPAN.zip 'mxml/*' -d ./
+	fi
+fi
+
+# ------------------------ PYRAME --------------------------
 
 # More info on the pyrame installation can be found on this webpage:
 # http://llr.in2p3.fr/sites/pyrame/documentation/howto_install.html
@@ -759,15 +822,6 @@ then
 	echo "More info on the pyrame installation can be found on this webpage:"
 	echo "http://llr.in2p3.fr/sites/pyrame/documentation/howto_install.html"
 
-	echo ""
-	echo "Insert the directory where you would like to download Pyrame and Calicoes"
-	echo "Don't insert the trailing slash. The default one is \"${HOME}\"."
-	echo "Just press OK if you want to download it in the $HOME folder."
-	read PYRAME_DIR
-	if [ -z "$PYRAME_DIR" ]; then
-		PYRAME_DIR=${HOME}
-	fi
-
 	# In Debian systems you might need to create links for lua.h and liblua.so
 	if [ $UBUNTU == "y" ];
 	then
@@ -777,33 +831,8 @@ then
 		sudo ln -sf /usr/include/lua5.2/lualib.h /usr/include/lualib.h
 		sudo ln -sf /usr/include/lua5.2/lauxlib.h /usr/include/lauxlib.h
 	fi
-	# check for previous Pyrame installs
-	if [ -d "${PYRAME_DIR}/pyrame" ];
-	then
-		cd "${PYRAME_DIR}/pyrame"
-		sudo make uninstall
-		sudo rm -rf /opt/pyrame
-		cd ..
-		sudo rm -rf pyrame
-	fi
 
-	# check for previous Calicoes installs
-	if [ -d "${PYRAME_DIR}/calicoes" ];
-	then
-		cd "${PYRAME_DIR}/calicoes"
-		sudo make uninstall
-		sudo rm -rf /opt/calicoes
-		cd ..
-		sudo rm -rf calicoes
-	fi
-
-	mkdir -p "${PYRAME_DIR}"
-	cd "${PYRAME_DIR}"
-	# ANPAN 0.2
-	# curl -o pyrame.zip -k -u b2water:MPPC LINK_HERE pyrame
-	curl -L -o ANPAN.zip https://www.dropbox.com/s/bxnojap8qwzujdr/ANPAN%200.2.zip?dl=1
-	unzip -qn ANPAN.zip -d ./
-	cd pyrame
+	cd "${SOURCE_DIR}/pyrame"
 
 	# configure and install
 	chmod +x ./configure
@@ -825,12 +854,12 @@ then
 	# enable apache2
 	if [ $UBUNTU == "y" ];
 	then
-		sudo "${PYRAME_DIR}/pyrame/xhr/install_xhr_debian8_apache2.sh"
+		sudo "${SOURCE_DIR}/pyrame/xhr/install_xhr_debian8_apache2.sh"
 		sudo systemctl restart apache2
 		sudo systemctl enable apache2
 	elif  [ $CENTOS == "y" ];
 	then
-		sudo "${PYRAME_DIR}/pyrame/xhr/install_xhr_centos7_apache2.sh"
+		sudo "${SOURCE_DIR}/pyrame/xhr/install_xhr_centos7_apache2.sh"
 		sudo systemctl restart httpd
 		sudo systemctl enable httpd
 	fi
@@ -849,7 +878,7 @@ then
 	then
 		echo 1 > sudo tee /proc/sys/net/ipv4/tcp_tw_recycle
 		echo 1 > sudo tee /proc/sys/net/ipv4/tcp_fin_timeout
-		sudo cp -f "${PYRAME_DIR}/pyrame/launcher/99-pyrame.conf" /etc/sysctl.d/
+		sudo cp -f "${SOURCE_DIR}/pyrame/launcher/99-pyrame.conf" /etc/sysctl.d/
 	fi  
 fi
 
@@ -867,7 +896,7 @@ then
 	echo "More info on the calicoes installation can be found on this webpage:"
 	echo "http://llr.in2p3.fr/sites/pyrame/calicoes/documentation/install.html"
 
-	cd "$PYRAME_DIR/calicoes"
+	cd "$SOURCE_DIR/calicoes"
 
 	# compile and install Calicoes
 
@@ -888,14 +917,11 @@ then
 		ROOTSYS=${ROOTSYS} make
 		sudo mkdir -p /opt/calicoes/doc
 		ROOTSYS=${ROOTSYS} sudo make install
-		cd ../..
 	fi
 
 	echo ""
 	echo "Post-configuration..."
 	echo ""
-
-	cd
 
 	if [ ! -L "/var/www/html/phygui_rc" ];
 	then
@@ -916,31 +942,9 @@ then
 	echo "More info on the pyrame installation can be found on this webpage:"
 	echo "https://midas.triumf.ca/MidasWiki/index.php/Main_Page"
 
-	echo ""
-	echo "Insert the directory where you would like to download MIDAS"
-	echo "Don't insert the trailing slash. The default one is \"${HOME}/MIDAS\"."
-	echo "Just press OK if you want to download it in the $HOME folder."
-	read MIDAS_DIR
-	if [ -z "$MIDAS_DIR" ]; then
-		MIDAS_DIR="${HOME}/MIDAS"
-	fi
-	MIDAS_PREFIX="/opt/midas"
-
-	# check for previous Midas installs
-	if [ -d "${MIDAS_DIR}/midas" ];
-	then
-		cd "${MIDAS_DIR}/midas"
-		PREFIX=${MIDAS_PREFIX} sudo -E make uninstall
-		cd
-		sudo rm -rf /opt/midas
-		rm -rf "${MIDAS_DIR}/midas"
-	fi
+	cd "${SOURCE_DIR}/midas"
 
 	# install MIDAS
-	mkdir -p "${MIDAS_DIR}/midas"
-	git clone https://bitbucket.org/tmidas/midas midas
-	git clone https://bitbucket.org/tmidas/mxml mxml
-	cd midas
 	make
 	PREFIX=${MIDAS_PREFIX} sudo -E make install
 	sudo chmod ug-s "${MIDAS_PREFIX}/bin/mhttpd"
@@ -954,16 +958,14 @@ then
 	cat ssl_cert.key >> ssl_cert.pem
 	sudo mv ssl_cert.* "${MIDAS_PREFIX}"
 	make clean
-	cd ..
 
 	# initialized odb
-	mkdir -p ./online
-	cd online
+	mkdir -p "${SOURCE_DIR}/online"
+	cd "${SOURCE_DIR}/online"
 	tee exptab << 'EOF'
-WAGASCI ${MIDAS_DIR}/online ${USER}
+WAGASCI ${SOURCE_DIR}/online ${USER}
 EOF
 	odbedit -c clean
-	cd
 
 	# -------------- MIDAS service ---------------
 
@@ -975,8 +977,8 @@ if [ -d "${MIDAS_PREFIX}/bin" ] ; then
 fi
 
 # set MIDAS environment
-if [ -f ${MIDAS_DIR}/online/exptab ] ; then
-	export MIDAS_EXPTAB=${MIDAS_DIR}/online/exptab
+if [ -f ${SOURCE_DIR}/online/exptab ] ; then
+	export MIDAS_EXPTAB=${SOURCE_DIR}/online/exptab
 	export MIDAS_EXPT_NAME=WAGASCI
 	export VN_EDITOR="emacs -nw"
 	export GIT_EDITOR="emacs -nw"
@@ -999,7 +1001,7 @@ Restart=always
 RestartSec=3
 User=neo
 ExecStart=/opt/midas/bin/mhttpd -e WAGASCI --http 8081 --https 8444
-Environment="MIDASSYS=/opt/midas" "MIDAS_EXPTAB=${MIDAS_DIR}/online/exptab" "MIDAS_EXPT_NAME=WAGASCI" "SVN_EDITOR=emacs -nw" "GIT_EDITOR=emacs -nw"
+Environment="MIDASSYS=/opt/midas" "MIDAS_EXPTAB=${SOURCE_DIR}/online/exptab" "MIDAS_EXPT_NAME=WAGASCI" "SVN_EDITOR=emacs -nw" "GIT_EDITOR=emacs -nw"
 PassEnvironment=MIDASSYS MIDAS_EXPTAB MIDAS_EXPT_NAME SVN_EDITOR GIT_EDITOR
 
 [Install]
