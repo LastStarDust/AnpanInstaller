@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# AnpanInstaller.sh
+# AnpanClean.sh
 # Copyright (C) 2018 by Pintaudi Giorgio <giorgio-pintaudi-kx@ynu.jp>
 # Released under the GPLv3 license
 #
@@ -28,8 +28,20 @@ if [ -d ${HOME}/calicoes ]; then
 	cd ..
 	rm -rf calicoes*
 fi
+if [ -d ${HOME}/usbrh-kimata ]; then
+	cd ${HOME}/usbrh-kimata
+	sudo make uninstall
+	cd ..
+	rm -rf usbrh-kimata
+fi
+if [ -d ${HOME}/usbrh-ynu ]; then
+	cd ${HOME}/usbrh-ynu
+	sudo make uninstall
+	cd ..
+	rm -rf usbrh-ynu
+fi
 
-# AnpanInstaller.sh
+# AnpanClean.sh
 #
 # Copyright (C) 2018 by Pintaudi Giorgio <giorgio-pintaudi-kx@ynu.jp>
 # Released under the GPLv3 license
