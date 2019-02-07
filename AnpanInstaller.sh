@@ -24,6 +24,8 @@ DIMREP="n"
 LEVBDIMREP="n"
 LCIOREP=""
 USBRHREP=""
+PYRAMEREP=""
+CALICOESREP=""
 MIDASREP=""
 CONTINUE="n"
 UBUNTU="n"
@@ -53,18 +55,18 @@ function isinstalled {
 
 # Check the Ubuntu release
 
-if [ "`lsb_release -rs`" != "18.04" ] && [ ! -f "/etc/redhat-release" ];
+if [ ! -f "/usr/bin/lsb_release" ] && [ ! -f "/etc/redhat-release" ];
 then
     echo ""
     echo "This installer is for Ubuntu 18.04 and CentOS 7 only!"
     echo "You can get this script to run also on other versions of Ubuntu"
-    echo "by simply replacing the 18.04 string on line 32 with your Ubuntu"
+    echo "by simply replacing the 18.04 string on line 67 with your Ubuntu"
     echo "version but be warned that other modifications may be needed."
     echo ""
     exit 1
 fi
 
-if [ "`lsb_release -rs`" == "18.04" ];
+if [ -f "/usr/bin/lsb_release" ] && [ "`lsb_release -rs`" == "18.04" ];
 then
     UBUNTU="y"
     CMAKE=cmake
@@ -259,12 +261,12 @@ fi
 # Check for USBRHREP
 if [ -z "${USBRHREP}" ];
 then
-	if [ $CENTOS == "y" ];
+	if [ $CENTOS == "y" ] && [ -f "/usr/lib/modules/`uname -r`/extra/usbrh.ko" ];
 	then
-		USBRH_MODULE= "/usr/lib/modules/`uname -r`/extra/usbrh.ko"
-	elif [ $UBUNTU == "y" ];
+		USBRH_MODULE="/usr/lib/modules/`uname -r`/extra/usbrh.ko"
+	elif [ $UBUNTU == "y" ] && [ -f "/lib/modules/`uname -r`/extra/usbrh.ko" ];
 	then
-		USBRH_MODULE= "/lib/modules/`uname -r`/extra/usbrh.ko"
+		USBRH_MODULE="/lib/modules/`uname -r`/extra/usbrh.ko"
 	fi
 	if [ ! -f "${USBRH_MODULE}" ];
 	then
@@ -321,6 +323,70 @@ then
 		elif [ "${MIDASREP}" == "y" ];
 		then
 			echo -n "Set to install it (MIDASREP=\"y\")"
+		else
+			echo "I didn't understand your answer. Sorry, try again."
+			exit 1
+		fi
+	fi
+fi
+
+# Check for PYRAMEREP
+if [ -z "${PYRAMEREP}" ];
+then
+	if [ ! -d "/opt/pyrame" ];
+	then
+		echo ""
+		echo ""
+		echo "Pyrame is a dependency of anpan. It seems that it is not installed"
+		echo "in the default location (looking for the folder /opt/pyrame)."
+		echo "But perhaps it is installed somewhere else."
+		echo -n "Do you want this installer to install it? (y|n) : "
+		read PYRAMEREP
+		if [ "${PYRAMEREP}" == "n" ];
+		then
+			echo -n "Do you want this installer to continue anyway? (y|n) : "
+			read CONTINUE
+			if [ "${CONTINUE}" == "n" ];
+			then
+				exit 1
+			else
+				CONTINUE = ""
+			fi
+		elif [ "${PYRAMEREP}" == "y" ];
+		then
+			echo -n "Set to install it (PYRAMEREP=\"y\")"
+		else
+			echo "I didn't understand your answer. Sorry, try again."
+			exit 1
+		fi
+	fi
+fi
+
+# Check for CALICOESREP
+if [ -z "${CALICOESREP}" ];
+then
+	if [ ! -d "/opt/calicoes" ];
+	then
+		echo ""
+		echo ""
+		echo "MIDAS is a dependency of anpan. It seems that it is not installed"
+		echo "in the default location (looking for the folder /opt/calicoes)."
+		echo "But perhaps it is installed somewhere else."
+		echo -n "Do you want this installer to install it? (y|n) : "
+		read CALICOESREP
+		if [ "${CALICOESREP}" == "n" ];
+		then
+			echo -n "Do you want this installer to continue anyway? (y|n) : "
+			read CONTINUE
+			if [ "${CONTINUE}" == "n" ];
+			then
+				exit 1
+			else
+				CONTINUE = ""
+			fi
+		elif [ "${CALICOESREP}" == "y" ];
+		then
+			echo -n "Set to install it (CALICOESREP=\"y\")"
 		else
 			echo "I didn't understand your answer. Sorry, try again."
 			exit 1
@@ -658,8 +724,9 @@ then
     echo "USBRH INSTALLATION"
     echo "-------------------"
     cd
-	git clone https://github.com/kimata/usbrh.git usbrh
-	cd usbrh
+	rm -rf usbrh-kimata
+	git clone https://github.com/kimata/usbrh.git usbrh-kimata
+	cd usbrh-kimata
 	if  [ $CENTOS == "y" ];
 	then
 		# After this commit the compatibility with CentOS 7 is broken
@@ -668,78 +735,239 @@ then
 	make
 	sudo make install
 	cd ..
-	rm -rf usbrh
+	rm -rf usbrh-kimata
 	# install also the usbrh program (optional)
-	git clone https://github.com/YNUneutrino/usbrh-linux.git
-	cd usbrh-linux
+	rm -rf usbrh-ynu
+	git clone https://github.com/YNUneutrino/usbrh-linux.git usbrh-ynu
+	cd usbrh-ynu
 	make
 	sudo make install
 	cd ..
-	rm -rf usbrh-linux
+	rm -rf usbrh-ynu
+fi
+
+# ------------------------ PYRAME and CALICOES --------------------------
+
+# More info on the pyrame installation can be found on this webpage:
+# http://llr.in2p3.fr/sites/pyrame/documentation/howto_install.html
+
+if [ "${PYRAMEREP}" == "y" ];
+then
+	echo "--------------------------------"
+	echo "PYRAME INSTALLATION"
+	echo "--------------------------------"
+	echo "More info on the pyrame installation can be found on this webpage:"
+	echo "http://llr.in2p3.fr/sites/pyrame/documentation/howto_install.html"
+
+	echo ""
+	echo "Insert the directory where you would like to download Pyrame and Calicoes"
+	echo "Don't insert the trailing slash. The default one is \"${HOME}\"."
+	echo "Just press OK if you want to download it in the $HOME folder."
+	read PYRAME_DIR
+	if [ -z "$PYRAME_DIR" ]; then
+		PYRAME_DIR=${HOME}
+	fi
+
+	# In Debian systems you might need to create links for lua.h and liblua.so
+	if [ $UBUNTU == "y" ];
+	then
+		sudo ln -sf /usr/lib/x86_64-linux-gnu/liblua5.2.so /usr/lib/liblua.so
+		sudo ln -sf /usr/include/lua5.2/lua.h /usr/include/lua.h
+		sudo ln -sf /usr/include/lua5.2/luaconf.h /usr/include/luaconf.h
+		sudo ln -sf /usr/include/lua5.2/lualib.h /usr/include/lualib.h
+		sudo ln -sf /usr/include/lua5.2/lauxlib.h /usr/include/lauxlib.h
+	fi
+	# check for previous Pyrame installs
+	if [ -d "${PYRAME_DIR}/pyrame" ];
+	then
+		cd "${PYRAME_DIR}/pyrame"
+		sudo make uninstall
+		sudo rm -rf /opt/pyrame
+		cd ..
+		sudo rm -rf pyrame
+	fi
+
+	# check for previous Calicoes installs
+	if [ -d "${PYRAME_DIR}/calicoes" ];
+	then
+		cd "${PYRAME_DIR}/calicoes"
+		sudo make uninstall
+		sudo rm -rf /opt/calicoes
+		cd ..
+		sudo rm -rf calicoes
+	fi
+
+	mkdir -p "${PYRAME_DIR}"
+	cd "${PYRAME_DIR}"
+	# ANPAN 0.2
+	# curl -o pyrame.zip -k -u b2water:MPPC LINK_HERE pyrame
+	curl -L -o ANPAN.zip https://www.dropbox.com/s/bxnojap8qwzujdr/ANPAN%200.2.zip?dl=1
+	unzip -qn ANPAN.zip -d ./
+	cd pyrame
+
+	# configure and install
+	chmod +x ./configure
+	bash ./configure
+	make
+	sudo -E make install
+
+	# Documentation compilation is currently broken in CentOS due to sphinx
+	# version being too old
+	if [ $UBUNTU == "y" ];
+	then
+		# make documentation
+		cd docs
+		make
+		sudo -E make install
+		cd ..
+	fi
+
+	# enable apache2
+	if [ $UBUNTU == "y" ];
+	then
+		sudo "${PYRAME_DIR}/pyrame/xhr/install_xhr_debian8_apache2.sh"
+		sudo systemctl restart apache2
+		sudo systemctl enable apache2
+	elif  [ $CENTOS == "y" ];
+	then
+		sudo "${PYRAME_DIR}/pyrame/xhr/install_xhr_centos7_apache2.sh"
+		sudo systemctl restart httpd
+		sudo systemctl enable httpd
+	fi
+
+	# The following command is equivalent to
+	# echo 1 > sudo tee /proc/sys/net/ipv4/tcp_tw_recycle
+	# echo 1 > sudo tee /proc/sys/net/ipv4/tcp_fin_timeout
+	# tcp_tw_recycle is not available in ubuntu since kernel 4.11,
+	# moreover this is strictly a violation of the TCP specification.
+	# In Linux 2.2, the default value for tcp_fin_timeout was 180 seconds.
+	# I assumed that if the OS is CentOS that machine will only be used
+	# as a DAQ machine with limited internet capabilities and so I allow
+	# for a quick recycling of TCP connections. This is at expense of a
+	# stable internet connection
+	if [ $CENTOS == "y" ];
+	then
+		echo 1 > sudo tee /proc/sys/net/ipv4/tcp_tw_recycle
+		echo 1 > sudo tee /proc/sys/net/ipv4/tcp_fin_timeout
+		sudo cp -f "${PYRAME_DIR}/pyrame/launcher/99-pyrame.conf" /etc/sysctl.d/
+	fi  
+fi
+
+# --------------------- CALICOES ---------------------
+
+# More info on the calicoes installation can be found on this webpage:
+# http://llr.in2p3.fr/sites/pyrame/calicoes/documentation/install.html
+
+if [ "${CALICOESREP}" == "y" ];
+then
+	echo "-------------------"
+	echo "CALICOES INSTALLATION"
+	echo "-------------------"
+	echo "ANPAN is based on calicoes 3.0"
+	echo "More info on the calicoes installation can be found on this webpage:"
+	echo "http://llr.in2p3.fr/sites/pyrame/calicoes/documentation/install.html"
+
+	cd "$PYRAME_DIR/calicoes"
+
+	# compile and install Calicoes
+
+	# I noticed that sometimes not all the scripts are copied in the /usr/local/bin
+	# directory. This may be due to a misconfiguration of the Makefiles
+	# In case try to manually run the specific Makefile inside each subdirectory. 
+
+	sudo ./install.sh
+	ROOTSYS=${ROOTSYS} make
+	ROOTSYS=${ROOTSYS} sudo -E make install
+
+	# Documentation compilation is currently broken in CentOS due to sphinx
+	# version being too old
+	if [ $UBUNTU == "y" ];
+	then
+		# install documentation   
+		cd docs/documentation
+		ROOTSYS=${ROOTSYS} make
+		sudo mkdir -p /opt/calicoes/doc
+		ROOTSYS=${ROOTSYS} sudo make install
+		cd ../..
+	fi
+
+	echo ""
+	echo "Post-configuration..."
+	echo ""
+
+	cd
+
+	if [ ! -L "/var/www/html/phygui_rc" ];
+	then
+		sudo ln -s /opt/calicoes/phygui_rc /var/www/html/phygui_rc
+	fi
 fi
 
 # ------------------------ MIDAS --------------------------
 
 # More info on the pyrame installation can be found on this webpage:
 # https://midas.triumf.ca/MidasWiki/index.php/Main_Page
-echo "--------------------------------"
-echo "MIDAS INSTALLATION"
-echo "--------------------------------"
-echo "More info on the pyrame installation can be found on this webpage:"
-echo "https://midas.triumf.ca/MidasWiki/index.php/Main_Page"
 
-echo ""
-echo "Insert the directory where you would like to download MIDAS"
-echo "Don't insert the trailing slash. The default one is \"${HOME}/MIDAS\"."
-echo "Just press OK if you want to download it in the $HOME folder."
-read MIDAS_DIR
-if [ -z "$MIDAS_DIR" ]; then
-    MIDAS_DIR="${HOME}/MIDAS"
-fi
-MIDAS_PREFIX="/opt/midas"
-
-# check for previous Midas installs
-if [ -d "${MIDAS_DIR}/midas" ];
+if [ "${MIDASREP}" == "y" ];
 then
-    cd "${MIDAS_DIR}/midas"
-    PREFIX=${MIDAS_PREFIX} sudo -E make uninstall
-	cd
-	sudo rm -rf /opt/midas
-    rm -rf "${MIDAS_DIR}/midas"
-fi
+	echo "--------------------------------"
+	echo "MIDAS INSTALLATION"
+	echo "--------------------------------"
+	echo "More info on the pyrame installation can be found on this webpage:"
+	echo "https://midas.triumf.ca/MidasWiki/index.php/Main_Page"
 
-# install MIDAS
-mkdir -p "${MIDAS_DIR}/midas"
-git clone https://bitbucket.org/tmidas/midas midas
-git clone https://bitbucket.org/tmidas/mxml mxml
-cd midas
-make
-PREFIX=${MIDAS_PREFIX} sudo -E make install
-sudo chmod ug-s "${MIDAS_PREFIX}/bin/mhttpd"
-sudo chmod ug-s "${MIDAS_PREFIX}/bin/dio"
-sudo cp -r resources "${MIDAS_PREFIX}/resources"
+	echo ""
+	echo "Insert the directory where you would like to download MIDAS"
+	echo "Don't insert the trailing slash. The default one is \"${HOME}/MIDAS\"."
+	echo "Just press OK if you want to download it in the $HOME folder."
+	read MIDAS_DIR
+	if [ -z "$MIDAS_DIR" ]; then
+		MIDAS_DIR="${HOME}/MIDAS"
+	fi
+	MIDAS_PREFIX="/opt/midas"
 
-# create fake SSL certificate for localhost
-openssl req -new -nodes -newkey rsa:2048 -sha256 -out ssl_cert.csr \
-		-keyout ssl_cert.key -subj "/C=/ST=/L=/O=midas/OU=mhttpd/CN=localhost"
-openssl x509 -req -days 365 -sha256 -in ssl_cert.csr -signkey ssl_cert.key -out ssl_cert.pem
-cat ssl_cert.key >> ssl_cert.pem
-sudo mv ssl_cert.* "${MIDAS_PREFIX}"
-make clean
-cd ..
+	# check for previous Midas installs
+	if [ -d "${MIDAS_DIR}/midas" ];
+	then
+		cd "${MIDAS_DIR}/midas"
+		PREFIX=${MIDAS_PREFIX} sudo -E make uninstall
+		cd
+		sudo rm -rf /opt/midas
+		rm -rf "${MIDAS_DIR}/midas"
+	fi
 
-# initialized odb
-mkdir -p ./online
-cd online
-tee exptab << 'EOF'
+	# install MIDAS
+	mkdir -p "${MIDAS_DIR}/midas"
+	git clone https://bitbucket.org/tmidas/midas midas
+	git clone https://bitbucket.org/tmidas/mxml mxml
+	cd midas
+	make
+	PREFIX=${MIDAS_PREFIX} sudo -E make install
+	sudo chmod ug-s "${MIDAS_PREFIX}/bin/mhttpd"
+	sudo chmod ug-s "${MIDAS_PREFIX}/bin/dio"
+	sudo cp -r resources "${MIDAS_PREFIX}/resources"
+
+	# create fake SSL certificate for localhost
+	openssl req -new -nodes -newkey rsa:2048 -sha256 -out ssl_cert.csr \
+			-keyout ssl_cert.key -subj "/C=/ST=/L=/O=midas/OU=mhttpd/CN=localhost"
+	openssl x509 -req -days 365 -sha256 -in ssl_cert.csr -signkey ssl_cert.key -out ssl_cert.pem
+	cat ssl_cert.key >> ssl_cert.pem
+	sudo mv ssl_cert.* "${MIDAS_PREFIX}"
+	make clean
+	cd ..
+
+	# initialized odb
+	mkdir -p ./online
+	cd online
+	tee exptab << 'EOF'
 WAGASCI ${MIDAS_DIR}/online ${USER}
 EOF
-odbedit -c clean
-cd
+	odbedit -c clean
+	cd
 
-# -------------- MIDAS service ---------------
+	# -------------- MIDAS service ---------------
 
-cat >> ${HOME}/.profile <<EOF
+	cat >> ${HOME}/.profile <<EOF
 # set PATH so it includes MIDAS bin if they exists
 if [ -d "${MIDAS_PREFIX}/bin" ] ; then
 	export MIDASSYS="${MIDAS_PREFIX}/bin"
@@ -755,11 +983,11 @@ if [ -f ${MIDAS_DIR}/online/exptab ] ; then
 fi
 EOF
 
-if [ -f /etc/systemd/system/midas.service ];
-then
-sudo rm -f /etc/systemd/system/midas.service
-fi
-cat > midas.service <<EOF
+	if [ -f /etc/systemd/system/midas.service ];
+	then
+		sudo rm -f /etc/systemd/system/midas.service
+	fi
+	cat > midas.service <<EOF
 [Unit]
 Description=MIDAS data acquisition system
 After=network.target
@@ -777,158 +1005,10 @@ PassEnvironment=MIDASSYS MIDAS_EXPTAB MIDAS_EXPT_NAME SVN_EDITOR GIT_EDITOR
 [Install]
 WantedBy=multi-user.target
 EOF
-sudo mv midas.service /etc/systemd/system/midas.service
-
-
-# ------------------------ PYRAME and CALICOES --------------------------
-
-# More info on the pyrame installation can be found on this webpage:
-# http://llr.in2p3.fr/sites/pyrame/documentation/howto_install.html
-echo "--------------------------------"
-echo "PYRAME INSTALLATION"
-echo "--------------------------------"
-echo "More info on the pyrame installation can be found on this webpage:"
-echo "http://llr.in2p3.fr/sites/pyrame/documentation/howto_install.html"
-
-echo ""
-echo "Insert the directory where you would like to download Pyrame and Calicoes"
-echo "Don't insert the trailing slash. The default one is \"${HOME}\"."
-echo "Just press OK if you want to download it in the $HOME folder."
-read PYRAME_DIR
-if [ -z "$PYRAME_DIR" ]; then
-    PYRAME_DIR=${HOME}
+	sudo mv midas.service /etc/systemd/system/midas.service
 fi
 
-# In Debian systems you might need to create links for lua.h and liblua.so
-if [ $UBUNTU == "y" ];
-then
-    sudo ln -sf /usr/lib/x86_64-linux-gnu/liblua5.2.so /usr/lib/liblua.so
-    sudo ln -sf /usr/include/lua5.2/lua.h /usr/include/lua.h
-    sudo ln -sf /usr/include/lua5.2/luaconf.h /usr/include/luaconf.h
-    sudo ln -sf /usr/include/lua5.2/lualib.h /usr/include/lualib.h
-    sudo ln -sf /usr/include/lua5.2/lauxlib.h /usr/include/lauxlib.h
-fi
-# check for previous Pyrame installs
-if [ -d "${PYRAME_DIR}/pyrame" ];
-then
-    cd "${PYRAME_DIR}/pyrame"
-    sudo make uninstall
-	sudo rm -rf /opt/pyrame
-    cd ..
-    sudo rm -rf pyrame
-fi
-
-# check for previous Calicoes installs
-if [ -d "${PYRAME_DIR}/calicoes" ];
-then
-    cd "${PYRAME_DIR}/calicoes"
-    sudo make uninstall
-	sudo rm -rf /opt/calicoes
-    cd ..
-    sudo rm -rf calicoes
-fi
-
-mkdir -p "${PYRAME_DIR}"
-cd "${PYRAME_DIR}"
-# ANPAN 0.2
-# curl -o pyrame.zip -k -u b2water:MPPC LINK_HERE pyrame
-curl -L -o ANPAN.zip https://www.dropbox.com/s/bxnojap8qwzujdr/ANPAN%200.2.zip?dl=1
-unzip -qn ANPAN.zip -d ./
-cd pyrame
-
-# configure and install
-chmod +x ./configure
-bash ./configure
-make
-sudo -E make install
-
-# Documentation compilation is currently broken in CentOS due to sphinx
-# version being too old
-if [ $UBUNTU == "y" ];
-then
-    # make documentation
-    cd docs
-    make
-    sudo -E make install
-    cd ..
-fi
-
-# enable apache2
-if [ $UBUNTU == "y" ];
-then
-    sudo "${PYRAME_DIR}/pyrame/xhr/install_xhr_debian8_apache2.sh"
-    sudo systemctl restart apache2
-    sudo systemctl enable apache2
-elif  [ $CENTOS == "y" ];
-then
-    sudo "${PYRAME_DIR}/pyrame/xhr/install_xhr_centos7_apache2.sh"
-    sudo systemctl restart httpd
-    sudo systemctl enable httpd
-fi
-
-# The following command is equivalent to
-# echo 1 > sudo tee /proc/sys/net/ipv4/tcp_tw_recycle
-# echo 1 > sudo tee /proc/sys/net/ipv4/tcp_fin_timeout
-# tcp_tw_recycle is not available in ubuntu since kernel 4.11,
-# moreover this is strictly a violation of the TCP specification.
-# In Linux 2.2, the default value for tcp_fin_timeout was 180 seconds.
-# I assumed that if the OS is CentOS that machine will only be used
-# as a DAQ machine with limited internet capabilities and so I allow
-# for a quick recycling of TCP connections. This is at expense of a
-# stable internet connection
-if [ $CENTOS == "y" ];
-then
-    echo 1 > sudo tee /proc/sys/net/ipv4/tcp_tw_recycle
-    echo 1 > sudo tee /proc/sys/net/ipv4/tcp_fin_timeout
-    sudo cp -f "${PYRAME_DIR}/pyrame/launcher/99-pyrame.conf" /etc/sysctl.d/
-fi  
-
-# --------------------- CALICOES ---------------------
-
-# More info on the calicoes installation can be found on this webpage:
-# http://llr.in2p3.fr/sites/pyrame/calicoes/documentation/install.html
-
-echo "-------------------"
-echo "CALICOES INSTALLATION"
-echo "-------------------"
-echo "ANPAN is based on calicoes 3.0"
-echo "More info on the calicoes installation can be found on this webpage:"
-echo "http://llr.in2p3.fr/sites/pyrame/calicoes/documentation/install.html"
-
-cd "$PYRAME_DIR/calicoes"
-
-# compile and install Calicoes
-
-# I noticed that sometimes not all the scripts are copied in the /usr/local/bin
-# directory. This may be due to a misconfiguration of the Makefiles
-# In case try to manually run the specific Makefile inside each subdirectory. 
-
-sudo ./install.sh
-ROOTSYS=${ROOTSYS} make
-ROOTSYS=${ROOTSYS} sudo -E make install
-
-# Documentation compilation is currently broken in CentOS due to sphinx
-# version being too old
-if [ $UBUNTU == "y" ];
-then
-    # install documentation   
-    cd docs/documentation
-    ROOTSYS=${ROOTSYS} make
-    sudo mkdir -p /opt/calicoes/doc
-    ROOTSYS=${ROOTSYS} sudo make install
-    cd ../..
-fi
-
-echo ""
-echo "Post-configuration..."
-echo ""
-
-cd
-
-if [ ! -L "/var/www/html/phygui_rc" ];
-then
-    sudo ln -s /opt/calicoes/phygui_rc /var/www/html/phygui_rc
-fi
+# ------------------------ Start everything --------------------------
 
 sudo systemctl enable couchdb
 sudo systemctl restart couchdb
@@ -939,12 +1019,15 @@ sudo systemctl restart midas
 
 sleep 2s
 
-if [ $UBUNTU == "y" ];
+if [ "${CALICOESREP}" == "y" ];
 then
-    sensible-browser http://localhost/phygui_rc &
-elif  [ $CENTOS == "y" ];
-then
-    firefox http://localhost/phygui_rc &
+	if [ $UBUNTU == "y" ];
+	then
+		sensible-browser http://localhost/phygui_rc &
+	elif  [ $CENTOS == "y" ];
+	then
+		firefox http://localhost/phygui_rc &
+	fi
 fi
 
 echo ""
