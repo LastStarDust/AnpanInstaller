@@ -50,21 +50,35 @@ procedure:
  
    Open a shell and issue
    
-``` sudo yum install git git clone
-https://github.com/LastStarDust/AnpanInstaller.git cd AnpanInstaller chmod +x
-AnpanInstaller.sh ./AnpanInstaller.sh ```
+```
+sudo yum install git
+git clone https://github.com/LastStarDust/AnpanInstaller.git
+cd AnpanInstaller chmod +x AnpanInstaller.sh
+./AnpanInstaller.sh
+```
 
  - Ubuntu 18.04:
  
    Open a shell and issue
    
-``` sudo apt-get install git git clone
-https://github.com/LastStarDust/AnpanInstaller.git cd AnpanInstaller chmod +x
-AnpanInstaller.sh ./AnpanInstaller.sh ``` If for any reason the install script
-has failed and you need to run it again, it may be a good idea to clean your
-home directory before doing that.  You can do that by running the AnpanClean.sh
-script ``` chmod +x AnpanClean.sh ./AnpanClean.sh ``` This script assumes that
-you downloaded and compiled anpan and pyrame in the default folder ($HOME).
+```
+sudo apt-get install git
+git clone https://github.com/LastStarDust/AnpanInstaller.git
+cd AnpanInstaller chmod +x AnpanInstaller.sh
+./AnpanInstaller.sh
+```
+
+If for any reason the install script has failed and you need to run it again, it
+may be a good idea to clean your home directory before doing that.  You can do
+that by running the AnpanClean.sh script
+
+```
+chmod +x AnpanClean.sh
+./AnpanClean.sh
+```
+
+This script assumes that you downloaded and compiled anpan and pyrame in the
+default folder ($HOME).
 
 ## Changelog
 
