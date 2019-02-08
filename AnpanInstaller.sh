@@ -892,6 +892,7 @@ fi
 
 if [ "${CALICOESREP}" == "y" ];
 then
+	echo ""
 	echo "-------------------"
 	echo "CALICOES INSTALLATION"
 	echo "-------------------"
@@ -939,6 +940,7 @@ fi
 
 if [ "${MIDASREP}" == "y" ];
 then
+	echo ""
 	echo "--------------------------------"
 	echo "MIDAS INSTALLATION"
 	echo "--------------------------------"

@@ -13,6 +13,8 @@
 # AnpanInstaller.sh script is launched.
 # It cleans all the previous installations and ensures a clean environment.
 
+MIDAS_PREFIX="/opt/midas"
+
 cd ${HOME}
 rm -rf compileDIM.csh* dim_v20* levbdim tmp couch* lcio
 sudo rm -rf /tmp/mongoose-cpp
@@ -27,6 +29,12 @@ if [ -d ${HOME}/calicoes ]; then
 	sudo make uninstall
 	cd ..
 	rm -rf calicoes*
+fi
+if [ -d ${HOME}/midas ]; then
+	cd ${HOME}/midas
+	PREFIX=${MIDAS_PREFIX} sudo -E make uninstall
+	cd ..
+	rm -rf midas*
 fi
 if [ -d ${HOME}/usbrh-kimata ]; then
 	cd ${HOME}/usbrh-kimata
