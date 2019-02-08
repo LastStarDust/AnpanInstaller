@@ -4,28 +4,33 @@ Copyright (C) 2018 Pintaudi Giorgio, YNU
 
 # AnpanInstaller.sh v3.0
 
-This is a bash script that installs the anpan software based on [calicoes
-3.0](http://llr.in2p3.fr/sites/pyrame/calicoes/index.html) along with all its
-dependencies for the Ubuntu and CentOS OSes. It is an updated and corrected
-version based on the original installation script for CentOS 7. The original
-script can be found and downloaded
-[here](http://llr.in2p3.fr/sites/pyrame/calicoes/disclaimer.html).
+This is a bash script that installs ANPAN (Acquisition Networked Program for
+Accelerated Neutrinos) along with all its dependencies for the Ubuntu and CentOS
+OSes. ANPAN is a collection of open-source and proprietary software used for the
+remote control and for data acquisition of the [WAGASCI
+experiment](https://www-he.scphys.kyoto-u.ac.jp/research/Neutrino/WAGASCI/wiki/dokuwiki/doku.php?id=start)
+(one of the [T2K](http://t2k-experiment.org/) near detectors).
 
-Anpan is a software for control-command and data acquisition of the WAGASCI
-detector (one of the T2K near detectors).
+For further information about ANPAN refer to [this
+link](https://www-he.scphys.kyoto-u.ac.jp/research/Neutrino/WAGASCI/wiki/dokuwiki/doku.php?id=components:anpan).
+**Because ANPAN contains proprietary software, only the WAGASCI members are allowed
+to install it.**
 
-Calicoes is a software for control-command and data acquisition of the
-Silicium/Tungsten Electromagnetic Calorimeter (SIW-Ecal) for the future ILC
-Detector. They are both based on the Pyrame framework.
+This script is an updated and heavily modified version based on the original
+[Calicoes installation script for CentOS
+7](http://llr.in2p3.fr/sites/pyrame/calicoes/disclaimer.html). Calicoes is a
+software for control-command and data acquisition of the Silicium/Tungsten
+Electromagnetic Calorimeter (SIW-Ecal) for the future ILC Detector on which
+ANPAN is based.
 
 ## Details
 
 This script assumes a vanilla install of Ubuntu 18.04 or CentOS 7. It installs
-Anpan automatically and with almost no input from the user. Only some paths can
+ANPAN automatically and with almost no input from the user. Only some paths can
 be specified (if the user doesn't want to use the default ones).
 
 The present script was developed by Pintaudi Giorgio, a member of the WAGASCI
-collaboration. WAGASCI is a subexperiment of the [T2K
+collaboration. WAGASCI is a sub-experiment of the [T2K
 experiment](http://t2k-experiment.org/). The Calicoes code (that is bundled with
 Anpan) is proprietary code developed by the LLR laboratory specifically for the
 CALICE and WAGASCI experiments. If you are a WAGASCI member there is no problem
