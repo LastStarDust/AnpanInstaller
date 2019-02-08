@@ -111,10 +111,3 @@ AnpanInstaller.sh.  If not, see <https://www.gnu.org/licenses/>.
 
 Credits for the calicoes software and the original version of this script go to
 Frédéric Magniette and Miguel Rubio-Roy.
-
-Anyway, the license status of the original script is dubious, since it is not
-bundled with the calicoes software. Moreover, the license of the calicoes
-software itself is not specified anywhere as far as I could see.  The calicoes
-README file only contains the line: "Copyright 2012-2017 Frédéric Magniette,
-Miguel Rubio-Roy" without further specification. This is why I took the liberty
-to publish this script under the GPLv3 license.
