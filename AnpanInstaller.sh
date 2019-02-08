@@ -963,13 +963,12 @@ then
 	make clean
 
 	# create password
+	mkdir -p "${SOURCE_DIR}/online"
 	cat > "${SOURCE_DIR}/online/htpasswd.txt" <<EOF
 ${USER}:WAGASCI:123b668e9eb270b579a48097850c7f2e
 EOF
 
 	# initialized odb
-	mkdir -p "${SOURCE_DIR}/online"
-	cd "${SOURCE_DIR}/online"
 	cat > "${SOURCE_DIR}/online/exptab" <<EOF
 WAGASCI ${SOURCE_DIR}/online ${USER}
 EOF
