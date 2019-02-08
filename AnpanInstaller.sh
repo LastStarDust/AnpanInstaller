@@ -427,7 +427,7 @@ then
 		 libboost-system-dev libboost-filesystem-dev libboost-thread-dev \
 		 libjsoncpp-dev libcurl4-gnutls-dev scons libmongoclient-dev \
 		 libboost-regex-dev xorg-dev libboost-program-options-dev unzip libpl1000 \
-		 libssl-dev
+		 libssl-dev libusb-0.1-4 libusb-dev
 
     # The CouchDB installation in Ubuntu is a bit more delicate.
     if isinstalled "couchdb";
@@ -479,7 +479,8 @@ EOF
 		 python-progressbar R httpd python-requests motif-devel tcsh libXt-devel \
 		 curl curl-devel boost-devel boost-filesystem boost-system boost-thread \
 		 boost-regex jsoncpp-devel scons libmongo-client couchdb libX11-devel \
-		 boost-program-options unzip cmake3 perl-XML-LibXML libpl1000 openssl-devel
+		 boost-program-options unzip cmake3 perl-XML-LibXML libpl1000 openssl-devel \
+		 libusb libusb-devel
 
     # Install some python2 packages
     sudo pip install --upgrade pip
