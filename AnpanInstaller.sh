@@ -148,7 +148,7 @@ then
 		then
 			exit 1
 		else
-			CONTINUE = "" 
+			CONTINUE="" 
 		fi
     elif [ "${ROOTREP}" == "y" ];
     then
@@ -180,7 +180,7 @@ then
 			then
 				exit 1
 			else
-				CONTINUE = "" 
+				CONTINUE="" 
 			fi
 		elif [ "${DIMREP}" == "y" ];
 		then
@@ -215,7 +215,7 @@ then
 			then
 				exit 1
 			else
-				CONTINUE = "" 
+				CONTINUE="" 
 			fi
 		elif [ "${LEVBDIMREP}" == "y" ];
 		then
@@ -247,7 +247,7 @@ then
 			then
 				exit 1
 			else
-				CONTINUE = "" 
+				CONTINUE="" 
 			fi
 		elif [ "${LCIOREP}" == "y" ];
 		then
@@ -286,7 +286,7 @@ then
 			then
 				exit 1
 			else
-				CONTINUE = ""
+				CONTINUE=""
 			fi
 		elif [ "${USBRHREP}" == "y" ];
 		then
@@ -318,7 +318,7 @@ then
 			then
 				exit 1
 			else
-				CONTINUE = ""
+				CONTINUE=""
 			fi
 		elif [ "${MIDASREP}" == "y" ];
 		then
@@ -350,7 +350,7 @@ then
 			then
 				exit 1
 			else
-				CONTINUE = ""
+				CONTINUE=""
 			fi
 		elif [ "${PYRAMEREP}" == "y" ];
 		then
@@ -382,7 +382,7 @@ then
 			then
 				exit 1
 			else
-				CONTINUE = ""
+				CONTINUE=""
 			fi
 		elif [ "${CALICOESREP}" == "y" ];
 		then
@@ -1007,7 +1007,7 @@ StartLimitIntervalSec=0
 Type=simple
 Restart=always
 RestartSec=3
-User=neo
+User=${USER}
 ExecStart=/opt/midas/bin/mhttpd -e WAGASCI --http 8081 --https 8444
 Environment="MIDASSYS=/opt/midas" "MIDAS_EXPTAB=${SOURCE_DIR}/online/exptab" "MIDAS_EXPT_NAME=WAGASCI" "SVN_EDITOR=emacs -nw" "GIT_EDITOR=emacs -nw"
 PassEnvironment=MIDASSYS MIDAS_EXPTAB MIDAS_EXPT_NAME SVN_EDITOR GIT_EDITOR
@@ -1029,15 +1029,14 @@ fi
 
 # ------------------------ Start everything --------------------------
 
-sudo systemctl enable couchdb
-sudo systemctl restart couchdb
-sudo systemctl enable pyrame
-sudo systemctl restart pyrame
-
 sleep 2s
 
 if [ "${CALICOESREP}" == "y" ];
 then
+	sudo systemctl enable couchdb
+	sudo systemctl restart couchdb
+	sudo systemctl enable pyrame
+	sudo systemctl restart pyrame
 	if [ $UBUNTU == "y" ];
 	then
 		sensible-browser http://localhost/phygui_rc &
