@@ -1033,12 +1033,16 @@ fi
 
 sleep 2s
 
+if [ "${PYRAMEREP}" == "y" ];
+then
+	sudo systemctl enable pyrame
+	sudo systemctl restart pyrame
+fi
+
 if [ "${CALICOESREP}" == "y" ];
 then
 	sudo systemctl enable couchdb
 	sudo systemctl restart couchdb
-	sudo systemctl enable pyrame
-	sudo systemctl restart pyrame
 	if [ $UBUNTU == "y" ];
 	then
 		sensible-browser http://localhost/phygui_rc &
