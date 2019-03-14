@@ -1,3 +1,4 @@
+
 #!/bin/bash
 
 # AnpanInstaller.sh
@@ -53,14 +54,14 @@ function isinstalled {
     fi
 }
 
-# Check the Ubuntu release
+# Check the Ubuntu and CentOS releases
 
 if [ ! -f "/usr/bin/lsb_release" ] && [ ! -f "/etc/redhat-release" ];
 then
     echo ""
     echo "This installer is for Ubuntu 18.04 and CentOS 7 only!"
     echo "You can get this script to run also on other versions of Ubuntu"
-    echo "by simply replacing the 18.04 string on line 67 with your Ubuntu"
+    echo "by simply replacing the 18.04 string on line 70 with your Ubuntu"
     echo "version but be warned that other modifications may be needed."
     echo ""
     exit 1
@@ -1000,14 +1001,15 @@ EOF
 	cat > midas.service <<EOF
 [Unit]
 Description=MIDAS data acquisition system
-After=network.target
+After=network.target rpcbind.target ypbind.target
 StartLimitIntervalSec=0
+RequiresMountsFor=%h
 
 [Service]
 Type=simple
 Restart=always
 RestartSec=3
-User=neo
+User=${USER}
 ExecStart=/opt/midas/bin/mhttpd -e WAGASCI --http 8081 --https 8444
 Environment="MIDASSYS=/opt/midas" "MIDAS_EXPTAB=${SOURCE_DIR}/online/exptab" "MIDAS_EXPT_NAME=WAGASCI" "SVN_EDITOR=emacs -nw" "GIT_EDITOR=emacs -nw"
 PassEnvironment=MIDASSYS MIDAS_EXPTAB MIDAS_EXPT_NAME SVN_EDITOR GIT_EDITOR
