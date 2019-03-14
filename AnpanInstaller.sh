@@ -149,7 +149,7 @@ then
 		then
 			exit 1
 		else
-			CONTINUE = "" 
+			CONTINUE="" 
 		fi
     elif [ "${ROOTREP}" == "y" ];
     then
@@ -181,7 +181,7 @@ then
 			then
 				exit 1
 			else
-				CONTINUE = "" 
+				CONTINUE="" 
 			fi
 		elif [ "${DIMREP}" == "y" ];
 		then
@@ -216,7 +216,7 @@ then
 			then
 				exit 1
 			else
-				CONTINUE = "" 
+				CONTINUE="" 
 			fi
 		elif [ "${LEVBDIMREP}" == "y" ];
 		then
@@ -248,7 +248,7 @@ then
 			then
 				exit 1
 			else
-				CONTINUE = "" 
+				CONTINUE="" 
 			fi
 		elif [ "${LCIOREP}" == "y" ];
 		then
@@ -287,7 +287,7 @@ then
 			then
 				exit 1
 			else
-				CONTINUE = ""
+				CONTINUE=""
 			fi
 		elif [ "${USBRHREP}" == "y" ];
 		then
@@ -319,7 +319,7 @@ then
 			then
 				exit 1
 			else
-				CONTINUE = ""
+				CONTINUE=""
 			fi
 		elif [ "${MIDASREP}" == "y" ];
 		then
@@ -351,7 +351,7 @@ then
 			then
 				exit 1
 			else
-				CONTINUE = ""
+				CONTINUE=""
 			fi
 		elif [ "${PYRAMEREP}" == "y" ];
 		then
@@ -383,7 +383,7 @@ then
 			then
 				exit 1
 			else
-				CONTINUE = ""
+				CONTINUE=""
 			fi
 		elif [ "${CALICOESREP}" == "y" ];
 		then
@@ -1031,15 +1031,14 @@ fi
 
 # ------------------------ Start everything --------------------------
 
-sudo systemctl enable couchdb
-sudo systemctl restart couchdb
-sudo systemctl enable pyrame
-sudo systemctl restart pyrame
-
 sleep 2s
 
 if [ "${CALICOESREP}" == "y" ];
 then
+	sudo systemctl enable couchdb
+	sudo systemctl restart couchdb
+	sudo systemctl enable pyrame
+	sudo systemctl restart pyrame
 	if [ $UBUNTU == "y" ];
 	then
 		sensible-browser http://localhost/phygui_rc &
