@@ -463,7 +463,8 @@ then
 
     # Install some python2 packages
     sudo -H pip install --upgrade pip
-    sudo -H pip install --upgrade pyserial notify2 argparse couchdb pyvisa pyvisa-py distro lxml future
+    sudo -H pip install --upgrade pyserial notify2 argparse couchdb pyvisa \
+		 pyvisa-py distro lxml future
     # If you want to generate the documentation, install also:
     sudo -H pip install --upgrade docutils Pygments
 
@@ -503,7 +504,7 @@ EOF
     # Install some python2 packages
     sudo pip install --upgrade pip
     sudo pip install --upgrade pyserial notify2 argparse couchdb pyvisa pyvisa-py \
-		 distro lxml
+		 distro future lxml
     # Documentation compiling is currently broken on CentOS
     # Please use online documentation instead!
     # If you want to generate the documentation, install also:
