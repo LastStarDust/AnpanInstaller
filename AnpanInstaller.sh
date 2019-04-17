@@ -54,8 +54,25 @@ function isinstalled {
     fi
 }
 
-# Check the Ubuntu and CentOS releases
+# ---------------------------------------------------------------------------------- #
+#                                                                                    #
+#                               SCRIPT START                                         #
+#                                                                                    #
+# ---------------------------------------------------------------------------------- #
 
+# if the "jojo" argument is passed it means that Jojo is running the script
+# In that case, instead of downloading the ANPAN archive from dropbox
+# download the sources directly from GitLab. The script assumes that the SSH
+# key has already been validated on the GitLab website.
+
+if [ "$1" == "jojo" ];
+then
+	JOJO="y"
+else
+	JOJO="n"
+fi
+
+# Check the Ubuntu and CentOS releases
 if [ ! -f "/usr/bin/lsb_release" ] && [ ! -f "/etc/redhat-release" ];
 then
     echo ""
@@ -437,7 +454,7 @@ then
 		echo "couchdb is already installed";
     else
 		echo ""
-		echo "Be sure NOT to create a administrator user for couchdb!"
+		echo "Be sure NOT to create an administrator user for couchdb!"
 		echo "You avoid creating an administrator user by just inserting" 
 		echo "an EMPTY password."
 		read -n1 -r -p "Press any key to continue..." key
@@ -446,7 +463,7 @@ then
 
     # Install some python2 packages
     sudo pip install --upgrade pip
-    sudo pip install --upgrade pyserial notify2 argparse couchdb pyvisa pyvisa-py distro
+    sudo pip install --upgrade pyserial notify2 argparse couchdb pyvisa pyvisa-py distro future
     # If you want to generate the documentation, install also:
     sudo pip install --upgrade docutils Pygments
 
@@ -486,7 +503,7 @@ EOF
     # Install some python2 packages
     sudo pip install --upgrade pip
     sudo pip install --upgrade pyserial notify2 argparse couchdb pyvisa pyvisa-py \
-		 distro
+		 distro future
     # Documentation compiling is currently broken on CentOS
     # Please use online documentation instead!
     # If you want to generate the documentation, install also:
@@ -764,52 +781,85 @@ then
 		SOURCE_DIR=${HOME}
 	fi
 
-	# ANPAN 0.2
-# curl -o pyrame.zip -k -u b2water:MPPC LINK_HERE pyrame
-	if [ ! -f "$SOURCE_DIR/ANPAN.zip" ];
+	# ------------------------- NON JOJO ---------------------------- #
+
+	if [ "${JOJO}" == "n" ];
 	then
-		curl -L -o ANPAN.zip https://www.dropbox.com/s/bxnojap8qwzujdr/ANPAN%200.2.zip?dl=1
-	fi
-	if [ "${PYRAMEREP}" == "y" ];
-	then
-		# check for previous Pyrame installs
-		if [ -d "${SOURCE_DIR}/pyrame" ];
+		# ANPAN 0.2
+		# curl -o pyrame.zip -k -u b2water:MPPC LINK_HERE pyrame
+		if [ ! -f "$SOURCE_DIR/ANPAN.zip" ];
 		then
-			cd "${SOURCE_DIR}/pyrame"
-			sudo make uninstall
-			sudo rm -rf /opt/pyrame
-			cd ..
-			sudo rm -rf pyrame
+			curl -L -o ANPAN.zip https://www.dropbox.com/s/bxnojap8qwzujdr/ANPAN%200.2.zip?dl=1
 		fi
-		unzip -qn ANPAN.zip 'pyrame/*' -d ./
-	fi
-	if [ "${CALICOESREP}" == "y" ];
-	then
-		# check for previous Calicoes installs
-		if [ -d "${SOURCE_DIR}/calicoes" ];
+
+		if [ "${PYRAMEREP}" == "y" ];
 		then
+			# check for previous Pyrame installs
+			if [ -d "${SOURCE_DIR}/pyrame" ];
+			then
+				cd "${SOURCE_DIR}/pyrame"
+				sudo make uninstall
+				sudo rm -rf /opt/pyrame
+				cd ..
+				sudo rm -rf pyrame
+			fi
+			unzip -qn ANPAN.zip 'pyrame/*' -d ./
+		fi
+		if [ "${CALICOESREP}" == "y" ];
+		then
+			# check for previous Calicoes installs
+			if [ -d "${SOURCE_DIR}/calicoes" ];
+			then
+				cd "${SOURCE_DIR}/calicoes"
+				sudo make uninstall
+				sudo rm -rf /opt/calicoes
+				cd ..
+				rm -rf calicoes
+			fi
+			unzip -qn ANPAN.zip 'calicoes/*' -d ./
+		fi
+		if [ "${MIDASREP}" == "y" ];
+		then
+			MIDAS_PREFIX="/opt/midas"
+			# check for previous Midas installs
+			if [ -d "${SOURCE_DIR}/midas" ];
+			then
+				cd "${SOURCE_DIR}/midas"
+				PREFIX=${MIDAS_PREFIX} sudo -E make uninstall
+				cd
+				sudo rm -rf /opt/midas
+				rm -rf "${SOURCE_DIR}/midas"
+			fi
+			unzip -qn ANPAN.zip 'midas/*' -d ./
+			unzip -qn ANPAN.zip 'mxml/*' -d ./
+		fi
+
+		# ------------------------- JOJO ---------------------------- #
+
+	elif [ "${JOJO}" == "y" ];
+	then
+		cd "${SOURCE_DIR}"
+		if [ "${PYRAMEREP}" == "y" ] && [ ! -d "${SOURCE_DIR}/pyrame" ];
+		then
+			git clone git@llrgit.in2p3.fr:online/pyrame.git pyrame
+			cd "${SOURCE_DIR}pyrame"
+			git checkout -b develop-jojo origin/develop-jojo
+			cd ..
+		fi
+		if [ "${CALICOESREP}" == "y" ] && [ ! -d "${SOURCE_DIR}/calicoes" ];
+		then
+			git clone git@llrgit.in2p3.fr:online/calicoes.git
 			cd "${SOURCE_DIR}/calicoes"
-			sudo make uninstall
-			sudo rm -rf /opt/calicoes
+			git checkout -b develop-jojo origin/develop-jojo
 			cd ..
-			rm -rf calicoes
 		fi
-		unzip -qn ANPAN.zip 'calicoes/*' -d ./
-	fi
-	if [ "${MIDASREP}" == "y" ];
-	then
-		MIDAS_PREFIX="/opt/midas"
-		# check for previous Midas installs
-		if [ -d "${SOURCE_DIR}/midas" ];
+		if [ "${MIDASREP}" == "y" ] && [ ! -d "${SOURCE_DIR}/midas" ];
 		then
+			git clone git@bitbucket.org:LastStarDust/midas-wagasci.git midas
 			cd "${SOURCE_DIR}/midas"
-			PREFIX=${MIDAS_PREFIX} sudo -E make uninstall
-			cd
-			sudo rm -rf /opt/midas
-			rm -rf "${SOURCE_DIR}/midas"
+			git checkout -b develop origin/develop
+			cd ..
 		fi
-		unzip -qn ANPAN.zip 'midas/*' -d ./
-		unzip -qn ANPAN.zip 'mxml/*' -d ./
 	fi
 fi
 
