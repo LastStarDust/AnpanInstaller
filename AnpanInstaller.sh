@@ -424,7 +424,7 @@ if [ $UBUNTU == "y" ];
 then
     if [ ! -f /etc/apt/sources.list.d/apache_couchdb_bionic.list ];
     then
-		sudo apt-get install curl
+		sudo apt-get install -y curl
 		echo "deb https://apache.bintray.com/couchdb-deb bionic main" \
             | sudo tee -a /etc/apt/sources.list.d/apache_couchdb_bionic.list
 		curl -L https://couchdb.apache.org/repo/bintray-pubkey.asc \
@@ -437,8 +437,8 @@ then
 	fi
 
     sudo apt-get update
-    sudo apt-get upgrade
-    sudo apt-get install build-essential python python-dev python-pip psmisc \
+    sudo apt-get upgrade -y
+    sudo apt-get install -y build-essential python python-dev python-pip psmisc \
 		 git libsdl1.2-dev libsdl-ttf2.0-dev elog python-sphinx libafterimage-dev \
 		 flex libexpat1-dev liblua5.2-dev libcurl4 python-progressbar apache2 \
 		 r-base python-requests libmotif-dev tcsh libxt-dev curl libboost-dev \
@@ -458,14 +458,14 @@ then
 		echo "You avoid creating an administrator user by just inserting" 
 		echo "an EMPTY password."
 		read -n1 -r -p "Press any key to continue..." key
-		sudo apt-get install couchdb
+		sudo apt-get install -y couchdb
     fi
 
     # Install some python2 packages
-    sudo pip install --upgrade pip
-    sudo pip install --upgrade pyserial notify2 argparse couchdb pyvisa pyvisa-py distro future
+    sudo -H pip install --upgrade pip
+    sudo -H pip install --upgrade pyserial notify2 argparse couchdb pyvisa pyvisa-py distro lxml future
     # If you want to generate the documentation, install also:
-    sudo pip install --upgrade docutils Pygments
+    sudo -H pip install --upgrade docutils Pygments
 
 elif [ $CENTOS == "y" ];
 then
@@ -503,7 +503,7 @@ EOF
     # Install some python2 packages
     sudo pip install --upgrade pip
     sudo pip install --upgrade pyserial notify2 argparse couchdb pyvisa pyvisa-py \
-		 distro future
+		 distro lxml
     # Documentation compiling is currently broken on CentOS
     # Please use online documentation instead!
     # If you want to generate the documentation, install also:
@@ -544,7 +544,7 @@ then
             ROOTSYS="${ROOTDIR}/ROOT"
 		fi
 		
-		sudo apt-get install build-essential git dpkg-dev cmake xutils-dev \
+		sudo apt-get install -y build-essential git dpkg-dev cmake xutils-dev \
 			 binutils libx11-dev libxpm-dev libxft-dev libxext-dev \
 			 libssl-dev libpcre3-dev libglu1-mesa-dev libglew-dev \
 			 libmysqlclient-dev libfftw3-dev libcfitsio-dev libgraphviz-dev \
