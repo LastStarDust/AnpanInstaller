@@ -1020,7 +1020,7 @@ then
 	# create password
 	mkdir -p "${SOURCE_DIR}/online"
 	cat > "${SOURCE_DIR}/online/htpasswd.txt" <<EOF
-${USER}:WAGASCI:123b668e9eb270b579a48097850c7f2e
+wagasci:WAGASCI:7d2a8e2d0b5716cc0ba0b26e1cece901
 EOF
 
 	# initialized odb
