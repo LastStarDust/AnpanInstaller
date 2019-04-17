@@ -32,6 +32,7 @@ CONTINUE="n"
 UBUNTU="n"
 CENTOS="n"
 ROOTVERS="6-14-06"
+MIDAS_PREFIX="/opt/midas"
 
 # Define a function that checks if a package is installed
 
@@ -821,7 +822,6 @@ then
 		fi
 		if [ "${MIDASREP}" == "y" ];
 		then
-			MIDAS_PREFIX="/opt/midas"
 			# check for previous Midas installs
 			if [ -d "${SOURCE_DIR}/midas" ];
 			then
@@ -1010,8 +1010,8 @@ then
 	sudo cp -r resources "${MIDAS_PREFIX}/resources"
 
 	# create fake SSL certificate for localhost
-	openssl req -new -nodes -newkey rsa:2048 -sha256 -out ssl_cert.csr \
-			-keyout ssl_cert.key -subj "/C=/ST=/L=/O=midas/OU=mhttpd/CN=localhost"
+	openssl req -new -nodes -newkey rsa:2048 -sha256 -out ssl_cert.csr -keyout ssl_cert.key \
+			-subj "/C=JP/ST=Ibaraki/L=Tokai/O=midas/OU=mhttpd/CN=localhost"
 	openssl x509 -req -days 365 -sha256 -in ssl_cert.csr -signkey ssl_cert.key -out ssl_cert.pem
 	cat ssl_cert.key >> ssl_cert.pem
 	sudo mv ssl_cert.* "${MIDAS_PREFIX}"
