@@ -843,7 +843,7 @@ then
 		if [ "${PYRAMEREP}" == "y" ] && [ ! -d "${SOURCE_DIR}/pyrame" ];
 		then
 			git clone git@llrgit.in2p3.fr:online/pyrame.git pyrame
-			cd "${SOURCE_DIR}pyrame"
+			cd "${SOURCE_DIR}/pyrame"
 			git checkout -b develop-jojo origin/develop-jojo
 			cd ..
 		fi
@@ -856,9 +856,10 @@ then
 		fi
 		if [ "${MIDASREP}" == "y" ] && [ ! -d "${SOURCE_DIR}/midas" ];
 		then
+			git clone https://bitbucket.org/tmidas/mxml mxml
 			git clone git@bitbucket.org:LastStarDust/midas-wagasci.git midas
 			cd "${SOURCE_DIR}/midas"
-			git checkout -b develop origin/develop
+			git checkout origin/develop
 			cd ..
 		fi
 	fi
@@ -996,7 +997,7 @@ then
 	echo "--------------------------------"
 	echo "MIDAS INSTALLATION"
 	echo "--------------------------------"
-	echo "More info on the pyrame installation can be found on this webpage:"
+	echo "More info on the MIDAS installation can be found on this webpage:"
 	echo "https://midas.triumf.ca/MidasWiki/index.php/Main_Page"
 
 	cd "${SOURCE_DIR}/midas"
