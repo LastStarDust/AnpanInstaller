@@ -529,7 +529,7 @@ then
 		echo "a directory that is writable by the current user. If you wish to"
 		echo "install ROOT in a system directory, please do it manually or just"
 		echo "place \"sudo\" in front of every relevant line in this script"
-		echo "from line 370 to line 377 (more or less)."
+		echo "from line 562 to line 569 (more or less)."
 		read ROOTDIR
 
 		# If nothing is inserted assume the user home as installation directory
@@ -594,7 +594,7 @@ then
 			echo "a directory that is writable by the current user. If you wish to"
 			echo "install ROOT in a system directory, please do it manually or just"
 			echo "place \"sudo\" in front of every relevant line in this script"
-			echo "from line 453 to line 460 (more or less). You can change the version"
+			echo "from line 642 to line 649 (more or less). You can change the version"
 			echo "of ROOT to be installed tweaking the ROOTVERS (${ROOTVERS}) variable."
 			echo ""
 			read ROOTDIR
