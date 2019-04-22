@@ -123,4 +123,7 @@ sudo pear channel-discover phpseclib.sourceforge.net
 sudo pear remote-list -c phpseclib
 sudo pear install phpseclib/Net_SSH2
 
+# ssh
+sudo apt install -y openssh-server
+
 exit 0
