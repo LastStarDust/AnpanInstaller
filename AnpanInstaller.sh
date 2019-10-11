@@ -565,7 +565,7 @@ then
         cd sources
         git checkout -b v${ROOTVERS} v${ROOTVERS}
         cd ../${ROOTVERS}-build
-        cmake -Dbuiltin_xrootd=ON -DCMAKE_INSTALL_PREFIX=${ROOTSYS}/${ROOTVERS} ../sources
+        cmake -Dbuiltin_xrootd=ON -Dminuit2=ON -DCMAKE_INSTALL_PREFIX=${ROOTSYS}/${ROOTVERS} ../sources
         cmake --build . --target install -- -j8
         cd
         source ${ROOTSYS}/${ROOTVERS}/bin/thisroot.sh
@@ -645,7 +645,7 @@ then
             cd sources
             git checkout -b v${ROOTVERS} v${ROOTVERS}
             cd ../${ROOTVERS}-build
-            cmake3 -Dbuiltin_xrootd=ON -DCMAKE_INSTALL_PREFIX=${ROOTSYS}/${ROOTVERS} $CENTOS_ROOT_FLAGS ../sources
+            cmake3 -Dbuiltin_xrootd=ON -Dminuit2=ON -DCMAKE_INSTALL_PREFIX=${ROOTSYS}/${ROOTVERS} $CENTOS_ROOT_FLAGS ../sources
             cmake3 --build . --target install -- -j8
             cd
             source ${ROOTSYS}/${ROOTVERS}/bin/thisroot.sh
