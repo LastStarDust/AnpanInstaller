@@ -348,8 +348,6 @@ then
 	fi
     fi
 fi
-fi
-fi
 
 # Check for PYRAMEREP
 if [ -z "${PYRAMEREP}" ];
@@ -775,9 +773,10 @@ then
     rm -rf usbrh-ynu
     git clone https://github.com/YNUneutrino/usbrh-linux.git usbrh-ynu
     cd usbrh-ynu
-    make
-    sudo make install
-    cd ..
+    (
+        make
+        sudo make install
+    )
     rm -rf usbrh-ynu
 fi
 
