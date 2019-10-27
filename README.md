@@ -2,7 +2,7 @@ Last Updated on 2019-02-08
 
 Copyright (C) 2018 Pintaudi Giorgio, YNU
 
-# AnpanInstaller.sh v3.0
+# AnpanInstaller.sh v3.2
 
 This is a bash script that installs ANPAN (Acquisition Networked Program for
 Accelerated Neutrinos) along with all its dependencies for the Ubuntu and CentOS
@@ -87,6 +87,7 @@ default folder ($HOME).
 
 ## Changelog
 
+ - v3.2 Compile MIDAS with CMake
  - v3.0 Install MIDAS
  - v2.0 Added support for CentOS 7 v1.0 First version
 
