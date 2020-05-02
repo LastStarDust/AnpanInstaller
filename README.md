@@ -1,8 +1,8 @@
-Last Updated on 2019-02-08
+Last Updated on 2020-05-02
 
 Copyright (C) 2018 Pintaudi Giorgio, YNU
 
-# AnpanInstaller.sh v3.2
+# AnpanInstaller.sh v4.0
 
 This is a bash script that installs ANPAN (Acquisition Networked Program for
 Accelerated Neutrinos) along with all its dependencies for the Ubuntu and CentOS
@@ -25,9 +25,9 @@ ANPAN is based.
 
 ## Details
 
-This script assumes a vanilla install of Ubuntu 18.04 or CentOS 7. It installs
-ANPAN automatically and with almost no input from the user. Only some paths can
-be specified (if the user doesn't want to use the default ones).
+This script assumes a vanilla install of Ubuntu 18.04/20.04 or CentOS 7. It
+installs ANPAN automatically and with almost no input from the user. Only some
+paths can be specified (if the user doesn't want to use the default ones).
 
 The present script was developed by Pintaudi Giorgio, a member of the WAGASCI
 collaboration. WAGASCI is a sub-experiment of the [T2K
@@ -62,7 +62,7 @@ cd AnpanInstaller chmod +x AnpanInstaller.sh
 ./AnpanInstaller.sh
 ```
 
- - Ubuntu 18.04:
+ - Ubuntu 18.04/20.04:
  
    Open a shell and issue
    
@@ -87,13 +87,14 @@ default folder ($HOME).
 
 ## Changelog
 
+ - v4.0 Removed many useless packages.
  - v3.2 Compile MIDAS with CMake
  - v3.0 Install MIDAS
  - v2.0 Added support for CentOS 7 v1.0 First version
 
 ## TO-DO
 
- - [ ] Add support for other Ubuntu versions
+ - [ ] Add support for other Linux distros
  
 ## License
 
