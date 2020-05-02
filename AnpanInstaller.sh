@@ -21,17 +21,13 @@
 set -e
 
 ROOTREP="n"
-DIMREP="n"
-LEVBDIMREP="n"
-LCIOREP=""
-USBRHREP=""
 PYRAMEREP=""
 CALICOESREP=""
 MIDASREP=""
 CONTINUE="n"
 UBUNTU="n"
 CENTOS="n"
-ROOTVERS="6-18-04"
+ROOTVERS="6-20-04"
 EXPERIMENT_NAME="WAGASCI"
 
 # Define a function that checks if a package is installed
@@ -61,18 +57,6 @@ isinstalled () {
 #                                                                                    #
 # ---------------------------------------------------------------------------------- #
 
-# if the "jojo" argument is passed it means that Jojo is running the script
-# In that case, instead of downloading the ANPAN archive from dropbox
-# download the sources directly from GitLab. The script assumes that the SSH
-# key has already been validated on the GitLab website.
-
-if [ "$1" = "jojo" ];
-then
-    JOJO="y"
-else
-    JOJO="n"
-fi
-
 # Check the Ubuntu and CentOS releases
 if [ ! -f "/usr/bin/lsb_release" ] && [ ! -f "/etc/redhat-release" ];
 then
@@ -85,7 +69,8 @@ then
     exit 1
 fi
 
-if [ -f "/usr/bin/lsb_release" ] && [ "$(lsb_release -rs)" = "18.04" ];
+if [ -f "/usr/bin/lsb_release" ] && { [ "$(lsb_release -rs)" = "18.04" ] ||
+                                          [ "$(lsb_release -rs)" = "20.04" ]; };
 then
     UBUNTU="y"
     CMAKE=cmake
@@ -178,155 +163,16 @@ then
     fi
 fi
 
-# Check for DIM
-# For the time being it is not used by Anpan
-if [ -z "${DIMREP}" ];
-then
-    if [ ! -d "/usr/local/lib/dim" ];
-    then
-	echo ""
-	echo ""
-	echo "Dim is an optional dependency of anpan (only for SDHcal compat)."
-	echo "It seems that it is not installed (looking for /usr/local/lib/dim)"
-	echo "The total compilation of the sources should take very little time"
-	echo "Do you want this installer to install it? (y|n) : \c"
-	read -r DIMREP
-	if [ "${DIMREP}" = "n" ];
-	then
-	    echo "Do you want this installer to continue anyway? (y|n) : \c"
-	    read -r CONTINUE
-	    if [ "${CONTINUE}" = "n" ];
-	    then
-		exit 1
-	    else
-		CONTINUE="" 
-	    fi
-	elif [ "${DIMREP}" = "y" ];
-	then
-	    echo "Set to install it (DIMREP=\"y\")\c"
-	else
-	    echo "I didn't understand your answer. Sorry, try again."
-	    exit 1
-	fi
-    fi
-fi
-
-# Check for Liblevbdim
-# For the time being it is not used by Anpan
-
-if [ -z "${LEVBDIMREP}" ];
-then
-    if [ ! -f "/usr/local/lib/dim/liblevbdim.so" ];
-    then
-	echo ""
-	echo ""
-	echo "Levbdim is an optional dependency of anpan (only for SDHcal compat)."
-	echo "It seems that it is not installed (looking for /usr/local/lib/dim/liblevbdim.so)"
-	echo "Be aware that dim is a dependency for levbdim."
-	echo "The total compilation of the sources should take very little time"
-	echo "Do you want this installer to install it? (y|n) : \c"
-	read -r LEVBDIMREP
-	if [ "${LEVBDIMREP}" = "n" ];
-	then
-	    echo "Do you want this installer to continue anyway? (y|n) : \c"
-	    read -r CONTINUE
-	    if [ "${CONTINUE}" = "n" ];
-	    then
-		exit 1
-	    else
-		CONTINUE="" 
-	    fi
-	elif [ "${LEVBDIMREP}" = "y" ];
-	then
-	    echo "Set to install it (LEVBDIMREP=\"y\")"
-	else
-	    echo "I didn't understand your answer. Sorry, try again."
-	    exit 1
-	fi
-    fi
-fi
-# Check for LCIO
-# for the time being it is not used by Anpan
-if [ -z "${LCIOREP}" ];
-then
-    if [ ! -d "/opt/lcio" ];
-    then
-	echo ""
-	echo ""
-	echo "LCIO is an optional dependency of anpan."
-	echo "It seems that it is not installed (looking for /opt/lcio)"
-	echo "The total compilation of the sources could take some minutes"
-	echo "Do you want this installer to install it? (y|n) : \c"
-	read -r LCIOREP
-	if [ "${LCIOREP}" = "n" ];
-	then
-	    echo "Do you want this installer to continue anyway? (y|n) : \c"
-	    read -r CONTINUE
-	    if [ "${CONTINUE}" = "n" ];
-	    then
-		exit 1
-	    else
-		CONTINUE="" 
-	    fi
-	elif [ "${LCIOREP}" = "y" ];
-	then
-	    echo "Set to install it (LCIOREP=\"y\")"
-	else
-	    echo "I didn't understand your answer. Sorry, try again."
-	    exit 1
-	fi
-    fi
-fi
-# Check for USBRHREP
-if [ -z "${USBRHREP}" ];
-then
-    if [ $CENTOS = "y" ] && [ -f "/usr/lib/modules/$(uname -r)/extra/usbrh.ko" ];
-    then
-	USBRH_MODULE="/usr/lib/modules/$(uname -r)/extra/usbrh.ko"
-    elif [ $UBUNTU = "y" ] && [ -f "/lib/modules/$(uname -r)/extra/usbrh.ko" ];
-    then
-	USBRH_MODULE="/lib/modules/$(uname -r)/extra/usbrh.ko"
-    fi
-    if [ ! -f "${USBRH_MODULE}" ];
-    then
-	echo ""
-	echo ""
-	echo "USBRH is a dependency of anpan. It is the low level driver"
-	echo "for the USBRH temperature and humidity sensor."
-	echo "It seems that it is not installed (looking for usbrh.ko)."
-	echo "The total compilation of the sources should take very little time."
-	echo "Do you want this installer to install it? (y|n) : \c"
-	read -r USBRHREP
-	if [ "${USBRHREP}" = "n" ];
-	then
-	    echo "Do you want this installer to continue anyway? (y|n) : \c"
-	    read -r CONTINUE
-	    if [ "${CONTINUE}" = "n" ];
-	    then
-		exit 1
-	    else
-		CONTINUE=""
-	    fi
-	elif [ "${USBRHREP}" = "y" ];
-	then
-	    echo "Set to install it (USBRHREP=\"y\")"
-	else
-	    echo "I didn't understand your answer. Sorry, try again."
-	    exit 1
-	fi
-    fi
-fi
-
 # Check for MIDASREP
 if [ -z "${MIDASREP}" ];
 then
-    if [ ! -d "/opt/midas" ];
+    if [ ! -d "/opt/midas" ] || [ -z "${MIDASSYS}" ];
     then
 	echo ""
 	echo ""
 	echo "MIDAS is a dependency of anpan. It seems that it is not installed"
-	echo "in the default location (looking for the folder /opt/midas)."
-	echo "But perhaps it is installed somewhere else."
+	echo "in the default location (looking for the folder /opt/midas) or the"
+        echo "MIDASSYS variable is not set. Perhaps it is installed somewhere else."
 	echo "Do you want this installer to install it? (y|n) : \c"
 	read -r MIDASREP
 	if [ "${MIDASREP}" = "n" ];
@@ -431,11 +277,13 @@ then
 	curl -L https://couchdb.apache.org/repo/bintray-pubkey.asc \
             | sudo apt-key add -
     fi
-    if [ ! -f /etc/apt/sources.list.d/picoscope.list ];
-    then
-	sudo bash -c 'echo "deb https://labs.picotech.com/debian/ picoscope main" >/etc/apt/sources.list.d/picoscope.list'
-	wget -O - https://labs.picotech.com/debian/dists/picoscope/Release.gpg.key | sudo apt-key add -
-    fi
+
+    # Uncomment to install picoscope software
+    # if [ ! -f /etc/apt/sources.list.d/picoscope.list ];
+    # then
+    #     sudo bash -c 'echo "deb https://labs.picotech.com/debian/ picoscope main" >/etc/apt/sources.list.d/picoscope.list'
+    #     wget -O - https://labs.picotech.com/debian/dists/picoscope/Release.gpg.key | sudo apt-key add -
+    # fi
 
     sudo apt-get update
     sudo apt-get upgrade -y
@@ -445,8 +293,10 @@ then
 	 r-base python-requests libmotif-dev tcsh libxt-dev curl libboost-dev \
 	 libboost-system-dev libboost-filesystem-dev libboost-thread-dev \
 	 libjsoncpp-dev libcurl4-gnutls-dev scons libmongoclient-dev \
-	 libboost-regex-dev xorg-dev libboost-program-options-dev unzip libpl1000 \
+	 libboost-regex-dev xorg-dev libboost-program-options-dev unzip \
 	 libssl-dev libusb-0.1-4 libusb-dev
+
+    # sudo apt-get install -y libpl1000
 
     # The CouchDB installation in Ubuntu is a bit more delicate.
     if isinstalled "couchdb";
@@ -463,11 +313,11 @@ then
     fi
 
     # Install some python2 packages
-    sudo -H pip install --upgrade pip
-    sudo -H pip install --upgrade pyserial notify2 argparse couchdb pyvisa \
+    sudo -H python2 -m pip install --upgrade pip
+    sudo -H python2 -m pip install --upgrade pyserial notify2 argparse couchdb pyvisa \
 	 pyvisa-py distro lxml future
     # If you want to generate the documentation, install also:
-    sudo -H pip install --upgrade docutils Pygments
+    sudo -H python2 -m pip install --upgrade docutils Pygments
 
 elif [ $CENTOS = "y" ];
 then
@@ -503,13 +353,11 @@ EOF
 	 libusb libusb-devel
 
     # Install some python2 packages
-    sudo pip install --upgrade pip
-    sudo pip install --upgrade pyserial notify2 argparse couchdb pyvisa pyvisa-py \
+    sudo python2 -m pip install --upgrade pip
+    sudo python2 -m pip install --upgrade pyserial notify2 argparse couchdb pyvisa pyvisa-py \
 	 distro future lxml
-    # Documentation compiling is currently broken on CentOS
-    # Please use online documentation instead!
     # If you want to generate the documentation, install also:
-    # sudo pip install --upgrade sphinx Jinja2 MarkupSafe==0.23 docutils Pygments 
+    sudo python2 -m pip install --upgrade sphinx Jinja2 MarkupSafe==0.23 docutils Pygments 
 fi
 
 #install root if necessary
@@ -565,7 +413,7 @@ then
 	cd sources
 	git checkout -b v${ROOTVERS} v${ROOTVERS}
 	cd ../${ROOTVERS}-build
-	cmake -Dbuiltin_xrootd=ON -Dminuit2=On -DCMAKE_INSTALL_PREFIX="${ROOTSYS}/${ROOTVERS}" ../sources
+	cmake -Dbuiltin_xrootd=ON -Dminuit2=On -Dpython3=ON -DCMAKE_INSTALL_PREFIX="${ROOTSYS}/${ROOTVERS}" ../sources
 	cmake --build . --target install -- -j8
 	cd
         # shellcheck source=/dev/null
@@ -674,112 +522,6 @@ then
     fi
 fi
 
-#install dim if necessary
-
-if [ "${DIMREP}" = "y" ];
-then
-    echo ""
-    echo "-------------------"
-    echo "DIM INSTALLATION"
-    echo "-------------------"
-    cd
-    curl -o compileDIM.csh https://gist.githubusercontent.com/MBoretto/d8156bb86c726bcf5014/raw/2940a4480ec79b7ceebdfda912b0bba27e66395e/compileDIM.csh
-    sed -i 's/dim_v20r15/dim_v20r23/g' compileDIM.csh
-    chmod +x compileDIM.csh
-    sudo tcsh -c "./compileDIM.csh"
-    cd
-fi
-
-#install levbdim if necessary
-if [ "${LEVBDIMREP}" = "y" ];
-then
-    echo ""
-    echo "-------------------"
-    echo "LEVBDIM INSTALLATION"
-    echo "-------------------"
-    cd
-    git clone http://github.com/mirabitl/levbdim.git levbdim
-    cd /tmp
-    tar zxf "${HOME}/levbdim/web/mongoose.tgz"
-    cd mongoose-cpp/
-    mkdir -p build/
-    cd build/
-    rm -rf ./*
-    cp "${HOME}/levbdim/web/CMakeLists.txt" ../
-    $CMAKE -DEXAMPLES=ON -DWEBSOCKET=OFF -DHAS_JSONCPP=ON ..
-    make -j4
-    sudo make install
-    cd "${HOME}/levbdim"
-    DIMDIR="/usr/local/lib/dim"
-    sudo ln -s /usr/local/include/dim $DIMDIR/dim
-    sudo ln -s $DIMDIR $DIMDIR/linux
-    scons
-    sudo cp lib/* $DIMDIR/
-    cd
-fi
-
-# install lcio if necessary
-# for the time being it is not used by Anpan
-if [ "${LCIOREP}" = "y" ];
-then
-    echo ""
-    echo "-------------------"
-    echo "LCIO INSTALLATION"
-    echo "-------------------"
-    cd
-    git clone https://github.com/iLCSoft/LCIO.git lcio
-    cd lcio
-    git checkout v02-12-01
-    mkdir -p build
-    cd build
-    $CMAKE -DCMAKE_INSTALL_PREFIX=/opt/lcio ..
-    # to speed up the building process you can do
-    # "cmake --build . -- -jN" where N is the number of available cores
-    $CMAKE --build .
-    sudo make install
-    cd ../..
-    rm -rf lcio
-fi
-
-# install usbrh if necessary
-if [ "${USBRHREP}" = "y" ];
-then
-    echo ""
-    echo "-------------------"
-    echo "USBRH INSTALLATION"
-    echo "-------------------"
-    cd
-    # The usbrh-kimata kernel module is buggy. It makes the kernel
-    # panick every time that you try to
-    #
-    # $ cat /proc/usbrh/0/temperature
-    #
-    # Even if I prefer the idea of a kernel module instead of a
-    # user-space application, I am not willing to debug this module by
-    # myself so screw it.
-    #
-    # rm -rf usbrh-kimata
-    # git clone https://github.com/kimata/usbrh.git usbrh-kimata
-    # cd usbrh-kimata
-    # if  [ $CENTOS == "y" ];
-    # then
-    #   # After this commit the compatibility with CentOS 7 is broken
-    #   git checkout 5fa42ff07fc3c30bac3c0751813e4497e7bcb686
-    # fi
-    # make
-    # sudo make install
-    # cd ..
-    # rm -rf usbrh-kimata
-    rm -rf usbrh-ynu
-    git clone https://github.com/YNUneutrino/usbrh-linux.git usbrh-ynu
-    cd usbrh-ynu
-    (
-        make
-        sudo make install
-    )
-    rm -rf usbrh-ynu
-fi
-
 # ------------------------ Download --------------------------
 
 if [ "${PYRAMEREP}" = "y" ] || [ "${CALICOESREP}" = "y" ] || [ "${MIDASREP}" = "y" ];
@@ -793,91 +535,32 @@ then
     if [ -z "$SOURCE_DIR" ]; then
 	SOURCE_DIR=${HOME}
     fi
-
-    # ------------------------- NON JOJO ---------------------------- #
-
-    if [ "${JOJO}" = "n" ];
+    
+    cd "${SOURCE_DIR}"
+    if [ "${PYRAMEREP}" = "y" ] && [ ! -d "${SOURCE_DIR}/Pyrame" ];
     then
-	# ANPAN 0.2
-	# curl -o pyrame.zip -k -u b2water:MPPC LINK_HERE pyrame
-	if [ ! -f "$SOURCE_DIR/ANPAN.zip" ];
-	then
-	    curl -L -o ANPAN.zip https://www.dropbox.com/s/bxnojap8qwzujdr/ANPAN%200.2.zip?dl=1
-	fi
-
-	if [ "${PYRAMEREP}" = "y" ];
-	then
-	    # check for previous Pyrame installs
-	    if [ -d "${SOURCE_DIR}/pyrame" ];
-	    then
-                (
-		    cd "${SOURCE_DIR}/pyrame"
-		    sudo make uninstall
-		    sudo rm -rf /opt/pyrame
-                )
-		sudo rm -rf pyrame
-	    fi
-	    unzip -qn ANPAN.zip 'pyrame/*' -d ./
-	fi
-	if [ "${CALICOESREP}" = "y" ];
-	then
-	    # check for previous Calicoes installs
-	    if [ -d "${SOURCE_DIR}/calicoes" ];
-	    then
-                (
-		    cd "${SOURCE_DIR}/calicoes"
-		    sudo make uninstall
-		    sudo rm -rf /opt/calicoes
-                )
-		rm -rf calicoes
-	    fi
-	    unzip -qn ANPAN.zip 'calicoes/*' -d ./
-	fi
-	if [ "${MIDASREP}" = "y" ];
-	then
-	    # check for previous Midas installs
-	    if [ -d "${SOURCE_DIR}/midas" ];
-	    then
-		cd "${SOURCE_DIR}/midas"
-		PREFIX=${MIDAS_PREFIX} sudo -E make uninstall
-		cd
-		sudo rm -rf /opt/midas
-		rm -rf "${SOURCE_DIR}/midas"
-	    fi
-	    unzip -qn ANPAN.zip 'midas/*' -d ./
-	    unzip -qn ANPAN.zip 'mxml/*' -d ./
-	fi
-
-	# ------------------------- JOJO ---------------------------- #
-
-    elif [ "${JOJO}" = "y" ];
+	git clone https://llrgit.in2p3.fr/online/pyrame.git Pyrame
+        (
+	    cd "${SOURCE_DIR}/Pyrame"
+	    git checkout -b develop-jojo origin/develop-jojo
+        )
+    fi
+    if [ "${CALICOESREP}" = "y" ] && [ ! -d "${SOURCE_DIR}/Calicoes" ];
     then
-	cd "${SOURCE_DIR}"
-	if [ "${PYRAMEREP}" = "y" ] && [ ! -d "${SOURCE_DIR}/Pyrame" ];
-	then
-	    git clone git@llrgit.in2p3.fr:online/pyrame.git Pyrame
-            (
-	        cd "${SOURCE_DIR}/Pyrame"
-	        git checkout -b develop-jojo origin/develop-jojo
-            )
-	fi
-	if [ "${CALICOESREP}" = "y" ] && [ ! -d "${SOURCE_DIR}/Calicoes" ];
-	then
-	    git clone git@llrgit.in2p3.fr:online/calicoes.git Calicoes
-            (
-	        cd "${SOURCE_DIR}/Calicoes"
-	        git checkout -b develop-jojo origin/develop-jojo
-            )
-	fi
-	if [ "${MIDASREP}" = "y" ] && [ ! -d "${SOURCE_DIR}/Midas" ];
-	then
-	    git clone git@bitbucket.org:LastStarDust/midas-wagasci.git Midas
-            (
-	        cd "${SOURCE_DIR}/Midas"
-	        git checkout origin/develop
-                git submodule update --init
-            )
-	fi
+	git clone https://llrgit.in2p3.fr/online/calicoes.git Calicoes
+        (
+	    cd "${SOURCE_DIR}/Calicoes"
+	    git checkout -b develop-jojo origin/develop-jojo
+        )
+    fi
+    if [ "${MIDASREP}" = "y" ] && [ ! -d "${SOURCE_DIR}/Midas" ];
+    then
+	git clone https://bitbucket.org/tmidas/midas.git Midas
+        (
+	    cd "${SOURCE_DIR}/Midas"
+	    git checkout origin/develop
+            git submodule update --init
+        )
     fi
 fi
 
