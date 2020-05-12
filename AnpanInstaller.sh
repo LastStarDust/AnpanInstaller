@@ -544,10 +544,10 @@ then
         (
             cd "${SOURCE_DIR}/pyrame"
             git checkout -b develop-jojo origin/develop-jojo
-            rm -rf bus/cmd_cserial/libserialport
-            rm -rf meters/cmd_usbrh/usbrh-linux
-            git submodule add --force https://github.com/sigrokproject/libserialport.git bus/cmd_cserial/libserialport
-            git submodule add --force https://github.com/YNUneutrino/usbrh-linux.git meters/cmd_usbrh/usbrh-linux
+            # rm -rf bus/cmd_cserial/libserialport
+            # rm -rf meters/cmd_usbrh/usbrh-linux
+            # git submodule add --force https://github.com/sigrokproject/libserialport.git bus/cmd_cserial/libserialport
+            # git submodule add --force https://github.com/YNUneutrino/usbrh-linux.git meters/cmd_usbrh/usbrh-linux
             git submodule update --init --recursive
         )
     fi
