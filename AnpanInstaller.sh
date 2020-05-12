@@ -540,7 +540,7 @@ then
     cd "${SOURCE_DIR}"
     if [ "${PYRAMEREP}" = "y" ] && [ ! -d "${SOURCE_DIR}/pyrame" ];
     then
-	git clone https://llrgit.in2p3.fr/online/pyrame.git pyrame
+	env GIT_SSL_NO_VERIFY=true git clone https://llrgit.in2p3.fr/online/pyrame.git pyrame
         (
 	    cd "${SOURCE_DIR}/pyrame"
 	    git checkout -b develop-jojo origin/develop-jojo
@@ -551,7 +551,7 @@ then
     fi
     if [ "${CALICOESREP}" = "y" ] && [ ! -d "${SOURCE_DIR}/Calicoes" ];
     then
-	git clone https://llrgit.in2p3.fr/online/calicoes.git Calicoes
+	env GIT_SSL_NO_VERIFY=true git clone https://llrgit.in2p3.fr/online/calicoes.git Calicoes
         (
 	    cd "${SOURCE_DIR}/Calicoes"
 	    git checkout -b develop-jojo origin/develop-jojo
@@ -559,7 +559,7 @@ then
     fi
     if [ "${MIDASREP}" = "y" ] && [ ! -d "${SOURCE_DIR}/Midas" ];
     then
-	git clone https://bitbucket.org/tmidas/midas.git Midas
+	env GIT_SSL_NO_VERIFY=true git clone https://bitbucket.org/tmidas/midas.git Midas
         (
 	    cd "${SOURCE_DIR}/Midas"
 	    git checkout origin/develop
