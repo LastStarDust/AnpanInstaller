@@ -108,7 +108,7 @@ then
 	echo "SElinux is active. This prevents Anpan from working properly."
 	echo "This operation will need a reboot. Please relaunch the installer"
 	echo "as soon as reboot is completed."
-	echo "Do you want this installer to fix the problem? (y|n) : \c"
+	echo "Do you want this installer to fix the problem? (y|n) : "
 	read -r REP
 	if [ "${REP}" = "y" ];
 	then
@@ -142,11 +142,11 @@ then
     echo "repositories or compiled from source. Compiling it could take up to"
     echo "an hour. You will be asked which way you prefer to install ROOT later."
     echo ""
-    echo "Do you want this installer to install ROOT? (y|n) : \c"
+    echo "Do you want this installer to install ROOT? (y|n) : "
     read -r ROOTREP
     if [ "${ROOTREP}" = "n" ];
     then
-	echo "Do you want this installer to continue anyway? (y|n) : \c"
+	echo "Do you want this installer to continue anyway? (y|n) : "
 	read -r CONTINUE
 	if [ "${CONTINUE}" = "n" ];
 	then
@@ -173,11 +173,11 @@ then
 	echo "MIDAS is a dependency of anpan. It seems that it is not installed"
 	echo "in the default location (looking for the folder /opt/midas) or the"
         echo "MIDASSYS variable is not set. Perhaps it is installed somewhere else."
-	echo "Do you want this installer to install it? (y|n) : \c"
+	echo "Do you want this installer to install it? (y|n) : "
 	read -r MIDASREP
 	if [ "${MIDASREP}" = "n" ];
 	then
-	    echo "Do you want this installer to continue anyway? (y|n) : \c"
+	    echo "Do you want this installer to continue anyway? (y|n) : "
 	    read -r CONTINUE
 	    if [ "${CONTINUE}" = "n" ];
 	    then
@@ -205,11 +205,11 @@ then
 	echo "Pyrame is a dependency of anpan. It seems that it is not installed"
 	echo "in the default location (looking for the folder /opt/pyrame)."
 	echo "But perhaps it is installed somewhere else."
-	echo "Do you want this installer to install it? (y|n) : \c"
+	echo "Do you want this installer to install it? (y|n) : "
 	read -r PYRAMEREP
 	if [ "${PYRAMEREP}" = "n" ];
 	then
-	    echo "Do you want this installer to continue anyway? (y|n) : \c"
+	    echo "Do you want this installer to continue anyway? (y|n) : "
 	    read -r CONTINUE
 	    if [ "${CONTINUE}" = "n" ];
 	    then
@@ -237,11 +237,11 @@ then
 	echo "Calicoes is a dependency of anpan. It seems that it is not installed"
 	echo "in the default location (looking for the folder /opt/calicoes)."
 	echo "But perhaps it is installed somewhere else."
-	echo "Do you want this installer to install it? (y|n) : \c"
+	echo "Do you want this installer to install it? (y|n) : "
 	read -r CALICOESREP
 	if [ "${CALICOESREP}" = "n" ];
 	then
-	    echo "Do you want this installer to continue anyway? (y|n) : \c"
+	    echo "Do you want this installer to continue anyway? (y|n) : "
 	    read -r CONTINUE
 	    if [ "${CONTINUE}" = "n" ];
 	    then
@@ -343,21 +343,22 @@ EOF
     sudo yum upgrade
     sudo yum -y install epel-release
     sudo yum -y update
-    sudo yum install make automake gcc gcc-c++ kernel-devel python python-devel \
+    sudo yum install --skip-broken make automake gcc gcc-c++ kernel-devel python python-devel \
 	 python-pip psmisc git SDL-devel SDL_ttf-devel elog python-sphinx \
 	 libAfterImage flex flex-devel expat-devel lua-devel libcurl \
 	 python-progressbar R httpd python-requests motif-devel tcsh libXt-devel \
 	 curl curl-devel boost-devel boost-filesystem boost-system boost-thread \
 	 boost-regex jsoncpp-devel scons libmongo-client couchdb libX11-devel \
 	 boost-program-options unzip cmake3 perl-XML-LibXML libpl1000 openssl-devel \
-	 libusb libusb-devel
+	 libusb libusb-devel pyserial python2-distro python-lxml notify-python \
+	 python2-future
 
+    # To generate the documentation with sphinx
+    sudo yum install --skip-broken python-sphinx
+    
     # Install some python2 packages
-    sudo python2 -m pip install --upgrade pip
-    sudo python2 -m pip install --upgrade pyserial notify2 argparse couchdb pyvisa pyvisa-py \
-	 distro future lxml
-    # If you want to generate the documentation, install also:
-    sudo python2 -m pip install --upgrade sphinx Jinja2 MarkupSafe==0.23 docutils Pygments 
+    sudo python2 -m pip install --upgrade pip wheel
+    sudo python2 -m pip install --upgrade argparse couchdb pyvisa pyvisa-py
 fi
 
 #install root if necessary
@@ -429,7 +430,7 @@ then
 	echo "it is better to compile from sources. If this is a DAQ PC it"
 	echo "is better to install from repository."
 	echo ""
-	echo "Do you want to install from repository? (y|n) : \c"
+	echo "Do you want to install from repository? (y|n) : "
 	read -r REP
 	if [ "${REP}" = "y" ];
 	then
@@ -537,12 +538,15 @@ then
     fi
     
     cd "${SOURCE_DIR}"
-    if [ "${PYRAMEREP}" = "y" ] && [ ! -d "${SOURCE_DIR}/Pyrame" ];
+    if [ "${PYRAMEREP}" = "y" ] && [ ! -d "${SOURCE_DIR}/pyrame" ];
     then
-	git clone https://llrgit.in2p3.fr/online/pyrame.git Pyrame
+	git clone https://llrgit.in2p3.fr/online/pyrame.git pyrame
         (
-	    cd "${SOURCE_DIR}/Pyrame"
+	    cd "${SOURCE_DIR}/pyrame"
 	    git checkout -b develop-jojo origin/develop-jojo
+	    git rm --cached bus/cmd_cserial/libserialport
+	    git rm --cached meters/cmd_usbrh/usbrh-linux
+	    git submodule update --init --recursive
         )
     fi
     if [ "${CALICOESREP}" = "y" ] && [ ! -d "${SOURCE_DIR}/Calicoes" ];
@@ -587,7 +591,7 @@ then
 	sudo ln -sf /usr/include/lua5.2/lauxlib.h /usr/include/lauxlib.h
     fi
 
-    cd "${SOURCE_DIR}/Pyrame"
+    cd "${SOURCE_DIR}/pyrame"
 
     # configure and install
     chmod +x ./configure
@@ -595,16 +599,15 @@ then
     make
     sudo -E make install
 
-    # make documentation
-    (
-	cd docs
-	make
-	sudo -E make install
-    )
-
     # enable apache2
     if [ $UBUNTU = "y" ];
     then
+	# make documentation
+	(
+	    cd docs
+	    make
+	    sudo -E make install
+	)
 	sudo "${SOURCE_DIR}/pyrame/xhr/install_xhr_debian8_apache2.sh"
 	sudo systemctl restart apache2
 	sudo systemctl enable apache2
