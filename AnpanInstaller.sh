@@ -26,6 +26,7 @@ CALICOESREP=""
 MIDASREP=""
 CONTINUE="n"
 UBUNTU="n"
+DEBIAN="n"
 CENTOS="n"
 ROOTVERS="6-20-04"
 EXPERIMENT_NAME="WAGASCI"
@@ -61,16 +62,20 @@ isinstalled () {
 if [ ! -f "/usr/bin/lsb_release" ] && [ ! -f "/etc/redhat-release" ];
 then
     echo ""
-    echo "This installer is for Ubuntu 18.04 and CentOS 7 only!"
-    echo "You can get this script to run also on other versions of Ubuntu"
-    echo "by simply replacing the 18.04 string on line 70 with your Ubuntu"
-    echo "version but be warned that other modifications may be needed."
+    echo "This installer is for Ubuntu 18.04/20.04, Debian 9 and CentOS 7 only!"
+    echo "You can get this script to run also on other distos by modifying it a"
+    echo "little but in that cas you are on your own"
     echo ""
     exit 1
 fi
 
-if [ -f "/usr/bin/lsb_release" ] && { [ "$(lsb_release -rs)" = "18.04" ] ||
-                                          [ "$(lsb_release -rs)" = "20.04" ]; };
+if [ -f "/usr/bin/lsb_release" ] && [ "$(lsb_release -rs)" = "9.12" ];
+then
+    UBUNTU="y"
+    DEBIAN="y"
+    CMAKE=cmake
+elif [ -f "/usr/bin/lsb_release" ] && { [ "$(lsb_release -rs)" = "18.04" ] ||
+                                            [ "$(lsb_release -rs)" = "20.04" ]; };
 then
     UBUNTU="y"
     CMAKE=cmake
@@ -82,6 +87,7 @@ then
 else
     echo "There is something wrong about OS detection."
     echo "UBUNTU = $UBUNTU"
+    echo "DEBIAN = $DEBIAN"
     echo "CENTOS = $CENTOS"
     echo ""
     exit 1
@@ -267,6 +273,22 @@ echo ""
 cd
 
 #install mandatory dependencies for pyrame and anpan
+if [ $DEBIAN = "y" ];
+then
+
+    sudo apt-get install -y apt-transport-https ca-certificates libc-bin
+    
+    if [ ! -f /etc/apt/sources.list.d/picoscope.list ];
+    then
+        sudo bash -c 'echo "deb https://labs.picotech.com/debian/ picoscope main" >/etc/apt/sources.list.d/picoscope.list'
+        wget -O - https://labs.picotech.com/debian/dists/picoscope/Release.gpg.key | sudo apt-key add -
+    fi
+    sudo apt-get update
+    sudo apt-get install -y libpl1000
+    sudo ldconfig
+    
+fi
+
 if [ $UBUNTU = "y" ];
 then
     if [ ! -f /etc/apt/sources.list.d/apache_couchdb_bionic.list ];
@@ -278,25 +300,16 @@ then
             | sudo apt-key add -
     fi
 
-    # Uncomment to install picoscope software
-    # if [ ! -f /etc/apt/sources.list.d/picoscope.list ];
-    # then
-    #     sudo bash -c 'echo "deb https://labs.picotech.com/debian/ picoscope main" >/etc/apt/sources.list.d/picoscope.list'
-    #     wget -O - https://labs.picotech.com/debian/dists/picoscope/Release.gpg.key | sudo apt-key add -
-    # fi
-
     sudo apt-get update
     sudo apt-get upgrade -y
     sudo apt-get install -y build-essential python python-dev python-pip psmisc \
          git libsdl1.2-dev libsdl-ttf2.0-dev elog python-sphinx libafterimage-dev \
-         flex libexpat1-dev liblua5.2-dev libcurl4 python-progressbar apache2 \
+         flex libexpat1-dev liblua5.2-dev python-progressbar apache2 autoconf \
          r-base python-requests libmotif-dev tcsh libxt-dev curl libboost-dev \
          libboost-system-dev libboost-filesystem-dev libboost-thread-dev \
          libjsoncpp-dev libcurl4-gnutls-dev scons libmongoclient-dev \
          libboost-regex-dev xorg-dev libboost-program-options-dev unzip \
-         libssl-dev libusb-0.1-4 libusb-dev
-
-    # sudo apt-get install -y libpl1000
+         libssl-dev libusb-0.1-4 libusb-dev python-docutils python-pygments
 
     # The CouchDB installation in Ubuntu is a bit more delicate.
     if isinstalled "couchdb";
@@ -315,9 +328,7 @@ then
     # Install some python2 packages
     sudo -H python2 -m pip install --upgrade pip
     sudo -H python2 -m pip install --upgrade pyserial notify2 argparse couchdb pyvisa \
-         pyvisa-py distro lxml future
-    # If you want to generate the documentation, install also:
-    sudo -H python2 -m pip install --upgrade docutils Pygments
+         pyvisa-py distro lxml future arduinoserial
 
 elif [ $CENTOS = "y" ];
 then
@@ -414,7 +425,7 @@ then
         cd sources
         git checkout -b v${ROOTVERS} v${ROOTVERS}
         cd ../${ROOTVERS}-build
-        cmake -Dbuiltin_xrootd=ON -Dminuit2=On -Dpython3=ON -DCMAKE_INSTALL_PREFIX="${ROOTSYS}/${ROOTVERS}" ../sources
+        cmake -Dbuiltin_xrootd=ON -Dminuit2=On -Dpython=ON -DCMAKE_INSTALL_PREFIX="${ROOTSYS}/${ROOTVERS}" ../sources
         cmake --build . --target install -- -j8
         cd
         # shellcheck source=/dev/null

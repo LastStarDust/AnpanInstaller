@@ -2,7 +2,7 @@ Last Updated on 2020-05-02
 
 Copyright (C) 2018 Pintaudi Giorgio, YNU
 
-# AnpanInstaller.sh v4.0
+# AnpanInstaller.sh v4.2
 
 This is a bash script that installs ANPAN (Acquisition Networked Program for
 Accelerated Neutrinos) along with all its dependencies for the Ubuntu and CentOS
@@ -58,18 +58,20 @@ procedure:
 ```
 sudo yum install git
 git clone https://github.com/LastStarDust/AnpanInstaller.git
-cd AnpanInstaller chmod +x AnpanInstaller.sh
+cd AnpanInstaller
+chmod +x AnpanInstaller.sh
 ./AnpanInstaller.sh
 ```
 
- - Ubuntu 18.04/20.04:
+ - Ubuntu 18.04/20.04 and Debian 9:
  
    Open a shell and issue
    
 ```
 sudo apt-get install git
 git clone https://github.com/LastStarDust/AnpanInstaller.git
-cd AnpanInstaller chmod +x AnpanInstaller.sh
+cd AnpanInstaller
+chmod +x AnpanInstaller.sh
 ./AnpanInstaller.sh
 ```
 
@@ -87,6 +89,8 @@ default folder ($HOME).
 
 ## Changelog
 
+ - v4.2 Added support for Debian 9
+ - v4.1 Bugfix release
  - v4.0 Removed many useless packages.
  - v3.2 Compile MIDAS with CMake
  - v3.0 Install MIDAS
