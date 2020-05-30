@@ -465,15 +465,15 @@ then
             # If nothing is inserted assume the user home as installation directory
             # Remove any previous installation
             if [ -z "$ROOTDIR" ]; then
-                if [ -d "${HOME}/ROOT" ];
-                then rm -rf "${HOME}/ROOT"; fi
-                mkdir -p "${HOME}/ROOT"
-                ROOTSYS="${HOME}/ROOT"
+                if [ -d "${HOME}/Code/ROOT" ];
+                then rm -rf "${HOME}/Code/ROOT"; fi
+                mkdir -p "${HOME}/Code/ROOT"
+                ROOTSYS="${HOME}/Code/ROOT"
             else
-                if [ -d "${ROOTDIR}/ROOT" ];
-                then rm -rf "${ROOTDIR}/ROOT"; fi
-                mkdir -p "${ROOTDIR}/ROOT"
-                ROOTSYS="${ROOTDIR}/ROOT"
+                if [ -d "${ROOTDIR}" ];
+                then rm -rf "${ROOTDIR}"; fi
+                mkdir -p "${ROOTDIR}"
+                ROOTSYS="${ROOTDIR}"
             fi
             
             sudo yum install make automake gcc gcc-c++ kernel-devel git cmake3 \
@@ -506,7 +506,16 @@ then
             cd sources
             git checkout -b v${ROOTVERS} v${ROOTVERS}
             cd ../${ROOTVERS}-build
-            cmake3 -Dbuiltin_xrootd=ON -Dminuit2=On -DCMAKE_INSTALL_PREFIX="${ROOTSYS}/${ROOTVERS}" "$CENTOS_ROOT_FLAGS" ../sources
+            cmake3 \
+                -Dbuiltin_xrootd=ON \
+                -Dminuit2=On \
+                -DPython=On \
+                -DPYTHON_EXECUTABLE=/usr/bin/python3 \
+                -DCMAKE_INSTALL_PREFIX="${ROOTSYS}/${ROOTVERS}" \
+                -DCMAKE_EXE_LINKER_FLAGS="-pthread" \
+                "$CENTOS_ROOT_FLAGS" \
+                -DCMAKE_BUILD_TYPE=Optimized \
+                ../sources
             cmake3 --build . --target install -- -j8
             cd
             # shellcheck source=/dev/null
