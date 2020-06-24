@@ -411,7 +411,7 @@ then
              libssl-dev libpcre3-dev libglu1-mesa-dev libglew-dev \
              libmysqlclient-dev libfftw3-dev libcfitsio-dev libgraphviz-dev \
              libavahi-compat-libdnssd-dev libldap2-dev python-dev libxml2-dev \
-             libkrb5-dev libgsl-dev libqt4-dev libmotif-dev libmotif-common \
+             libkrb5-dev libgsl-dev qtdeclarative5-dev libmotif-dev libmotif-common \
              libblas-dev liblapack-dev xfstt xfsprogs t1-xfree86-nonfree \
              ttf-xfree86-nonfree ttf-xfree86-nonfree-syriac xfonts-75dpi \
              xfonts-100dpi libgif-dev libtiff-dev libjpeg-dev liblz4-dev \
@@ -425,7 +425,13 @@ then
         cd sources
         git checkout -b v${ROOTVERS} v${ROOTVERS}
         cd ../${ROOTVERS}-build
-        cmake -Dbuiltin_xrootd=ON -Dminuit2=On -Dpython=ON -DCMAKE_INSTALL_PREFIX="${ROOTSYS}/${ROOTVERS}" ../sources
+        cmake -Dbuiltin_xrootd=ON \
+              -Dminuit2=On \
+              -Dpython=On \
+              -Dbuiltin_lzma=On \
+              -DPYTHON_EXECUTABLE=/usr/bin/python3 \
+              -DCMAKE_INSTALL_PREFIX="${ROOTSYS}/${ROOTVERS}" \
+              ../sources
         cmake --build . --target install -- -j8
         cd
         # shellcheck source=/dev/null
@@ -486,7 +492,7 @@ then
                  fontconfig xorg-x11-server-Xvfb xorg-x11-fonts-Type1 \
                  xorg-x11-fonts-75dpi xorg-x11-fonts-100dpi dejavu-sans-fonts \
                  urw-fonts giflib-devel libtiff-devel libjpeg-turbo-devel lz4-devel \
-                 xz-devel gl2ps-devel postgresql-devel libsqlite3x-devel \
+                 xz-devel lzma-devel gl2ps-devel postgresql-devel libsqlite3x-devel \
                  pythia8-devel davix-devel srm-ifce-devel tbb-devel python2-numpy \
                  libXpm-devel libXpm cfitsio cfitsio-devel gfal2-devel gfal2 ocaml \
                  xxhash xxhash-devel xxhash-libs
@@ -507,8 +513,9 @@ then
             git checkout -b v${ROOTVERS} v${ROOTVERS}
             cd ../${ROOTVERS}-build
             cmake3 \
-                -Dbuiltin_xrootd=ON \
+                -Dbuiltin_xrootd=On \
                 -Dminuit2=On \
+                -Dbuiltin_lzma=On \
                 -DPython=On \
                 -DPYTHON_EXECUTABLE=/usr/bin/python3 \
                 -DCMAKE_INSTALL_PREFIX="${ROOTSYS}/${ROOTVERS}" \
