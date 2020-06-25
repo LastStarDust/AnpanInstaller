@@ -9,20 +9,16 @@
 #     Yokohama National University
 #     giorgio-pintaudi-kx@ynu.jp
 #
-# This is a bash script that installs the anpan software based on calicoes 3.0
-# http://llr.in2p3.fr/sites/pyrame/calicoes/index.html
-# along with all its dependencies for the Ubuntu OS. It is an updated
-# and corrected version based on the original installation script for CentOS 7.
-# The original script can be found and downloaded here:
-# http://llr.in2p3.fr/sites/pyrame/calicoes/disclaimer.html
-# Credits for the calicoes software and the original version of this script go to
-# Frédéric Magniette and Miguel Rubio-Roy.
+# This is a bash script that installs the ANPAN software framework
+# along with all its dependencies for the Ubuntu OS.  Credits for the
+# calicoes and pyrame software and the original version of this script
+# go to Frédéric Magniette and Miguel Rubio-Roy.
 
 set -e
 
 ROOTREP="n"
 PYRAMEREP=""
-CALICOESREP=""
+ANPANREP=""
 MIDASREP=""
 CONTINUE="n"
 UBUNTU="n"
@@ -137,7 +133,7 @@ fi
 if [ -z "${ROOTSYS}" ] && [ ! -f "/usr/bin/root" ];
 then
     echo ""
-    echo "ROOT is a dependency of Anpan but it seems that it is not installed"
+    echo "ROOT is a dependency of ANPAN but it seems that it is not installed"
     echo "(looking for a non null ROOTSYS variable or the /usr/bin/root file)."
     echo "Maybe you have just forgotten to set up the root enviroment with the"
     echo "script thisroot.sh."
@@ -172,11 +168,11 @@ fi
 # Check for MIDASREP
 if [ -z "${MIDASREP}" ];
 then
-    if [ ! -d "/opt/midas" ] || [ -z "${MIDASSYS}" ];
+    if [ ! -d "/opt/midas" ] && [ -z "${MIDASSYS}" ];
     then
         echo ""
         echo ""
-        echo "MIDAS is a dependency of anpan. It seems that it is not installed"
+        echo "MIDAS is a dependency of ANPAN. It seems that it is not installed"
         echo "in the default location (looking for the folder /opt/midas) or the"
         echo "MIDASSYS variable is not set. Perhaps it is installed somewhere else."
         echo "Do you want this installer to install it? (y|n) : "
@@ -208,7 +204,7 @@ then
     then
         echo ""
         echo ""
-        echo "Pyrame is a dependency of anpan. It seems that it is not installed"
+        echo "Pyrame is a dependency of ANPAN. It seems that it is not installed"
         echo "in the default location (looking for the folder /opt/pyrame)."
         echo "But perhaps it is installed somewhere else."
         echo "Do you want this installer to install it? (y|n) : "
@@ -233,19 +229,19 @@ then
     fi
 fi
 
-# Check for CALICOESREP
-if [ -z "${CALICOESREP}" ];
+# Check for ANPANREP
+if [ -z "${ANPANREP}" ];
 then
-    if [ ! -d "/opt/calicoes" ];
+    if [ ! -d "/opt/anpan" ];
     then
         echo ""
         echo ""
-        echo "Calicoes is a dependency of anpan. It seems that it is not installed"
-        echo "in the default location (looking for the folder /opt/calicoes)."
+        echo "It seems that the ANPAN core is not installed in the default "
+	echo "location (looking for the folder /opt/anpan)."
         echo "But perhaps it is installed somewhere else."
         echo "Do you want this installer to install it? (y|n) : "
-        read -r CALICOESREP
-        if [ "${CALICOESREP}" = "n" ];
+        read -r ANPANREP
+        if [ "${ANPANREP}" = "n" ];
         then
             echo "Do you want this installer to continue anyway? (y|n) : "
             read -r CONTINUE
@@ -255,9 +251,9 @@ then
             else
                 CONTINUE=""
             fi
-        elif [ "${CALICOESREP}" = "y" ];
+        elif [ "${ANPANREP}" = "y" ];
         then
-            echo "Set to install it (CALICOESREP=\"y\")"
+            echo "Set to install it (ANPANREP=\"y\")"
         else
             echo "I didn't understand your answer. Sorry, try again."
             exit 1
@@ -552,11 +548,11 @@ fi
 
 # ------------------------ Download --------------------------
 
-if [ "${PYRAMEREP}" = "y" ] || [ "${CALICOESREP}" = "y" ] || [ "${MIDASREP}" = "y" ];
+if [ "${PYRAMEREP}" = "y" ] || [ "${ANPANREP}" = "y" ] || [ "${MIDASREP}" = "y" ];
 then
     echo ""
     echo "Insert the directory where you would like to download and"
-    echo "compile Pyrame, Calicoes and MIDAS."
+    echo "compile Pyrame, Anpan and MIDAS."
     echo "Don't insert the trailing slash. The default one is \"${HOME}\"."
     echo "Just press OK if you want to download it in the $HOME folder."
     read -r SOURCE_DIR
@@ -565,11 +561,11 @@ then
     fi
     
     cd "${SOURCE_DIR}"
-    if [ "${PYRAMEREP}" = "y" ] && [ ! -d "${SOURCE_DIR}/pyrame" ];
+    if [ "${PYRAMEREP}" = "y" ] && [ ! -d "${SOURCE_DIR}/Pyrame" ];
     then
-        env GIT_SSL_NO_VERIFY=true git clone https://llrgit.in2p3.fr/online/pyrame.git pyrame
+        env GIT_SSL_NO_VERIFY=true git clone https://llrgit.in2p3.fr/online/pyrame.git Pyrame
         (
-            cd "${SOURCE_DIR}/pyrame"
+            cd "${SOURCE_DIR}/Pyrame"
             git checkout -b develop-jojo origin/develop-jojo
             # rm -rf bus/cmd_cserial/libserialport
             # rm -rf meters/cmd_usbrh/usbrh-linux
@@ -578,12 +574,12 @@ then
             git submodule update --init --recursive
         )
     fi
-    if [ "${CALICOESREP}" = "y" ] && [ ! -d "${SOURCE_DIR}/Calicoes" ];
+    if [ "${ANPANREP}" = "y" ] && [ ! -d "${SOURCE_DIR}/Anpan" ];
     then
-        env GIT_SSL_NO_VERIFY=true git clone https://llrgit.in2p3.fr/online/calicoes.git Calicoes
+        env GIT_SSL_NO_VERIFY=true git clone https://llrgit.in2p3.fr/online/wagasci.git Anpan
         (
-            cd "${SOURCE_DIR}/Calicoes"
-            git checkout -b develop-jojo origin/develop-jojo
+            cd "${SOURCE_DIR}/Anpan"
+            git checkout -b develop origin/develop
         )
     fi
     if [ "${MIDASREP}" = "y" ] && [ ! -d "${SOURCE_DIR}/Midas" ];
@@ -620,13 +616,13 @@ then
         sudo ln -sf /usr/include/lua5.2/lauxlib.h /usr/include/lauxlib.h
     fi
 
-    cd "${SOURCE_DIR}/pyrame"
+    cd "${SOURCE_DIR}/Pyrame"
 
     # configure and install
     chmod +x ./configure
     bash ./configure
     make
-    sudo -E make install
+    sudo make install
 
     # enable apache2
     if [ $UBUNTU = "y" ];
@@ -635,14 +631,14 @@ then
         (
             cd docs
             make
-            sudo -E make install
+            sudo make install
         )
-        sudo "${SOURCE_DIR}/pyrame/xhr/install_xhr_debian8_apache2.sh"
+        sudo "${SOURCE_DIR}/Pyrame/xhr/install_xhr_debian8_apache2.sh"
         sudo systemctl restart apache2
         sudo systemctl enable apache2
     elif  [ $CENTOS = "y" ];
     then
-        sudo "${SOURCE_DIR}/pyrame/xhr/install_xhr_centos7_apache2.sh"
+        sudo "${SOURCE_DIR}/Pyrame/xhr/install_xhr_centos7_apache2.sh"
         sudo systemctl restart httpd
         sudo systemctl enable httpd
     fi
@@ -661,28 +657,28 @@ then
     then
         echo 1 > sudo tee /proc/sys/net/ipv4/tcp_tw_recycle
         echo 1 > sudo tee /proc/sys/net/ipv4/tcp_fin_timeout
-        sudo cp -f "${SOURCE_DIR}/pyrame/launcher/99-pyrame.conf" /etc/sysctl.d/
+        sudo cp -f "${SOURCE_DIR}/Pyrame/launcher/99-pyrame.conf" /etc/sysctl.d/
     fi  
 fi
 
-# --------------------- CALICOES ---------------------
+# --------------------- ANPAN ---------------------
 
-# More info on the calicoes installation can be found on this webpage:
-# http://llr.in2p3.fr/sites/pyrame/calicoes/documentation/install.html
+# More info on the anpan installation can be found on this webpage:
+# http://llr.in2p3.fr/sites/pyrame/anpan/documentation/install.html
 
-if [ "${CALICOESREP}" = "y" ];
+if [ "${ANPANREP}" = "y" ];
 then
     echo ""
     echo "-------------------"
-    echo "CALICOES INSTALLATION"
+    echo "ANPAN INSTALLATION"
     echo "-------------------"
-    echo "ANPAN is based on calicoes 3.0"
-    echo "More info on the calicoes installation can be found on this webpage:"
-    echo "http://llr.in2p3.fr/sites/pyrame/calicoes/documentation/install.html"
+    echo "ANPAN is based on anpan 3.0"
+    echo "More info on the anpan installation can be found on this webpage:"
+    echo "http://llr.in2p3.fr/sites/pyrame/anpan/documentation/install.html"
 
-    cd "$SOURCE_DIR/calicoes"
+    cd "$SOURCE_DIR/anpan"
 
-    # compile and install Calicoes
+    # compile and install Anpan
 
     # I noticed that sometimes not all the scripts are copied in the /usr/local/bin
     # directory. This may be due to a misconfiguration of the Makefiles
@@ -690,7 +686,7 @@ then
 
     sudo ./install.sh
     ROOTSYS=${ROOTSYS} make
-    ROOTSYS=${ROOTSYS} sudo -E make install
+    ROOTSYS=${ROOTSYS} sudo make install
 
     # Documentation compilation is currently broken in CentOS due to sphinx
     # version being too old
@@ -699,7 +695,7 @@ then
         # install documentation   
         cd docs/documentation
         ROOTSYS=${ROOTSYS} make
-        sudo mkdir -p /opt/calicoes/doc
+        sudo mkdir -p /opt/anpan/doc
         ROOTSYS=${ROOTSYS} sudo make install
     fi
 
@@ -709,7 +705,7 @@ then
 
     if [ ! -L "/var/www/html/phygui_rc" ];
     then
-        sudo ln -s /opt/calicoes/phygui_rc /var/www/html/phygui_rc
+        sudo ln -s /opt/anpan/phygui_rc /var/www/html/phygui_rc
     fi
 fi
 
@@ -767,7 +763,7 @@ fi
 if [ -f ${SOURCE_DIR}/Online/exptab ] ; then
         export MIDAS_EXPTAB=${SOURCE_DIR}/Online/exptab
         export MIDAS_EXPT_NAME=${EXPERIMENT_NAME}
-        export VN_EDITOR="emacs -nw"
+        export SVN_EDITOR="emacs -nw"
         export GIT_EDITOR="emacs -nw"
 fi
 EOF
@@ -788,7 +784,7 @@ Type=simple
 Restart=always
 RestartSec=3
 User=${USER}
-ExecStart=${SOURCE_DIR}/Midas/bin/mhttpd -e ${EXPERIMENT_NAME} --http 8081 --https 8444
+ExecStart=${SOURCE_DIR}/Midas/bin/mhttpd -e ${EXPERIMENT_NAME}
 Environment="MIDASSYS=${SOURCE_DIR}/Midas" "MIDAS_EXPTAB=${SOURCE_DIR}/Online/exptab" "MIDAS_EXPT_NAME=${EXPERIMENT_NAME}" "SVN_EDITOR=emacs -nw" "GIT_EDITOR=emacs -nw"
 PassEnvironment=MIDASSYS MIDAS_EXPTAB MIDAS_EXPT_NAME SVN_EDITOR GIT_EDITOR
 
@@ -817,7 +813,7 @@ then
     sudo systemctl restart pyrame
 fi
 
-if [ "${CALICOESREP}" = "y" ];
+if [ "${ANPANREP}" = "y" ];
 then
     sudo systemctl enable couchdb
     sudo systemctl restart couchdb
