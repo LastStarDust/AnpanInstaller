@@ -358,7 +358,8 @@ EOF
          boost-regex jsoncpp-devel scons libmongo-client couchdb libX11-devel \
          boost-program-options unzip cmake3 perl-XML-LibXML libpl1000 openssl-devel \
          libusb libusb-devel pyserial python2-distro python-lxml notify-python \
-         python2-future
+         python2-future python2-bitarray python2-six python-setuptools python-scp \
+	 python-paramiko pytz python36-tinydb python2-numpy tkinter
 
     # To generate the documentation with sphinx
     sudo yum install --skip-broken python-sphinx
