@@ -290,10 +290,17 @@ then
     if [ ! -f /etc/apt/sources.list.d/apache_couchdb_bionic.list ];
     then
         sudo apt-get install -y curl
-        echo "deb https://apache.bintray.com/couchdb-deb bionic main" \
-            | sudo tee -a /etc/apt/sources.list.d/apache_couchdb_bionic.list
-        curl -L https://couchdb.apache.org/repo/bintray-pubkey.asc \
-            | sudo apt-key add -
+        if [ "$(lsb_release -rs)" = "18.04" ]; then
+            echo "deb https://apache.bintray.com/couchdb-deb bionic main" \
+                | sudo tee -a /etc/apt/sources.list.d/apache_couchdb_bionic.list
+            curl -L https://couchdb.apache.org/repo/bintray-pubkey.asc \
+                | sudo apt-key add -
+        elif [ "$(lsb_release -rs)" = "20.04" ]; then
+            echo "deb https://apache.bintray.com/couchdb-deb focal main" \
+                | sudo tee -a /etc/apt/sources.list.d/couchdb.list
+            sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys \
+                 8756C4F765C9AC3CB6B85D62379CE192D401AB61
+        fi
     fi
 
     sudo apt-get update
@@ -305,7 +312,10 @@ then
          libboost-system-dev libboost-filesystem-dev libboost-thread-dev \
          libjsoncpp-dev libcurl4-gnutls-dev scons libmongoclient-dev \
          libboost-regex-dev xorg-dev libboost-program-options-dev unzip \
-         libssl-dev libusb-0.1-4 libusb-dev python-docutils python-pygments
+         libssl-dev libusb-0.1-4 libusb-dev python-docutils python-pygments \
+         python-pyvisa-py python-notify2 python-serial python-distro python-lxml \
+         python-future python-couchdb
+         
 
     # The CouchDB installation in Ubuntu is a bit more delicate.
     if isinstalled "couchdb";
@@ -314,17 +324,16 @@ then
         echo "couchdb is already installed";
     else
         echo ""
-        echo "Be sure NOT to create an administrator user for couchdb!"
-        echo "You avoid creating an administrator user by just inserting" 
-        echo "an EMPTY password."
+        echo "If you choose \"couchdb\" as the administrator password you do not"
+        echo "need to do anything else. Otherwise substitute admin:couchdb with"
+        echo "admin:yourpassword in the launcher/services.txt file."
         read -r "Press Enter to continue ..."
         sudo apt-get install -y couchdb
     fi
 
     # Install some python2 packages
     sudo -H python2 -m pip install --upgrade pip
-    sudo -H python2 -m pip install --upgrade pyserial notify2 argparse couchdb pyvisa \
-         pyvisa-py distro lxml future arduinoserial
+    sudo -H python2 -m pip install --upgrade argparse arduinoserial
 
 elif [ $CENTOS = "y" ];
 then
@@ -365,8 +374,8 @@ EOF
     sudo yum install --skip-broken python-sphinx
     
     # Install some python2 packages
-    sudo python2 -m pip install --upgrade pip wheel
-    sudo python2 -m pip install --upgrade argparse couchdb pyvisa pyvisa-py
+    sudo python2 -m pip install --upgrade pip
+    sudo python2 -m pip install --upgrade argparse couchdb pyvisa pyvisa-py arduinoserial
 fi
 
 #install root if necessary
