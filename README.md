@@ -2,7 +2,7 @@ Last Updated on 2020-05-02
 
 Copyright (C) 2018 Pintaudi Giorgio, YNU
 
-# AnpanInstaller.sh v4.2
+# AnpanInstaller.sh v4.3
 
 This is a bash script that installs ANPAN (Acquisition Networked Program for
 Accelerated Neutrinos) along with all its dependencies for the Ubuntu and CentOS
