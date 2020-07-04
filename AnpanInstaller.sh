@@ -24,7 +24,7 @@ CONTINUE="n"
 UBUNTU="n"
 DEBIAN="n"
 CENTOS="n"
-ROOTVERS="6-20-04"
+ROOTVERS="6-22-00"
 EXPERIMENT_NAME="WAGASCI"
 
 # Define a function that checks if a package is installed
@@ -421,8 +421,10 @@ then
              libblas-dev liblapack-dev xfstt xfsprogs t1-xfree86-nonfree \
              ttf-xfree86-nonfree ttf-xfree86-nonfree-syriac xfonts-75dpi \
              xfonts-100dpi libgif-dev libtiff-dev libjpeg-dev liblz4-dev \
-             liblzma-dev libgl2ps-dev libpostgresql-ocaml-dev libsqlite3-dev \
-             libpythia8-dev davix-dev srm-ifce-dev libtbb-dev python-numpy
+             liblzma-dev lzma lzma-dev libgl2ps-dev libpostgresql-ocaml-dev libsqlite3-dev \
+             libpythia8-dev davix-dev srm-ifce-dev libtbb-dev python-numpy \
+             python3-numpy python2 python3 python2-dev python3-dev zstd libzstd-dev \
+             xxhash libxxhash-dev libafterimage-dev 
         cd
         # Download and install ROOT
         mkdir -p "${ROOTSYS}/sources" "${ROOTSYS}/${ROOTVERS}" "${ROOTSYS}/${ROOTVERS}-build"
@@ -431,11 +433,7 @@ then
         cd sources
         git checkout -b v${ROOTVERS} v${ROOTVERS}
         cd ../${ROOTVERS}-build
-        cmake -Dbuiltin_xrootd=ON \
-              -Dminuit2=On \
-              -Dpython=On \
-              -Dbuiltin_lzma=On \
-              -DPYTHON_EXECUTABLE=/usr/bin/python3 \
+        cmake -Dminuit2=On \
               -DCMAKE_INSTALL_PREFIX="${ROOTSYS}/${ROOTVERS}" \
               ../sources
         cmake --build . --target install -- -j8
