@@ -359,7 +359,7 @@ EOF
     # fi
     # sudo yum install --skip-broken libpl1000
 
-    if [ ! isinstalled "libpl1000" ];
+    if ! isinstalled "libpl1000";
     then
         cd
         wget https://labs.picotech.com/rpm/x86_64/libpl1000-2.0.0-1r570.x86_64.rpm
@@ -380,8 +380,8 @@ EOF
          boost-regex jsoncpp-devel scons libmongo-client couchdb libX11-devel \
          boost-program-options unzip cmake3 perl-XML-LibXML openssl-devel \
          libusb libusb-devel pyserial python2-distro python-lxml notify-python \
-         python2-future python2-bitarray python2-six python-setuptools python-scp \
-	 python-paramiko pytz python36-tinydb python2-numpy tkinter
+         python2-future python2-six python-setuptools python-scp \
+	     python-paramiko pytz python36-tinydb python2-numpy tkinter
 
     # To generate the documentation with sphinx
     sudo yum install --skip-broken python-sphinx
@@ -693,11 +693,13 @@ then
     echo "-------------------"
     echo "ANPAN INSTALLATION"
     echo "-------------------"
-    echo "ANPAN is based on anpan 3.0"
+    echo "ANPAN is based on Calicoes 3.0"
     echo "More info on the anpan installation can be found on this webpage:"
     echo "http://llr.in2p3.fr/sites/pyrame/anpan/documentation/install.html"
 
-    cd "$SOURCE_DIR/anpan"
+    cd "$SOURCE_DIR/Anpan"
+
+	sudo python2 -m pip install wagascianpy
 
     # compile and install Anpan
 
@@ -744,15 +746,24 @@ then
     echo "More info on the MIDAS installation can be found on this webpage:"
     echo "https://midas.triumf.ca/MidasWiki/index.php/Main_Page"
 
+    echo ""
+    echo "Insert the location where you would like to generate the MIDAS"
+    echo "online data folder. The default value is \"${SOURCE_DIR}/Online\"."
+    read -r ONLINE_DIR
+    if [ -z "$ONLINE_DIR" ]; then
+        SOURCE_DIR=${SOURCE_DIR}/Online
+    fi
+
     cd "${SOURCE_DIR}/Midas"
 
     # install MIDAS
+	make mbedtls
     mkdir -p build
     (
         cd build
-        ${CMAKE} ..
+        ${CMAKE} -DCMAKE_INSTALL_PREFIX=/opt/midas ..
         make "-j$(nproc)"
-        make "-j$(nproc)" install
+        sudo make "-j$(nproc)" install
     )
     # create fake SSL certificate for localhost
     openssl req -new -nodes -newkey rsa:2048 -sha256 -out ssl_cert.csr -keyout ssl_cert.key \
@@ -761,33 +772,39 @@ then
     cat ssl_cert.key >> ssl_cert.pem
 
     # create password
-    mkdir -p "${SOURCE_DIR}/Online"
-    cat > "${SOURCE_DIR}/Online/htpasswd.txt" <<EOF
+    mkdir -p "${ONLINE_DIR}"
+    cat > "${ONLINE_DIR}/htpasswd.txt" <<EOF
 ${USER}:${EXPERIMENT_NAME}:7d2a8e2d0b5716cc0ba0b26e1cece901
 EOF
 
     # initialized odb
-    cat > "${SOURCE_DIR}/Online/exptab" <<EOF
-${EXPERIMENT_NAME} ${SOURCE_DIR}/Online ${USER}
+    cat > "${ONLINE_DIR}/exptab" <<EOF
+${EXPERIMENT_NAME} ${ONLINE_DIR} ${USER}
 EOF
 
-    # -------------- MIDAS service ---------------
+    # -------------- MIDAS resources ---------------
+
+	sudo cp -r ${SOURCE_DIR}/Midas/resources /opt/midas/resources
+
+    # -------------- MIDAS environment ---------------
 
     cat >> "${HOME}/.profile" <<EOF
 # set PATH so it includes MIDAS bin if they exists
-if [ -d "${SOURCE_DIR}/Midas/bin" ] ; then
-        export MIDASSYS="${SOURCE_DIR}/Midas"
+if [ -d "/opt/midas/bin" ] ; then
+        export MIDASSYS="/opt/midas"
     export PATH="\$PATH:\$MIDASSYS/bin"
 fi
 
 # set MIDAS environment
-if [ -f ${SOURCE_DIR}/Online/exptab ] ; then
-        export MIDAS_EXPTAB=${SOURCE_DIR}/Online/exptab
+if [ -f ${ONLINE_DIR}/exptab ] ; then
+        export MIDAS_EXPTAB=${ONLINE_DIR}/exptab
         export MIDAS_EXPT_NAME=${EXPERIMENT_NAME}
         export SVN_EDITOR="emacs -nw"
         export GIT_EDITOR="emacs -nw"
 fi
 EOF
+
+    # -------------- MIDAS service ---------------
 
     if [ -f /etc/systemd/system/midas.service ];
     then
@@ -805,8 +822,8 @@ Type=simple
 Restart=always
 RestartSec=3
 User=${USER}
-ExecStart=${SOURCE_DIR}/Midas/bin/mhttpd -e ${EXPERIMENT_NAME}
-Environment="MIDASSYS=${SOURCE_DIR}/Midas" "MIDAS_EXPTAB=${SOURCE_DIR}/Online/exptab" "MIDAS_EXPT_NAME=${EXPERIMENT_NAME}" "SVN_EDITOR=emacs -nw" "GIT_EDITOR=emacs -nw"
+ExecStart=/opt/midas/bin/mhttpd -e ${EXPERIMENT_NAME}
+Environment="MIDASSYS=/opt/midas" "MIDAS_EXPTAB=${ONLINE_DIR}/exptab" "MIDAS_EXPT_NAME=${EXPERIMENT_NAME}" "SVN_EDITOR=emacs -nw" "GIT_EDITOR=emacs -nw"
 PassEnvironment=MIDASSYS MIDAS_EXPTAB MIDAS_EXPT_NAME SVN_EDITOR GIT_EDITOR
 
 [Install]
