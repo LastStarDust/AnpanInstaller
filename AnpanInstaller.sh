@@ -349,11 +349,21 @@ repo_gpgcheck=0
 enabled=1
 EOF
     fi
-    if [ ! -f  /etc/yum.repos.d/picoscope.repo ];
-    then
-        sudo curl -o /etc/yum.repos.d/picoscope.repo https://labs.picotech.com/rpm/picoscope.repo
-        sudo rpmkeys --import https://labs.picotech.com/rpm/repodata/repomd.xml.key
-    fi
+    
+    # The latest picoscope version is not compatible with CentOS 7 anymore
+    # The last compatible version is libpl1000-2.0.0-1r570. It must be installed manually
+    # if [ ! -f  /etc/yum.repos.d/picoscope.repo ];
+    # then
+    #    sudo curl -o /etc/yum.repos.d/picoscope.repo https://labs.picotech.com/rpm/picoscope.repo
+    #    sudo rpmkeys --import https://labs.picotech.com/rpm/repodata/repomd.xml.key
+    # fi
+    # sudo yum install --skip-broken libpl1000
+
+    cd
+    wget https://labs.picotech.com/rpm/x86_64/libpl1000-2.0.0-1r570.x86_64.rpm
+    sudo yum install ./libpl1000-*.x86_64.rpm
+    sudo ldconfig
+    rm -f ./libpl1000-*.x86_64.rpm
 
     sudo yum update
     sudo yum upgrade
@@ -365,7 +375,7 @@ EOF
          python-progressbar R httpd python-requests motif-devel tcsh libXt-devel \
          curl curl-devel boost-devel boost-filesystem boost-system boost-thread \
          boost-regex jsoncpp-devel scons libmongo-client couchdb libX11-devel \
-         boost-program-options unzip cmake3 perl-XML-LibXML libpl1000 openssl-devel \
+         boost-program-options unzip cmake3 perl-XML-LibXML openssl-devel \
          libusb libusb-devel pyserial python2-distro python-lxml notify-python \
          python2-future python2-bitarray python2-six python-setuptools python-scp \
 	 python-paramiko pytz python36-tinydb python2-numpy tkinter
