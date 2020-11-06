@@ -359,11 +359,14 @@ EOF
     # fi
     # sudo yum install --skip-broken libpl1000
 
-    cd
-    wget https://labs.picotech.com/rpm/x86_64/libpl1000-2.0.0-1r570.x86_64.rpm
-    sudo yum install ./libpl1000-*.x86_64.rpm
-    sudo ldconfig
-    rm -f ./libpl1000-*.x86_64.rpm
+    if [ ! isinstalled "libpl1000" ];
+    then
+        cd
+        wget https://labs.picotech.com/rpm/x86_64/libpl1000-2.0.0-1r570.x86_64.rpm
+        sudo yum install ./libpl1000-*.x86_64.rpm
+        sudo ldconfig
+        rm -f ./libpl1000-*.x86_64.rpm
+    fi
 
     sudo yum update
     sudo yum upgrade
