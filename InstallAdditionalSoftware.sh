@@ -18,19 +18,19 @@ CENTOS="n"
 function isinstalled {
     if [ $CENTOS == "y" ];
     then
-		if yum list installed "$@" >/dev/null 2>&1; then
-			true
-		else
-			false
-		fi
+	if yum list installed "$@" >/dev/null 2>&1; then
+	    true
+	else
+	    false
+	fi
     elif [ $UBUNTU == "y" ];
     then
-		dpkg -s $1 &> /dev/null
-		if [ $? -eq 0 ]; then
-			true
-		else
-			false
-		fi
+	dpkg -s $1 &> /dev/null
+	if [ $? -eq 0 ]; then
+	    true
+	else
+	    false
+	fi
     fi
 }
 
@@ -77,44 +77,44 @@ fi
 
 if [ $CENTOS == "y" ];
 then
-	sudo yum install epel-release
-	sudo yum install python2-pip python36-pip
-	sudo -H pip install --upgrade pip
+    sudo yum install epel-release
+    sudo yum install python2-pip python36-pip
+    sudo -H pip install --upgrade pip
 
-	# xpra
-	if ! isinstalled xpra;
-	then
-		sudo yum install opencv-python numpy python2-numpy python36-numpy \
-			 python-websockify
-		sudo -H pip install --upgrade pillow pypng
-		wget https://xpra.org/repos/CentOS/xpra.repo
-		sudo cp -f xpra.repo /etc/yum.repos.d/
-		rm -f xpra.repo
-		sudo yum install xpra
-	fi
+    # xpra
+    if ! isinstalled xpra;
+    then
+	sudo yum install opencv-python numpy python2-numpy python36-numpy \
+	     python-websockify
+	sudo -H pip install --upgrade pillow pypng
+	wget https://xpra.org/repos/CentOS/xpra.repo
+	sudo cp -f xpra.repo /etc/yum.repos.d/
+	rm -f xpra.repo
+	sudo yum install xpra
+    fi
 
-	# wireshark
-	if ! isinstalled wireshark-gnome;
-	then
-		sudo yum install wireshark-gnome
-		sudo usermod -a -G wireshark $USER
-	fi
+    # wireshark
+    if ! isinstalled wireshark-gnome;
+    then
+	sudo yum install wireshark-gnome
+	sudo usermod -a -G wireshark $USER
+    fi
 
-	# nmap
-	sudo yum install nmap
+    # nmap
+    sudo yum install nmap
 
-	# borg
-	sudo yum install openssl-devel libacl-devel
-	sudo yum install python36 python36-setuptools python36-pip python36-devel
-	sudo ln -s /usr/local/bin/pip3 /usr/bin/pip3
-	sudo pip3 install --upgrade pip
-	sudo pip3 install --upgrade borgbackup
+    # borg
+    sudo yum install openssl-devel libacl-devel
+    sudo yum install python36 python36-setuptools python36-pip python36-devel
+    sudo ln -s /usr/local/bin/pip3 /usr/bin/pip3
+    sudo pip3 install --upgrade pip
+    sudo pip3 install --upgrade borgbackup
 
 elif [ $UBUNTU == "y" ];
 then
-	echo ""
-	echo "Still nothing to do"
-	echo""
+    echo ""
+    echo "Still nothing to do"
+    echo""
 fi
 
 # phpseclib
