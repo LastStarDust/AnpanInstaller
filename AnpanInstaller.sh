@@ -21,6 +21,8 @@ PYRAMEREP=""
 ANPANREP=""
 CALIBRATIONREP=""
 WAGASCIMIDASREP=""
+WAGASCIRCREP=""
+WAGASCIANPYREP=""
 MIDASREP=""
 CONTINUE="n"
 UBUNTU="n"
@@ -164,6 +166,66 @@ then
     else
         echo "I didn't understand your answer. Sorry, try again."
         exit 1
+    fi
+fi
+
+# Check for WAGASCIRCREP
+if [ -z "${WAGASCIRCREP}" ];
+then
+    if ! python2 -c "import wagascirc" &> /dev/null;
+    then
+        echo ""
+        echo ""
+        echo "It seems that the WAGASCI run control is not installed in the system."
+        echo "Do you want this installer to install it? (y|n) : "
+        read -r WAGASCIRCREP
+        if [ "${WAGASCIRCREP}" = "n" ];
+        then
+            echo "Do you want this installer to continue anyway? (y|n) : "
+            read -r CONTINUE
+            if [ "${CONTINUE}" = "n" ];
+            then
+                exit 1
+            else
+                CONTINUE=""
+            fi
+        elif [ "${WAGASCIRCREP}" = "y" ];
+        then
+            echo "Set to install it (WAGASCIRCREP=\"y\")"
+        else
+            echo "I didn't understand your answer. Sorry, try again."
+            exit 1
+        fi
+    fi
+fi
+
+# Check for WAGASCIANPYREP
+if [ -z "${WAGASCIANPYREP}" ];
+then
+    if ! python2 -c "import wagascianpy" &> /dev/null;
+    then
+        echo ""
+        echo ""
+        echo "It seems that the WAGASCI ANPY is not installed in the system."
+        echo "Do you want this installer to install it? (y|n) : "
+        read -r WAGASCIANPYREP
+        if [ "${WAGASCIANPYREP}" = "n" ];
+        then
+            echo "Do you want this installer to continue anyway? (y|n) : "
+            read -r CONTINUE
+            if [ "${CONTINUE}" = "n" ];
+            then
+                exit 1
+            else
+                CONTINUE=""
+            fi
+        elif [ "${WAGASCIANPYREP}" = "y" ];
+        then
+            echo "Set to install it (WAGASCIANPYREP=\"y\")"
+        else
+            echo "I didn't understand your answer. Sorry, try again."
+            exit 1
+        fi
     fi
 fi
 
@@ -636,7 +698,8 @@ fi
 # ------------------------ Download --------------------------
 
 if [ "${PYRAMEREP}" = "y" ] || [ "${ANPANREP}" = "y" ] || [ "${MIDASREP}" = "y" ] || \
-   [ "${CALIBRATIONREP}" = "y" ] || [ "${WAGASCIMIDASREP}" = "y" ] ;
+       [ "${CALIBRATIONREP}" = "y" ] || [ "${WAGASCIMIDASREP}" = "y" ] || \
+       [ "${WAGASCIRCREP}" = "y" ] || [ "${WAGASCIANPYREP}" = "y" ];
 then
     echo ""
     echo "Insert the directory where you would like to download and"
@@ -692,6 +755,22 @@ then
         env GIT_SSL_NO_VERIFY=true git clone https://git.t2k.org/wagasci_babymind/WagasciMidas.git WagasciMidas
         (
             cd "${SOURCE_DIR}/WagasciMidas"
+            git checkout -b develop origin/develop
+        )
+    fi
+    if [ "${WAGASCIRCREP}" = "y" ] && [ ! -d "${SOURCE_DIR}/Wagascirc" ];
+    then
+        env GIT_SSL_NO_VERIFY=true git clone https://git.t2k.org/wagasci_babymind/WagasciRunControl.git WagasciRunControl
+        (
+            cd "${SOURCE_DIR}/WagasciRunControl"
+            git checkout -b develop origin/develop
+        )
+    fi
+    if [ "${WAGASCIANPYREP}" = "y" ] && [ ! -d "${SOURCE_DIR}/WagasciAnpy" ];
+    then
+        env GIT_SSL_NO_VERIFY=true git clone https://git.t2k.org/wagasci_babymind/WagasciAnpy.git WagasciAnpy
+        (
+            cd "${SOURCE_DIR}/WagasciAnpy"
             git checkout -b develop origin/develop
         )
     fi
@@ -781,8 +860,6 @@ then
     echo "http://llr.in2p3.fr/sites/pyrame/anpan/documentation/install.html"
 
     cd "$SOURCE_DIR/Anpan"
-
-    sudo python2 -m pip install wagascianpy
 
     # compile and install Anpan
 
@@ -959,6 +1036,40 @@ then
     fi
     make -j"$(nproc)"
     sudo make -j"$(nproc)" install
+fi
+
+# ------------------------ WAGASCI Run Control --------------------------
+
+if [ "${WAGASCIRCREP}" = "y" ];
+then
+
+    echo ""
+    echo "--------------------------------"
+    echo "WAGASCI Run Control INSTALLATION"
+    echo "--------------------------------"
+    echo "More info on the WAGASCI run control installation can be found on this webpage:"
+    echo "https://git.t2k.org/wagasci_babymind/WagasciRunControl"
+
+    cd "${SOURCE_DIR}/WagasciRunControl"
+
+    sudo python2 -m pip install .
+fi
+
+# ------------------------ WAGASCI ANPY --------------------------
+
+if [ "${WAGASCIANPYREP}" = "y" ];
+then
+
+    echo ""
+    echo "--------------------------------"
+    echo "WAGASCI ANPY INSTALLATION"
+    echo "--------------------------------"
+    echo "More info on the WAGASCI ANPY installation can be found on this webpage:"
+    echo "https://git.t2k.org/wagasci_babymind/WagasciAnpy"
+
+    cd "${SOURCE_DIR}/WagasciAnpy"
+
+    sudo python2 -m pip install .
 fi
 
 # ------------------------ WAGASCI MIDAS --------------------------
