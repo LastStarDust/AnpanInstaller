@@ -2,7 +2,7 @@ Last Updated on 2020-05-02
 
 Copyright (C) 2018 Pintaudi Giorgio, YNU
 
-# AnpanInstaller.sh v4.3
+# AnpanInstaller.sh v4.4
 
 This is a bash script that installs ANPAN (Acquisition Networked Program for
 Accelerated Neutrinos) along with all its dependencies for the Ubuntu and CentOS
@@ -89,16 +89,14 @@ default folder ($HOME).
 
 ## Changelog
 
+ - v4.4 Install WagasciCalibration and WagasciMidas too
+ - v4.3 Moved from Calicoes to ANPAN
  - v4.2 Added support for Debian 9
  - v4.1 Bugfix release
  - v4.0 Removed many useless packages.
  - v3.2 Compile MIDAS with CMake
  - v3.0 Install MIDAS
  - v2.0 Added support for CentOS 7 v1.0 First version
-
-## TO-DO
-
- - [ ] Add support for other Linux distros
  
 ## License
 
