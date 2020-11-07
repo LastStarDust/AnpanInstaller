@@ -785,14 +785,15 @@ EOF
     # -------------- MIDAS resources ---------------
 
 	sudo cp -r ${SOURCE_DIR}/Midas/resources /opt/midas/resources
+	sudo cp -r ${SOURCE_DIR}/Midas/include /opt/midas/include
 
     # -------------- MIDAS environment ---------------
 
     cat >> "${HOME}/.profile" <<EOF
 # set PATH so it includes MIDAS bin if they exists
 if [ -d "/opt/midas/bin" ] ; then
-        export MIDASSYS="/opt/midas"
-    export PATH="\$PATH:\$MIDASSYS/bin"
+        export MIDASSYS="${SOURCE_DIR}/Midas"
+    	export PATH="\$PATH:/opt/midas/bin"
 fi
 
 # set MIDAS environment
