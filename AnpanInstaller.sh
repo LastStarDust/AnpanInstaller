@@ -19,6 +19,8 @@ set -e
 ROOTREP="n"
 PYRAMEREP=""
 ANPANREP=""
+CALIBRATIONREP=""
+WAGASCIMIDASREP=""
 MIDASREP=""
 CONTINUE="n"
 UBUNTU="n"
@@ -162,6 +164,70 @@ then
     else
         echo "I didn't understand your answer. Sorry, try again."
         exit 1
+    fi
+fi
+
+# Check for CALIBRATIONREP
+if [ -z "${CALIBRATIONREP}" ];
+then
+    if [ ! -d "/usr/local/include/wagasci/calibration" ] || [ ! -d "/usr/local/lib/wagasci/calibration" ] ;
+    then
+        echo ""
+        echo ""
+        echo "WagasciCalibration is a dependency of ANPAN. It seems that it is not installed"
+        echo "in the default location (looking for the folder /usr/local/include/wagasci/calibration)."
+        echo "Perhaps it is installed somewhere else."
+        echo "Do you want this installer to install it? (y|n) : "
+        read -r CALIBRATIONREP
+        if [ "${CALIBRATIONREP}" = "n" ];
+        then
+            echo "Do you want this installer to continue anyway? (y|n) : "
+            read -r CONTINUE
+            if [ "${CONTINUE}" = "n" ];
+            then
+                exit 1
+            else
+                CONTINUE=""
+            fi
+        elif [ "${CALIBRATIONREP}" = "y" ];
+        then
+            echo "Set to install it (CALIBRATIONREP=\"y\")"
+        else
+            echo "I didn't understand your answer. Sorry, try again."
+            exit 1
+        fi
+    fi
+fi
+
+# Check for WAGASCIMIDASREP
+if [ -z "${WAGASCIMIDASREP}" ];
+then
+    if [ ! -d "/usr/local/include/wagasci/midas" ] || [ ! -d "/usr/local/lib/wagasci/midas" ] ;
+    then
+        echo ""
+        echo ""
+        echo "WagasciMidas is a dependency of ANPAN. It seems that it is not installed in the"
+        echo "default location (looking for the folder /usr/local/include/wagasci/midas)."
+        echo "Perhaps it is installed somewhere else."
+        echo "Do you want this installer to install it? (y|n) : "
+        read -r WAGASCIMIDASREP
+        if [ "${WAGASCIMIDASREP}" = "n" ];
+        then
+            echo "Do you want this installer to continue anyway? (y|n) : "
+            read -r CONTINUE
+            if [ "${CONTINUE}" = "n" ];
+            then
+                exit 1
+            else
+                CONTINUE=""
+            fi
+        elif [ "${WAGASCIMIDASREP}" = "y" ];
+        then
+            echo "Set to install it (WAGASCIMIDASREP=\"y\")"
+        else
+            echo "I didn't understand your answer. Sorry, try again."
+            exit 1
+        fi
     fi
 fi
 
@@ -315,7 +381,7 @@ then
          libssl-dev libusb-0.1-4 libusb-dev python-docutils python-pygments \
          python-pyvisa-py python-notify2 python-serial python-distro python-lxml \
          python-future python-couchdb
-         
+    
 
     # The CouchDB installation in Ubuntu is a bit more delicate.
     if isinstalled "couchdb";
@@ -381,7 +447,7 @@ EOF
          boost-program-options unzip cmake3 perl-XML-LibXML openssl-devel \
          libusb libusb-devel pyserial python2-distro python-lxml notify-python \
          python2-future python2-six python-setuptools python-scp \
-	     python-paramiko pytz python36-tinydb python2-numpy tkinter
+	 python-paramiko pytz python36-tinydb python2-numpy tkinter
 
     # To generate the documentation with sphinx
     sudo yum install --skip-broken python-sphinx
@@ -612,6 +678,22 @@ then
             git submodule update --init
         )
     fi
+    if [ "${CALIBRATIONREP}" = "y" ] && [ ! -d "${SOURCE_DIR}/WagasciCalibration" ];
+    then
+        env GIT_SSL_NO_VERIFY=true git clone https://git.t2k.org/wagasci_babymind/WagasciCalibration.git WagasciCalibration
+        (
+            cd "${SOURCE_DIR}/WagasciCalibration"
+            git checkout -b develop origin/develop
+        )
+    fi
+    if [ "${WAGASCIMIDASREP}" = "y" ] && [ ! -d "${SOURCE_DIR}/WagasciMidas" ];
+    then
+        env GIT_SSL_NO_VERIFY=true git clone https://git.t2k.org/wagasci_babymind/WagasciMidas.git WagasciMidas
+        (
+            cd "${SOURCE_DIR}/WagasciMidas"
+            git checkout -b develop origin/develop
+        )
+    fi
 fi
 
 # ------------------------ PYRAME --------------------------
@@ -699,7 +781,7 @@ then
 
     cd "$SOURCE_DIR/Anpan"
 
-	sudo python2 -m pip install wagascianpy
+    sudo python2 -m pip install wagascianpy
 
     # compile and install Anpan
 
@@ -757,7 +839,7 @@ then
     cd "${SOURCE_DIR}/Midas"
 
     # install MIDAS
-	make mbedtls
+    make mbedtls
     mkdir -p build
     (
         cd build
@@ -784,8 +866,8 @@ EOF
 
     # -------------- MIDAS resources ---------------
 
-	sudo cp -r ${SOURCE_DIR}/Midas/resources /opt/midas/resources
-	sudo cp -r ${SOURCE_DIR}/Midas/include /opt/midas/include
+    sudo cp -r ${SOURCE_DIR}/Midas/resources /opt/midas/resources
+    sudo cp -r ${SOURCE_DIR}/Midas/include /opt/midas/include
 
     # -------------- MIDAS environment ---------------
 
@@ -840,6 +922,68 @@ EOF
     echo "  sudo systemctl enable midas"
     echo "  sudo systemctl start midas"
     echo ""
+fi
+
+# ------------------------ Calibration software --------------------------
+
+if [ "${CALIBRATIONREP}" = "y" ];
+then
+    echo ""
+    echo "--------------------------------"
+    echo "WagasciCalibration INSTALLATION"
+    echo "--------------------------------"
+    echo "More info on the WagasciCalibration installation can be found on this webpage:"
+    echo "https://git.t2k.org/wagasci_babymind/WagasciCalibration"
+
+    cd "${SOURCE_DIR}/WagasciCalibration"
+
+    mkdir -p build
+    cd build
+    if [ $UBUNTU = "y" ];
+    then
+        if sudo apt-get --simulate install nlohmann-json3-dev
+        then
+            sudo apt-get install nlohmann-json3-dev
+        else
+            sudo apt-get install nlohmann-json-dev
+        fi
+        sudo apt install libsoci-dev libmagick++-dev libboost-all-dev
+        ${CMAKE} .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local
+    elif  [ $CENTOS = "y" ];
+    then
+        sudo yum install cmake3 soci-sqlite3-devel ImageMagick-c++-devel json-devel boost169-devel
+        ${CMAKE} .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local \
+                 -DBOOST_INCLUDEDIR=/usr/include/boost169 -DBOOST_LIBRARYDIR=/usr/lib64/boost169
+    fi
+    make -j"$(nproc)"
+    sudo make -j"$(nproc)" install
+fi
+
+# ------------------------ WAGASCI MIDAS --------------------------
+
+if [ "${WAGASCIMIDASREP}" = "y" ];
+then
+    echo ""
+    echo "--------------------------------"
+    echo "WAGASCI MIDAS INSTALLATION"
+    echo "--------------------------------"
+    echo "More info on the WAGASCI MIDAS installation can be found on this webpage:"
+    echo "https://git.t2k.org/wagasci_babymind/WagasciMidas"
+
+    cd "${SOURCE_DIR}/WagasciMidas"
+
+    mkdir -p build
+    cd build
+    if [ $UBUNTU = "y" ];
+    then
+        ${CMAKE} .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local
+    elif  [ $CENTOS = "y" ];
+    then
+        ${CMAKE} .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local \
+                 -DBOOST_INCLUDEDIR=/usr/include/boost169 -DBOOST_LIBRARYDIR=/usr/lib64/boost169
+    fi
+    make -j"$(nproc)"
+    sudo make -j"$(nproc)" install
 fi
 
 # ------------------------ Start everything --------------------------
