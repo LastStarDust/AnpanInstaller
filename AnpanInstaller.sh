@@ -202,12 +202,12 @@ fi
 # Check for WAGASCIMIDASREP
 if [ -z "${WAGASCIMIDASREP}" ];
 then
-    if [ ! -d "/usr/local/include/wagasci/midas" ] || [ ! -d "/usr/local/lib/wagasci/midas" ] ;
+    if [ ! -f "/usr/local/bin/WAGASCI" ];
     then
         echo ""
         echo ""
         echo "WagasciMidas is a dependency of ANPAN. It seems that it is not installed in the"
-        echo "default location (looking for the folder /usr/local/include/wagasci/midas)."
+        echo "default location (looking for the exe /usr/local/bin/WAGASCI)."
         echo "Perhaps it is installed somewhere else."
         echo "Do you want this installer to install it? (y|n) : "
         read -r WAGASCIMIDASREP
@@ -635,7 +635,8 @@ fi
 
 # ------------------------ Download --------------------------
 
-if [ "${PYRAMEREP}" = "y" ] || [ "${ANPANREP}" = "y" ] || [ "${MIDASREP}" = "y" ];
+if [ "${PYRAMEREP}" = "y" ] || [ "${ANPANREP}" = "y" ] || [ "${MIDASREP}" = "y" ] || \
+   [ "${CALIBRATIONREP}" = "y" ] || [ "${WAGASCIMIDASREP}" = "y" ] ;
 then
     echo ""
     echo "Insert the directory where you would like to download and"
@@ -867,10 +868,11 @@ EOF
     # -------------- MIDAS resources ---------------
 
     sudo cp -r ${SOURCE_DIR}/Midas/resources /opt/midas/resources
-    sudo cp -r ${SOURCE_DIR}/Midas/include /opt/midas/include
+    sudo cp -r ${SOURCE_DIR}/Midas/include /opt/midas
 
     # -------------- MIDAS environment ---------------
 
+	export MIDASSYS="${SOURCE_DIR}/Midas"
     cat >> "${HOME}/.profile" <<EOF
 # set PATH so it includes MIDAS bin if they exists
 if [ -d "/opt/midas/bin" ] ; then
