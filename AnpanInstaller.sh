@@ -925,23 +925,26 @@ then
         make "-j$(nproc)"
         sudo make "-j$(nproc)" install
     )
-    # create fake SSL certificate for localhost
-    openssl req -new -nodes -newkey rsa:2048 -sha256 -out ssl_cert.csr -keyout ssl_cert.key \
-            -subj "/C=JP/ST=Ibaraki/L=Tokai/O=midas/OU=mhttpd/CN=localhost"
-    openssl x509 -req -days 365 -sha256 -in ssl_cert.csr -signkey ssl_cert.key -out ssl_cert.pem
-    cat ssl_cert.key >> ssl_cert.pem
 
-    # create password
     mkdir -p "${ONLINE_DIR}"
-    cat > "${ONLINE_DIR}/htpasswd.txt" <<EOF
+    (
+        cd "${ONLINE_DIR}"
+        # create fake SSL certificate for localhost
+        openssl req -new -nodes -newkey rsa:2048 -sha256 -out ssl_cert.csr -keyout ssl_cert.key \
+                -subj "/C=JP/ST=Ibaraki/L=Tokai/O=midas/OU=mhttpd/CN=localhost"
+        openssl x509 -req -days 365 -sha256 -in ssl_cert.csr -signkey ssl_cert.key -out ssl_cert.pem
+        cat ssl_cert.key >> ssl_cert.pem
+
+        # create password
+        cat > "htpasswd.txt" <<EOF
 ${USER}:${EXPERIMENT_NAME}:7d2a8e2d0b5716cc0ba0b26e1cece901
 EOF
 
-    # initialized odb
-    cat > "${ONLINE_DIR}/exptab" <<EOF
+        # initialized odb
+        cat > "exptab" <<EOF
 ${EXPERIMENT_NAME} ${ONLINE_DIR} ${USER}
 EOF
-
+    )
     # -------------- MIDAS resources ---------------
 
     sudo cp -r ${SOURCE_DIR}/Midas/resources /opt/midas/resources
