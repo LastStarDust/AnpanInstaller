@@ -172,7 +172,7 @@ fi
 # Check for WAGASCIRCREP
 if [ -z "${WAGASCIRCREP}" ];
 then
-    if ! python2 -c "import wagascirc" &> /dev/null;
+    if [ ! -f /opt/pyrame/rc_scripts/custom_run.py ];
     then
         echo ""
         echo ""
@@ -516,7 +516,7 @@ EOF
     
     # Install some python2 packages
     sudo python2 -m pip install --upgrade pip
-    sudo python2 -m pip install --upgrade argparse couchdb pyvisa pyvisa-py arduinoserial
+    sudo python2 -m pip install --upgrade argparse couchdb pyvisa==1.10.1 pyvisa-py==0.4.1
 fi
 
 #install root if necessary
